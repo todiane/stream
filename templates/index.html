@@ -1,0 +1,172 @@
+{% load static %}
+{% block style %} <link rel="stylesheet" href="{% static 'css/style.css' %}" type="text/css">{% endblock style %}
+    
+    <link
+      href="https://fonts.googleapis.com/icon?family=Material+Icons"
+      rel="stylesheet"
+    />
+    <link rel="Icon" type="images/png" href="favicon.ico" />
+  </head>
+  <body>
+    <div class="header">
+      <!-- Header menu starts here -->
+    <div class="header_left">
+      <i id="menu" class="material-icons">menu</i>
+      <img class="logo" src="images/streamenglogo.jpg" alt="stream english logo" />
+    </div>
+    <!-- Header menu ends here -->
+
+    <!-- Header search starts here -->
+    <div class="header__search">
+      <form action=""> 
+        <input type="text" placeholder="Search" />
+        <button type="submit"><i class="material-icons">search</i></button> <!-- Added type="submit" -->
+      </form>
+    </div>
+    <!-- Header search ends here -->
+
+    <!-- HeaderIcons starts here -->
+      <div class="header__icons">
+        <i class="material-icons display-this">search</i>
+        <i class="material-icons display-this">videocam</i>
+        <i class="material-icons display-this">notifications</i>
+        <i class="material-icons display-this">account_circle</i>
+      </div>
+    </div>
+    <!-- HeaderIcons ends here -->
+
+    <!-- Main Body Starts Here -->
+    <div class="mainBody">
+      <div class="sidebar">
+        <div class="sidebar__categories">
+          <!-- Single Category -->
+          <div class="sidebar__category">
+            <i class="material-icons">home</i>
+            <span>Home</span>
+          </div>
+          <!-- Single Category -->
+          <div class="sidebar__category">
+            <i class="material-icons">local_fire_department</i>
+            <span>Trending</span>
+          </div>
+          <!-- Single Category -->
+          <div class="sidebar__category">
+            <i class="material-icons">subscriptions</i>
+            <span>Subscriptions</span>
+          </div>
+        </div>
+        <hr>
+        <div class="sidebar__categories">
+          <!-- Single Category -->
+          <div class="sidebar__category">
+            <i class="material-icons">library_add_checks</i>
+            <span>Library</span>
+          </div>
+          <!-- Single Category -->
+          <div class="sidebar__category">
+            <i class="material-icons">history</i>
+            <span>History</span>
+          </div>
+          <!-- Single Category -->
+          <div class="sidebar__category">
+            <i class="material-icons">play_arrow</i>
+            <span>Your Videos</span>
+          </div>
+          <!-- Single Category -->
+          <div class="sidebar__category">
+            <i class="material-icons">watch_later</i>
+            <span>Watch Later</span>
+          </div>
+          <!-- Single Category -->
+          <div class="sidebar__category">
+            <i class="material-icons">thumb_up</i>
+            <span>Liked Videos</span>
+          </div>
+        </div>
+      </div>
+      <div class="videos">
+      <div class="drop-down-container">
+        <h1>Recommended</h1>
+        <div class="dropdown-content-background">
+          <div class="dropdown-content">
+            <i class="material-icons">videocam</i>
+            <span>Create</span>
+          </div>
+        </div>
+      </div>
+        <div class="videos__container">
+          <!-- Single Video -->
+          <div class="video">
+            <div class="video__thumbnail">
+              <img src="images/1.jpg" alt="">
+            </div>
+            <div class="video__details">
+              <div class="author">
+                <img src="images/rw-face3.jpg" alt="">
+              </div>
+            </div>
+            <div class="title">
+              <h3> Stream English GCSE </h3>
+              <a href=""><small></small>Stream English</a>
+              <i class="fa-fa-check-circle"></i> </small>
+              <span><small>1M Views . 2 days ago</small></span>
+            </div>
+          </div>
+          <!-- Single Video -->
+          <div class="video">
+            <div class="video__thumbnail">
+              <img src="images/1.jpg" alt="">
+            </div>
+            <div class="video__details">
+              <div class="author">
+                <img src="images/rw-face3.jpg" alt="">
+              </div>
+            </div>
+            <div class="title">
+              <h3> Stream English GCSE </h3>
+              <a href=""><small></small>Stream English</a>
+              <i class="fa-fa-check-circle"></i> </small>
+              <span><small>1M Views . 2 days ago</small></span>
+            </div>
+          </div>
+          <!-- Single Video -->
+          <div class="video">
+            <div class="video__thumbnail">
+              <img src="images/1.jpg" alt="">
+            </div>
+            <div class="video__details">
+              <div class="author">
+                <img src="images/rw-face3.jpg" alt="">
+              </div>
+            </div>
+            <div class="title">
+              <h3> Stream English GCSE </h3>
+              <a href=""><small></small>Stream English</a>
+              <i class="fa-fa-check-circle"></i> </small>
+              <span><small>1M Views . 2 days ago</small></span>
+            </div>
+          </div>
+          <!-- Single Video -->
+          <div class="video">
+            <div class="video__thumbnail">
+              <img src="images/1.jpg" alt="">
+            </div>
+            <div class="video__details">
+              <div class="author">
+                <img src="images/rw-face3.jpg" alt="">
+              </div>
+            </div>
+            <div class="title">
+              <h3> Stream English GCSE </h3>
+              <a href=""><small></small>Stream English</a>
+              <i class="fa-fa-check-circle"></i> </small>
+              <span><small>1M Views . 2 days ago</small></span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <!-- Main Body Ends Here -->
+    <script src="js/main.js"></script>
+  </body>
+</html>
