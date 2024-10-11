@@ -1,5 +1,9 @@
 from django.db import models
+from cloudinary.models import CloudinaryField
+import helpers
+import os
 
+helpers.cloudinary_init()
 class AccessRequirement(models.TextChoices):
     ANYONE = "any", "Anyone"
     EMAIL_REQUIRED = "email", "Email required"
@@ -9,13 +13,15 @@ class PublishStatus(models.TextChoices):
     COMING_SOON = "soon", "Coming Soon"
     DRAFT = "draft", "Draft"# Create your models here.
 
+def handle_upload(instance, filename):
+    return os.path.join('uploads/', filename)
 
 class Course(models.Model):
     title = models.CharField(max_length=120)
     description = models.TextField(blank=True, null=True)
     # uuid = models.UUIDField(default=uuid.uuid1, unique=True)
     public_id = models.CharField(max_length=130, blank=True, null=True, db_index=True)
-    image = models.ImageField(upload_to='uploads/', blank=True, null=True)
+    image = CloudinaryField('image', blank=True, null=True)
     access = models.CharField(
         max_length=5, 
         choices=AccessRequirement.choices,
