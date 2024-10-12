@@ -1,6 +1,6 @@
 import helpers
-from django.http import Http404, JsonResponse
-from django.shortcuts import render, redirect
+from django.http import Http404
+from django.shortcuts import render
 
 from . import services
 
