@@ -40,6 +40,9 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'django.contrib.staticfiles',
     'courses',
+    # third party
+    "django_htmx",
+    "tailwind",
 ]
 
 MIDDLEWARE = [

@@ -23,9 +23,6 @@ def get_cloudinary_image_object(instance,
     url = image_object.build_url(**image_options)
     return url
 
-video_html = """
-
-"""
 
 def get_cloudinary_video_object(instance, 
                                 field_name="video",
