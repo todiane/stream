@@ -39,10 +39,18 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
+    #internal apps
     'courses',
     # third party
     "django_htmx",
     "tailwind",
+    "theme", # django-tailwind theme app
+]
+
+TAILWIND_APP_NAME="theme" # django-tailwind theme app
+INTERNAL_IPS = [
+    "0.0.0.0",
+    "127.0.0.1",
 ]
 
 MIDDLEWARE = [
@@ -53,7 +61,13 @@ MIDDLEWARE = [
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
+    "django_htmx.middleware.HtmxMiddleware",
 ]
+
+if DEBUG:
+    # django-tailwind theme app
+    INSTALLED_APPS.append('django_browser_reload')
+    MIDDLEWARE.append("django_browser_reload.middleware.BrowserReloadMiddleware")
 
 ROOT_URLCONF = 'stream.urls'
 
@@ -141,3 +155,8 @@ DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 CLOUDINARY_CLOUD_NAME = config("CLOUDINARY_CLOUD_NAME", default="")
 CLOUDINARY_PUBLIC_API_KEY = config("CLOUDINARY_PUBLIC_API_KEY", default="")
 CLOUDINARY_SECRET_API_KEY= config("CLOUDINARY_SECRET_API_KEY")
+
+# Set the path to the npm executable
+NPM_BIN_PATH = r"C:\Program Files\nodejs\npm.cmd"  # path to Node.js npm executable
+# Set the path to the tailwindcss executable
+# TAILWIND_CSS_PATH = "css/styles.css"

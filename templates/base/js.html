@@ -1,3 +1,11 @@
+{% load django_htmx %}
+
+<script
+  src="https://unpkg.com/htmx.org@2.0.3"
+  integrity="sha384-0895/pl2MU10Hqc6jd4RvrthNlDiE9U1tWmX7WRESftEDRosgxNsQG/Ze9YMRzHq"
+  crossorigin="anonymous"
+></script>
+
 <link
   rel="stylesheet"
   href="https://cdnjs.cloudflare.com/ajax/libs/cloudinary-video-player/2.1.0/cld-video-player.min.css"
@@ -10,6 +18,8 @@
   crossorigin="anonymous"
   referrerpolicy="no-referrer"
 ></script>
+
+{% django_htmx_script %}
 
 <script defer>
   function renderVideoElement(videoPlayerElement) {
