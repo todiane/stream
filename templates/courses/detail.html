@@ -15,7 +15,8 @@
         </div>
         <div class="flex justify-center items-center">
             <div class="max-lg-w">
-                {{ object.description|linebreaks }}
+                {{ object.description|safe }}
+                
             </div>
         </div>
 

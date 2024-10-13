@@ -1,25 +1,69 @@
-{% extends "base.html" %}
+{% extends "base.html" %} {% block content %}
+<section class="bg-white dark:bg-gray-900">
+  <div
+    class="gap-8 items-center py-8 px-4 mx-auto max-w-screen-xl xl:gap-16 md:grid md:grid-cols-2 sm:py-16 lg:px-6"
+  >
+    <h1
+      class="my-4 text-4xl tracking-tight font-extrabold text-gray-900 dark:text-white"
+    >
+      {{ object.title }}
+    </h1>
 
-{% block content %}
-<h1>{{ object.title }}</h1>
-<p>{{ object.description }}</p>
-
-{% if object.get_video_embed %}
-    <div class="video-container">
-        <iframe width="560" height="315" src="{{ object.get_video_embed }}" frameborder="0" allowfullscreen></iframe>
+    {% if object.get_video_embed %}
+    <div
+      class="video-container my-8"
+      style="
+        position: relative;
+        padding-bottom: 56.25%;
+        height: 0;
+        overflow: hidden;
+        max-width: 100%;
+      "
+    >
+      <iframe
+        src="{{ object.get_video_embed }}"
+        frameborder="0"
+        allowfullscreen
+        style="position: absolute; top: 0; left: 0; width: 100%; height: 100%"
+      ></iframe>
     </div>
-{% else %}
+    {% else %}
     <p>No video available for this lesson.</p>
-{% endif %}
+    {% endif %}
 
-{% endblock content %}
+    <p class="my-8 font-light text-gray-500 md:text-lg dark:text-gray-400">
+      {{ object.description }}
+    </p>
 
-
-<section class="bg-white dark:bg-gray-900"></section>
-    <div class="">
-        <div class="mx-auto max-w-screen-sm text-center">
-            <h2 class="mb-4 text-lg lg:text-xl tracking-tight font-extrabold text-gray-900 dark:text-white">Lessons</h2>
-        </div> 
-        {% include 'courses/snippets/list-display.html' with queryset=lessons_queryset %}
+    <div class="flex justify-between mt-8">
+      {% if previous_lesson %}
+      <a
+        href="{{ previous_lesson.get_absolute_url }}"
+        class="text-blue-500 hover:underline"
+        >Previous</a
+      >
+      {% endif %} {% if next_lesson %}
+      <a
+        href="{{ next_lesson.get_absolute_url }}"
+        class="text-blue-500 hover:underline"
+        >Next</a
+      >
+      {% endif %}
     </div>
-  </section>
+  </div>
+</section>
+
+<section class="bg-white dark:bg-gray-900">
+  <div class="mx-auto max-w-screen-sm text-center">
+    <h2
+      class="mb-4 text-lg lg:text-xl tracking-tight font-extrabold text-gray-900 dark:text-white"
+    >
+      Other Lessons
+    </h2>
+  </div>
+  <div class="px-4 mx-auto max-w-screen-xl">
+    {% include 'courses/snippets/list-display.html' with
+    queryset=lessons_queryset %}
+  </div>
+</section>
+{% endblock content %}

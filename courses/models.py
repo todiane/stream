@@ -3,6 +3,7 @@ import helpers
 from django.db import models
 from django.utils.text import slugify
 from cloudinary.models import CloudinaryField
+from ckeditor.fields import RichTextField
 
 helpers.cloudinary_init()
 
@@ -58,7 +59,7 @@ def get_display_name(instance, *args, **kwargs):
 
 class Course(models.Model):
     title = models.CharField(max_length=120)
-    description = models.TextField(blank=True, null=True)
+    description = RichTextField(blank=True, null=True)
     public_id = models.CharField(max_length=130, blank=True, null=True, db_index=True)
     image = CloudinaryField(
         "image", 
@@ -125,7 +126,7 @@ class Lesson(models.Model):
     course = models.ForeignKey(Course, on_delete=models.CASCADE)
     public_id = models.CharField(max_length=130, blank=True, null=True, db_index=True)
     title = models.CharField(max_length=120)
-    description = models.TextField(blank=True, null=True)
+    description = RichTextField(blank=True, null=True)
     thumbnail = CloudinaryField(
         "image", 
         public_id_prefix=get_public_id_prefix,

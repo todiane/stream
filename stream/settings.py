@@ -43,6 +43,7 @@ INSTALLED_APPS = [
     'courses',
     # third party
     "django_htmx",
+    'ckeditor',
     "tailwind",
     "theme", # django-tailwind theme app
 ]
