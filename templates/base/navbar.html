@@ -5,8 +5,12 @@
     <a href="/" class="flex items-center space-x-3 rtl:space-x-reverse">
       <span
         class="self-center text-2xl font-semibold whitespace-nowrap dark:text-white"
-        >Stream English</span
       >
+        <img
+          src="https://res.cloudinary.com/dka7n7ady/image/upload/v1728674786/courses/another-wondering-5c5ac/lessons/this-is-me-ac1b9/i8mfabbpknbh3sqxhe0a.jpg"
+          class="mr-3 h-16"
+          alt="Stream English Logo"
+      /></span>
     </a>
     <button
       data-collapse-toggle="navbar-default"
@@ -38,9 +42,23 @@
       >
         <li>
           <a
+            href="/"
+            class="{% if '/courses' %}block py-2 px-3 text-gray-900 rounded hover:bg-gray-100 md:hover:bg-transparent md:border-0 md:hover:text-blue-700 md:p-0 dark:text-white md:dark:hover:text-blue-500 dark:hover:bg-gray-700 dark:hover:text-white md:dark:hover:bg-transparent{% endif %}"
+            >Home</a
+          >
+        </li>
+        <li>
+          <a
             href="/courses"
             class="{% if '/courses' in request.path %}block py-2 px-3 text-white bg-blue-700 rounded md:bg-transparent md:text-blue-700 md:p-0 dark:text-white md:dark:text-blue-500{% else %}block py-2 px-3 text-gray-900 rounded hover:bg-gray-100 md:hover:bg-transparent md:border-0 md:hover:text-blue-700 md:p-0 dark:text-white md:dark:hover:text-blue-500 dark:hover:bg-gray-700 dark:hover:text-white md:dark:hover:bg-transparent{% endif %}"
             >Courses</a
+          >
+        </li>
+        <li>
+          <a
+            href="/about"
+            class="{% if '/about' in request.path %}block py-2 px-3 text-white bg-blue-700 rounded md:bg-transparent md:text-blue-700 md:p-0 dark:text-white md:dark:text-blue-500{% else %}block py-2 px-3 text-gray-900 rounded hover:bg-gray-100 md:hover:bg-transparent md:border-0 md:hover:text-blue-700 md:p-0 dark:text-white md:dark:hover:text-blue-500 dark:hover:bg-gray-700 dark:hover:text-white md:dark:hover:bg-transparent{% endif %}"
+            >About</a
           >
         </li>
         {% if request.session.email_id %}
@@ -64,3 +82,4 @@
     </div>
   </div>
 </nav>
+<hr class="h-px my-8 bg-gray-200 border-0 dark:bg-gray-700" />

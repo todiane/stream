@@ -8,14 +8,18 @@
     {% tailwind_css %}
 
     <title>
-      {% block head_title %}Hello World from Course Platform{% endblock head_title %}
+      {% block head_title %}Stream English Platform{% endblock head_title %}
     </title>
   </head>
   <body hx-headers='{"X-CSRFToken": "{{ csrf_token }}"}'>
-    {% include 'base/navbar.html' %}
-      {% block content %}
-      <h1 class="text-3xl font-bold underline">Hello world from base!</h1>
-      {% endblock content %}
+    <div class="min-h-screen flex flex-col">
+      {% include 'base/navbar.html' %}
+      <main class="flex-grow">
+        {% block content %}
+        <h1 class="text-3xl font-bold underline">Hello world from base!</h1>
+        {% endblock content %}
+      </main>
+      {% include 'base/footer.html' %}
     </div>
     {% include 'base/js.html' %}
   </body>

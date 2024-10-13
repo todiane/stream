@@ -8,7 +8,8 @@ from . import views
 urlpatterns = [
     path("", views.home_view),
     path("admin/", admin.site.urls),
-    path("courses/", include("courses.urls")),  # Include the courses app URLs
+    path("courses/", include("courses.urls")),
+    path("about/", views.about_view),  # Include the courses app URLs
 ]
 
 if settings.DEBUG:
