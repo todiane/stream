@@ -123,23 +123,32 @@ class Course(models.Model):
 
 class Lesson(models.Model):
     course = models.ForeignKey(Course, on_delete=models.CASCADE)
-    # course_id 
     public_id = models.CharField(max_length=130, blank=True, null=True, db_index=True)
     title = models.CharField(max_length=120)
     description = models.TextField(blank=True, null=True)
-    thumbnail = CloudinaryField("image", 
-                public_id_prefix=get_public_id_prefix,
-                display_name=get_display_name,
-                tags = ['thumbnail', 'lesson'],
-                blank=True, null=True)
-    video = CloudinaryField("video", 
-            public_id_prefix=get_public_id_prefix,
-            display_name=get_display_name,                
-            blank=True, 
-            null=True, 
-            type='private',
-            tags = ['video', 'lesson'],
-            resource_type='video')
+    thumbnail = CloudinaryField(
+        "image", 
+        public_id_prefix=get_public_id_prefix,
+        display_name=get_display_name,
+        tags=['thumbnail', 'lesson'],
+        blank=True, null=True
+    )
+    video = CloudinaryField(
+        "video", 
+        public_id_prefix=get_public_id_prefix,
+        display_name=get_display_name,                
+        blank=True, 
+        null=True, 
+        type='private',
+        tags=['video', 'lesson'],
+        resource_type='video'
+    )
+    youtube_url = models.URLField(
+        max_length=200, 
+        blank=True, 
+        null=True, 
+        help_text="Enter a YouTube URL if you want to embed a video from YouTube."
+    )
     order = models.IntegerField(default=0)
     can_preview = models.BooleanField(default=False, help_text="If user does not have access to course, can they see this?")
     status = models.CharField(
@@ -182,7 +191,7 @@ class Lesson(models.Model):
     
     @property
     def has_video(self):
-        return self.video is not None
+        return self.video is not None or self.youtube_url is not None
     
     def get_thumbnail(self):
         width = 382
@@ -196,10 +205,19 @@ class Lesson(models.Model):
             )
         elif self.video:
             return helpers.get_cloudinary_image_object(
-            self, 
-            field_name='video',
-            format='jpg',
-            as_html=False,
-            width=width
-        )
-        return 
+                self, 
+                field_name='video',
+                format='jpg',
+                as_html=False,
+                width=width
+            )
+        return
+
+    def get_video_embed(self):
+        if self.youtube_url:
+            # Extract the video ID from the YouTube URL
+            video_id = self.youtube_url.split('v=')[-1]
+            return f"https://www.youtube.com/embed/{video_id}"
+        elif self.video:
+            return helpers.get_cloudinary_video_object(self, field_name='video')
+        return None

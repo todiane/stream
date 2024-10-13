@@ -1,6 +1,25 @@
-{% extends "base.html" %} {% block content %}
+{% extends "base.html" %}
 
+{% block content %}
 <h1>{{ object.title }}</h1>
-<p>{{ lesson_description }}</p>
+<p>{{ object.description }}</p>
 
-{{ video_embed }} {% endblock content %}
+{% if object.get_video_embed %}
+    <div class="video-container">
+        <iframe width="560" height="315" src="{{ object.get_video_embed }}" frameborder="0" allowfullscreen></iframe>
+    </div>
+{% else %}
+    <p>No video available for this lesson.</p>
+{% endif %}
+
+{% endblock content %}
+
+
+<section class="bg-white dark:bg-gray-900"></section>
+    <div class="">
+        <div class="mx-auto max-w-screen-sm text-center">
+            <h2 class="mb-4 text-lg lg:text-xl tracking-tight font-extrabold text-gray-900 dark:text-white">Lessons</h2>
+        </div> 
+        {% include 'courses/snippets/list-display.html' with queryset=lessons_queryset %}
+    </div>
+  </section>

@@ -9,3 +9,11 @@ def home_view(request, *args, **kwargs):
 def about_view(request):
     template_name = "about.html"
     return render(request, template_name)  
+
+def privacy_view(request):
+    template_name = "policy/privacy.html"
+    return render(request, template_name)  
+
+def terms_view(request):
+    template_name = "policy/terms-conditions.html"
+    return render(request, template_name)  
