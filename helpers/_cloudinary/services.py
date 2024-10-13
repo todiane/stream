@@ -45,7 +45,7 @@ def get_cloudinary_video_object(instance,
         "fetch_format": fetch_format,
         "quality": quality,
         "controls": controls,
-        "autoplay": autoplay,
+        "autoplay": False,
     }
     if width is not None:
         video_options['width'] =width

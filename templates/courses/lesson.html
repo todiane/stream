@@ -1,12 +1,6 @@
-{% extends "base.html" %}
-
-
-{% block content %}
-
+{% extends "base.html" %} {% block content %}
 
 <h1>{{ object.title }}</h1>
+<p>{{ lesson_description }}</p>
 
-
-{{ video_embed }}
-
-{% endblock content %}
+{{ video_embed }} {% endblock content %}

@@ -1,5 +1,5 @@
 {% extends 'base.html' %} {% block head_title %} Welcome to the Course Platform
-{% endblock head_title %}
+{% endblock head_title %} {% block content %} {% include 'base/hero.html' %}
 
 <hr class="h-px my-8 bg-gray-200 border-0 dark:bg-gray-700" />
 
@@ -12,10 +12,14 @@
         Courses
       </h2>
       <p class="font-light text-gray-500 sm:text-xl dark:text-gray-400">
-        We have awesome courses.
+        The Stream English Channel is all about providing English tuition for
+        both English language and literature. GCSE English Language and
+        Literature tuition with a real English teacher and Examiner.
       </p>
     </div>
 
     <div hx-get="/courses/" hx-trigger="revealed"></div>
   </div>
 </section>
+
+{% endblock content %}

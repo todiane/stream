@@ -24,6 +24,7 @@ def course_detail_view(request, course_id=None, *args, **kwarg):
     context = {
         "object": course_obj,
         "lessons_queryset": lessons_queryset,
+        "course_description": course_obj.description if course_obj else "",
     }
     return render(request, "courses/detail.html", context)
 
