@@ -7,3 +7,4 @@ urlpatterns = [
     path("<slug:course_id>/", views.course_detail_view),
     path("", views.course_list_view),
 ]
+

@@ -5,3 +5,4 @@ cloudinary
 python-decouple
 django-htmx
 django-tailwind[reload]
+django-allauth

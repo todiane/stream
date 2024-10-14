@@ -25,10 +25,11 @@ TEMPLATE_DIR = BASE_DIR / "templates"
 SECRET_KEY = 'django-insecure-&zi9qci4535^_q8_+(1bb08nv0fl-^b66879ngpdaq%)uh%*)z'
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = False
+DEBUG = True
 
-ALLOWED_HOSTS = ['et8-astute-bunsen.circumeo-apps.net', '127.0.0.1']
+ALLOWED_HOSTS = ['*']
 
+SITE_ID = 1
 
 # Application definition
 
@@ -44,6 +45,9 @@ INSTALLED_APPS = [
     # third party
     "django_htmx",
     "tailwind",
+    'allauth',
+    'allauth.account',
+    'allauth.socialaccount',
     "theme", # django-tailwind theme app
 ]
 
@@ -59,6 +63,7 @@ MIDDLEWARE = [
     'django.middleware.common.CommonMiddleware',
     'django.middleware.csrf.CsrfViewMiddleware',
     'django.contrib.auth.middleware.AuthenticationMiddleware',
+    'allauth.account.middleware.AccountMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
     "django_htmx.middleware.HtmxMiddleware",
@@ -74,9 +79,7 @@ ROOT_URLCONF = 'stream.urls'
 TEMPLATES = [
     {
         'BACKEND': 'django.template.backends.django.DjangoTemplates',
-        'DIRS': [
-            TEMPLATE_DIR,
-        ],
+        'DIRS': [BASE_DIR / 'templates'], # [TEMPLATE_DIR],
         'APP_DIRS': True,
         'OPTIONS': {
             'context_processors': [
@@ -144,8 +147,6 @@ MEDIA_URL = '/media/'
 MEDIA_ROOT = os.path.join(BASE_DIR, "media")
 
 
-
-
 # Default primary key field type
 # https://docs.djangoproject.com/en/5.1/ref/settings/#default-auto-field
 
@@ -160,3 +161,37 @@ CLOUDINARY_SECRET_API_KEY= config("CLOUDINARY_SECRET_API_KEY")
 NPM_BIN_PATH = r"C:\Program Files\nodejs\npm.cmd"  # path to Node.js npm executable
 # Set the path to the tailwindcss executable
 # TAILWIND_CSS_PATH = "css/styles.css"
+AUTHENTICATION_BACKENDS = [
+    'django.contrib.auth.backends.ModelBackend',
+    'allauth.account.auth_backends.AuthenticationBackend',
+]
+
+
+# Provider specific settings
+SOCIALACCOUNT_PROVIDERS = {
+    # Add social providers here if needed
+}
+
+# django-allauth settings
+ACCOUNT_EMAIL_REQUIRED = True
+ACCOUNT_UNIQUE_EMAIL = True
+ACCOUNT_EMAIL_VERIFICATION = 'mandatory'
+ACCOUNT_CONFIRM_EMAIL_ON_GET = True
+ACCOUNT_EMAIL_CONFIRMATION_EXPIRE_DAYS = 3
+ACCOUNT_LOGIN_ATTEMPTS_LIMIT = 5
+ACCOUNT_LOGIN_ATTEMPTS_TIMEOUT = 300  # 5 minutes in seconds
+
+# Login/logout settings
+LOGIN_REDIRECT_URL = '/'
+ACCOUNT_LOGOUT_REDIRECT_URL = '/'
+
+# Email settings (for development)
+EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'
+
+# For production, use SMTP backend
+# EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
+# EMAIL_HOST = 'smtp.your-email-provider.com'
+# EMAIL_PORT = 587
+# EMAIL_USE_TLS = True
+# EMAIL_HOST_USER = 'your-email@example.com'
+# EMAIL_HOST_PASSWORD = 'your-email-password'

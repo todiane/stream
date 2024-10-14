@@ -6,12 +6,13 @@ from django.conf.urls.static import static
 from . import views
 
 urlpatterns = [
-    path("", views.home_view),
+    path("", views.home_view, name="home"),
     path("admin/", admin.site.urls),
     path("courses/", include("courses.urls")),
-    path("about/", views.about_view), 
-    path("policy/privacy/", views.privacy_view),
-    path("policy/terms-conditions/", views.terms_view), # Include the courses app URLs
+    path("about/", views.about_view, name="about"),
+    path("policy/privacy/", views.privacy_view, name="privacy_policy"),
+    path("policy/terms-conditions/", views.terms_view, name="terms_conditions"),
+    path("accounts/", include("allauth.urls")),  # Add this line if you're using django-allauth
 ]
 
 if settings.DEBUG:
