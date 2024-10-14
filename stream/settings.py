@@ -42,6 +42,7 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
     #internal apps
     'courses',
+    'profiles',
     # third party
     "django_htmx",
     "tailwind",
@@ -185,13 +186,13 @@ ACCOUNT_RATE_LIMITS = {
    }
 ACCOUNT_USERNAME_REQUIRED = True
 ACCOUNT_AUTHENTICATION_METHOD = "username_email"
-ACCOUNT_EMAIL_REQUIRED = True
+ACCOUNT_ACTIVATION_DAYS = 7
 
 
 # Login/logout settings
 LOGIN_REDIRECT_URL = '/courses/'
-LOGIN_URL = '/accounts/login/'
-ACCOUNT_LOGOUT_REDIRECT_URL = '/accounts/login/'
+LOGIN_URL = '/profiles/login/'
+ACCOUNT_LOGOUT_REDIRECT_URL = '/profiles/login/'
   
 
 # Email settings (for development)
@@ -205,10 +206,4 @@ EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'
 # EMAIL_HOST_USER = 'your-email@example.com'
 # EMAIL_HOST_PASSWORD = 'your-email-password'
 
-ACCOUNT_RATE_LIMITS = {
-    # Change '5/m' to your desired limit, e.g., 5 attempts per minute
-    'login_failed': '5/m',
-    # You can also configure other rate limits if needed
-    # 'signup': '10/h',
-    # 'password_reset': '5/m',
-}
+

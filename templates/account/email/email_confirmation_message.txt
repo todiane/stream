@@ -1,0 +1,13 @@
+Hello {{ user.username }},
+
+Thank you for signing up for Stream English. To activate your account, please click on the link below to confirm your email address:
+
+{{ protocol }}://{{ domain }}{% url 'activate' uidb64=uid token=token %}
+
+This link will expire in {{ expiration_days }} days.
+
+If you did not sign up for this account, you can safely ignore this email.
+
+Best regards,
+The Stream English Team
+www.streamenglish.co.uk
