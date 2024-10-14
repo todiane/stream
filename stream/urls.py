@@ -12,7 +12,8 @@ urlpatterns = [
     path("about/", views.about_view, name="about"),
     path("policy/privacy/", views.privacy_view, name="privacy_policy"),
     path("policy/terms-conditions/", views.terms_view, name="terms_conditions"),
-    path("accounts/", include("allauth.urls")),  # Add this line if you're using django-allauth
+    path("accounts/", include("allauth.urls")), 
+      # Add this line if you're using django-allauth
 ]
 
 if settings.DEBUG:
