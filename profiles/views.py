@@ -14,6 +14,7 @@ from django.http import HttpResponse
 from .tokens import account_activation_token
 from django.conf import settings
 from django.utils import timezone
+from django.urls import reverse
 
 
 def signup_view(request):
@@ -77,10 +78,11 @@ def login_view(request):
     form = AuthenticationForm()
     return render(request, 'profiles/login.html', {"form": form})
 
+
 def logout_view(request):
     logout(request)
-    messages.info(request, "You have successfully logged out.") 
-    return redirect('login')
+    messages.info(request, "Thank you, for visiting Stream English. You are now logged out.") 
+    return redirect(reverse('profiles:login'))
 
 @login_required
 def profile(request):
