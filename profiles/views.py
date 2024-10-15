@@ -70,7 +70,7 @@ def login_view(request):
             if user is not None:
                 login(request, user)
                 messages.info(request, f"You are now logged in as {username}.")
-                return redirect('profile')
+                return redirect('profiles:profile')
             else:
                 messages.error(request, "Invalid username or password.")
         else:
@@ -93,7 +93,7 @@ def profile(request):
             u_form.save()
             p_form.save()
             messages.success(request, 'Your account has been updated!')
-            return redirect('profile')
+            return redirect('profiles:profile')  
     else:
         u_form = UserUpdateForm(instance=request.user)
         p_form = ProfileUpdateForm(instance=request.user.profile)
@@ -115,10 +115,10 @@ def resend_activation_email(request, uidb64):
     if user is not None and not user.is_active:
         send_activation_email(request, user)
         messages.success(request, 'Activation email has been resent. Please check your email.')
-        return redirect('login')
+        return redirect('profiles:login')
     else:
         messages.error(request, 'Invalid activation link or user is already active.')
-        return redirect('login')
+        return redirect('profiles:login')
 
 def extend_activation_time(request, uidb64):
     try:
@@ -137,10 +137,10 @@ def extend_activation_time(request, uidb64):
         send_activation_email(request, user)
         
         messages.success(request, f'Your activation period has been extended by {extension_days} days. A new activation email has been sent.')
-        return redirect('login')
+        return redirect('profiles:login')
     else:
         messages.error(request, 'Invalid activation link or user is already active.')
-        return redirect('login')
+        return redirect('profiles:login')
 
 @login_required
 def edit_profile(request):
@@ -151,7 +151,7 @@ def edit_profile(request):
             u_form.save()
             p_form.save()
             messages.success(request, 'Your profile has been updated!')
-            return redirect('profile')
+            return redirect('profiles:profile')
     else:
         u_form = UserUpdateForm(instance=request.user)
         p_form = ProfileUpdateForm(instance=request.user.profile)
