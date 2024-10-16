@@ -1,24 +1,133 @@
-{% extends "base.html" %} {% block content %}
-<div class="max-w-2xl mx-auto mt-10 p-5 bg-white shadow-md rounded-lg">
-  <div class="flex items-center space-x-5">
-    <img
-      class="w-24 h-24 rounded-full object-cover"
-      src="{{ user.profile.image.url }}"
-      alt="{{ user.username }}'s profile picture"
-    />
-    <div>
-      <h2 class="text-2xl font-bold text-gray-800">{{ user.username }}</h2>
-      <p class="text-gray-600">{{ user.email }}</p>
+{% extends 'base.html' %} {% block content %}
+<div class="container mx-auto px-4 py-8">
+  <h1 class="text-3xl font-bold mb-8">{{ user.username }}'s Profile</h1>
+
+  <!-- Profile Overview -->
+  <div class="bg-white shadow rounded-lg p-6 mb-8">
+    <h2 class="text-2xl font-semibold mb-4">Profile Overview</h2>
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+      <div>
+        <h3 class="text-lg font-semibold mb-2">Personal Information</h3>
+        <p><strong>Username:</strong> {{ user.username }}</p>
+        <p><strong>Email:</strong> {{ user.email }}</p>
+        <p><strong>First Name:</strong> {{ user.profile.first_name }}</p>
+        <p><strong>Bio:</strong> {{ user.profile.bio }}</p>
+      </div>
+      <div>
+        <h3 class="text-lg font-semibold mb-2">Progress</h3>
+        <div class="mb-4">
+          <div class="bg-gray-200 rounded-full h-4">
+            <div class="bg-blue-600 rounded-full h-4" style="width: 75%"></div>
+          </div>
+          <p class="text-sm mt-1">75% of courses completed</p>
+        </div>
+        <h3 class="text-lg font-semibold mb-2">Watched Videos</h3>
+        <p>10 videos watched</p>
+      </div>
     </div>
   </div>
-  <div class="mt-6">
-    <h3 class="text-xl font-semibold text-gray-700">Bio</h3>
-    <p class="mt-2 text-gray-600">{{ user.profile.bio }}</p>
+
+  <!-- Courses Enrolled -->
+  <div class="bg-white shadow rounded-lg p-6 mb-8">
+    <h2 class="text-2xl font-semibold mb-4">Courses Enrolled</h2>
+    {% if enrolled_courses %}
+    <ul class="space-y-4">
+      {% for course in enrolled_courses %}
+      <li class="border-b pb-4">
+        <h3 class="text-lg font-semibold">{{ course.title }}</h3>
+        <p class="text-gray-600">{{ course.description|truncatewords:20 }}</p>
+        <div class="mt-2">
+          <div class="bg-gray-200 rounded-full h-2">
+            <div class="bg-green-500 rounded-full h-2" style="width: 60%"></div>
+          </div>
+          <p class="text-sm mt-1">60% complete</p>
+        </div>
+      </li>
+      {% endfor %}
+    </ul>
+    {% else %}
+    <p>You are not enrolled in any courses yet.</p>
+    {% endif %}
   </div>
-  <a
-    href="{% url 'profiles:edit_profile' %}"
-    class="mt-6 inline-block px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600 transition duration-200"
-    >Edit Profile</a
-  >
+
+  <!-- Contact Tutor -->
+  <div class="bg-white shadow rounded-lg p-6 mb-8">
+    <h2 class="text-2xl font-semibold mb-4">Contact Tutor</h2>
+    <form action="#" method="post" class="space-y-4">
+      {% csrf_token %}
+      <div>
+        <label for="subject" class="block text-sm font-medium text-gray-700"
+          >Subject</label
+        >
+        <input
+          type="text"
+          name="subject"
+          id="subject"
+          class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-300 focus:ring focus:ring-indigo-200 focus:ring-opacity-50"
+        />
+      </div>
+      <div>
+        <label for="message" class="block text-sm font-medium text-gray-700"
+          >Message</label
+        >
+        <textarea
+          name="message"
+          id="message"
+          rows="4"
+          class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-300 focus:ring focus:ring-indigo-200 focus:ring-opacity-50"
+        ></textarea>
+      </div>
+      <div>
+        <button
+          type="submit"
+          class="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white !bg-blue-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
+        >
+          Send Message
+        </button>
+      </div>
+    </form>
+  </div>
+
+  <!-- Edit Profile -->
+  <div class="bg-white shadow rounded-lg p-6 mb-8">
+    <h2 class="text-2xl font-semibold mb-4">Edit Profile</h2>
+    <form
+      action="{% url 'profiles:edit_profile' %}"
+      method="post"
+      class="space-y-4"
+    >
+      {% csrf_token %} {{ u_form.as_p }} {{ p_form.as_p }}
+      <div>
+        <button
+          type="submit"
+          class="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-green-600 hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500"
+        >
+          Update Profile
+        </button>
+      </div>
+    </form>
+  </div>
+
+  <!-- Delete Account -->
+  <div class="bg-white shadow rounded-lg p-6">
+    <h2 class="text-2xl font-semibold mb-4 text-red-600">Delete Account</h2>
+    <p class="mb-4 text-gray-700">
+      Warning: This action cannot be undone. All your data will be permanently
+      deleted.
+    </p>
+    <form
+      action="{% url 'profiles:delete_account' %}"
+      method="post"
+      onsubmit="return confirm('Are you sure you want to delete your account? This action cannot be undone.');"
+    >
+      {% csrf_token %}
+      <button
+        type="submit"
+        class="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-red-600 hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500"
+      >
+        Delete Account
+      </button>
+    </form>
+  </div>
 </div>
-{% endblock content %}
+{% endblock %}

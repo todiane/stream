@@ -1,4 +1,4 @@
-from django.shortcuts import render, redirect
+from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required
 from .forms import UserRegisterForm, UserUpdateForm, ProfileUpdateForm
@@ -15,20 +15,56 @@ from .tokens import account_activation_token
 from django.conf import settings
 from django.utils import timezone
 from django.urls import reverse
-
+from courses.models import Course
 
 def signup_view(request):
     if request.method == 'POST':
         form = UserRegisterForm(request.POST)
         if form.is_valid():
-            user = form.save(commit=False)
-            user.is_active = False
-            user.save()
-            send_activation_email(request, user)
-            return HttpResponse('Please confirm your email address to complete the registration')
+            user = form.save()
+            user.profile.first_name = form.cleaned_data.get('first_name')
+            user.profile.save()
+            login(request, user)
+            messages.success(request, 'Your account has been created! You are now logged in.')
+            return redirect('profiles:profile')
     else:
         form = UserRegisterForm()
     return render(request, 'profiles/signup.html', {'form': form})
+
+@login_required
+def profile_view(request):
+    if request.method == 'POST':
+        u_form = UserUpdateForm(request.POST, instance=request.user)
+        p_form = ProfileUpdateForm(request.POST, instance=request.user.profile)
+        if u_form.is_valid() and p_form.is_valid():
+            u_form.save()
+            p_form.save()
+            messages.success(request, 'Your account has been updated!')
+            return redirect('profiles:profile')
+    else:
+        u_form = UserUpdateForm(instance=request.user)
+        p_form = ProfileUpdateForm(instance=request.user.profile)
+
+    enrolled_courses = request.user.profile.enrolled_courses.all()
+
+    context = {
+        'u_form': u_form,
+        'p_form': p_form,
+        'enrolled_courses': enrolled_courses
+    }
+
+    return render(request, 'profiles/profile.html', context)
+
+@login_required
+def enroll_course(request, course_id):
+    course = get_object_or_404(Course, public_id=course_id)
+    if request.method == 'POST':
+        if course not in request.user.profile.enrolled_courses.all():
+            request.user.profile.enrolled_courses.add(course)
+            messages.success(request, f'You have successfully enrolled in {course.title}')
+        else:
+            messages.info(request, f'You are already enrolled in {course.title}')
+    return redirect('profiles:profile')
 
 
 def send_activation_email(request, user):
@@ -69,7 +105,7 @@ def login_view(request):
             user = authenticate(username=username, password=password)
             if user is not None:
                 login(request, user)
-                messages.info(request, f"You are now logged in as {username}.")
+                messages.info(request, f"You arewere logged in as {username}.")
                 return redirect('profiles:profile')
             else:
                 messages.error(request, "Invalid username or password.")
@@ -162,3 +198,13 @@ def edit_profile(request):
     }
 
     return render(request, 'profiles/edit_profile.html', context)
+
+@login_required
+def delete_account(request):
+    if request.method == 'POST':
+        user = request.user
+        logout(request)
+        user.delete()
+        messages.success(request, 'Your account has been successfully deleted.')
+        return redirect('home')  # Redirect to your home page
+    return redirect('profiles:profile')
