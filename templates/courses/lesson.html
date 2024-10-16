@@ -1,7 +1,8 @@
 {% extends "base.html" %} {% block content %}
+
 <section class="bg-white dark:bg-gray-900">
   <div
-    class="gap-8 items-center py-8 px-4 mx-auto max-w-screen-xl xl:gap-16 md:grid md:grid-cols-2 sm:py-16 lg:px-6"
+    class="gap-8 items-center py-8 px-4 mx-auto max-w-screen-xl xl:gap-16 sm:py-16 lg:px-6"
   >
     <h1
       class="my-4 text-4xl tracking-tight font-extrabold text-gray-900 dark:text-white"
@@ -9,7 +10,7 @@
       {{ object.title }}
     </h1>
 
-    {% if object.get_video_embed %}
+    {% if video_embed %}
     <div
       class="video-container my-8"
       style="
@@ -20,20 +21,17 @@
         max-width: 100%;
       "
     >
-      <iframe
-        src="{{ object.get_video_embed }}"
-        frameborder="0"
-        allowfullscreen
-        style="position: absolute; top: 0; left: 0; width: 100%; height: 100%"
-      ></iframe>
+      {{ video_embed|safe }}
     </div>
     {% else %}
-    <p>No video available for this lesson.</p>
+    <p class="text-gray-700 dark:text-gray-300">
+      No video available for this lesson.
+    </p>
     {% endif %}
 
-    <p class="my-8 font-light text-gray-500 md:text-lg dark:text-gray-400">
-      {{ object.description }}
-    </p>
+    <div class="mt-4 text-gray-700 dark:text-gray-300">
+      {{ object.description|safe }}
+    </div>
 
     <div class="flex justify-between mt-8">
       {% if previous_lesson %}
@@ -53,17 +51,62 @@
   </div>
 </section>
 
-<section class="bg-white dark:bg-gray-900">
-  <div class="mx-auto max-w-screen-sm text-center">
+<section class="bg-gray-100 dark:bg-gray-800 py-8">
+  <div class="mx-auto max-w-screen-xl px-4">
     <h2
-      class="mb-4 text-lg lg:text-xl tracking-tight font-extrabold text-gray-900 dark:text-white"
+      class="mb-8 text-2xl font-bold text-center text-gray-900 dark:text-white"
     >
-      Other Lessons
+      Other Lessons in This Course
     </h2>
-  </div>
-  <div class="px-4 mx-auto max-w-screen-xl">
-    {% include 'courses/snippets/list-display.html' with
-    queryset=lessons_queryset %}
+    <div class="grid gap-8 md:grid-cols-2 lg:grid-cols-3">
+      {% for lesson in lessons_queryset %} {% if lesson.id != object.id %}
+      <!-- Skip the current lesson -->
+      <div
+        class="bg-white rounded-lg shadow-md dark:bg-gray-700 overflow-hidden"
+      >
+        {% if lesson.get_thumbnail %}
+        <a href="{{ lesson.get_absolute_url }}">
+          <img
+            class="w-full h-48 object-cover"
+            src="{{ lesson.get_thumbnail }}"
+            alt="{{ lesson.title }}"
+          />
+        </a>
+        {% endif %}
+        <div class="p-4">
+          <h3
+            class="mb-2 text-xl font-bold tracking-tight text-gray-900 dark:text-white"
+          >
+            <a href="{{ lesson.get_absolute_url }}">{{ lesson.title }}</a>
+          </h3>
+          {% if lesson.is_coming_soon %}
+          <span class="text-sm text-gray-500 dark:text-gray-400"
+            >Coming Soon</span
+          >
+          {% endif %}
+          <a
+            href="{{ lesson.get_absolute_url }}"
+            class="inline-flex items-center mt-3 font-medium text-blue-600 hover:underline dark:text-blue-500"
+          >
+            View Lesson
+            <svg
+              class="ml-2 w-4 h-4"
+              fill="currentColor"
+              viewBox="0 0 20 20"
+              xmlns="http://www.w3.org/2000/svg"
+            >
+              <path
+                fill-rule="evenodd"
+                d="M10.293 3.293a1 1 0 011.414 0l6 6a1 1 0 010 1.414l-6 6a1 1 0 01-1.414-1.414L14.586 11H3a1 1 0 110-2h11.586l-4.293-4.293a1 1 0 010-1.414z"
+                clip-rule="evenodd"
+              ></path>
+            </svg>
+          </a>
+        </div>
+      </div>
+      {% endif %} {% endfor %}
+    </div>
   </div>
 </section>
+
 {% endblock content %}

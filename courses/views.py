@@ -37,15 +37,22 @@ def lesson_detail_view(request, course_id=None, lesson_id=None, *args, **kwargs)
     )
     if lesson_obj is None:
         raise Http404
+    
     email_id_exists = request.session.get('email_id')
     if lesson_obj.requires_email and not email_id_exists:
         print(request.path)
         request.session['next_url'] = request.path
         return render(request, "courses/email-required.html", {})
+    
+    # Get all lessons for the current course
+    lessons_queryset = services.get_course_lessons(lesson_obj.course)
+    
     template_name = "courses/lesson-coming-soon.html"
     context = {
-        "object": lesson_obj
+        "object": lesson_obj,
+        "lessons_queryset": lessons_queryset  # Add this line
     }
+    
     if not lesson_obj.is_coming_soon and lesson_obj.has_video:
         """
         Lesson is published
@@ -60,4 +67,5 @@ def lesson_detail_view(request, course_id=None, lesson_id=None, *args, **kwargs)
             width=1250
         )
         context['video_embed'] = video_embed_html
+    
     return render(request, template_name, context)
