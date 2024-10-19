@@ -8,7 +8,7 @@ from . import views
 urlpatterns = [
     path("", views.home_view, name="home"),
     path("admin/", admin.site.urls),
-    path("courses/", include("courses.urls")),
+    path('courses/', include('courses.urls', namespace='courses')),
     path("about/", views.about_view, name="about"),
     path("policy/privacy/", views.privacy_view, name="privacy_policy"),
     path("policy/terms-conditions/", views.terms_view, name="terms_conditions"),

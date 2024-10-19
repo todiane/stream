@@ -1,6 +1,10 @@
+from courses.models import Course
 import helpers
 from django.http import Http404
-from django.shortcuts import render
+from django.shortcuts import get_object_or_404, render
+from django.shortcuts import redirect
+from django.contrib import messages
+from django.contrib.auth.decorators import login_required
 
 from . import services
 
@@ -14,6 +18,18 @@ def course_list_view(request):
         template_name = "courses/snippets/list-display.html"
         context['queryset'] = queryset[:3]
     return render(request, template_name, context)
+
+
+@login_required
+def enrol_course(request, course_id):
+    course = get_object_or_404(Course, public_id=course_id)
+    if request.method == 'POST':
+        if course not in request.user.profile.enrolled_courses.all():
+            request.user.profile.enrolled_courses.add(course)
+            messages.success(request, f'You have successfully enrolled in {course.title}')
+        else:
+            messages.info(request, f'You are already enrolled in {course.title}')
+    return redirect('courses:course_detail', course_id=course_id)
 
 
 def course_detail_view(request, course_id=None, *args, **kwarg):

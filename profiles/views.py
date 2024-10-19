@@ -57,7 +57,7 @@ def profile_view(request):
     return render(request, 'profiles/profile.html', context)
 
 @login_required
-def enroll_course(request, course_id):
+def enrol_course(request, course_id):
     course = get_object_or_404(Course, public_id=course_id)
     if request.method == 'POST':
         if course not in request.user.profile.enrolled_courses.all():
@@ -106,12 +106,18 @@ def login_view(request):
             user = authenticate(username=username, password=password)
             if user is not None:
                 login(request, user)
-                messages.info(request, f"You arewere logged in as {username}.")
+                messages.info(request, f"You are now logged in as {username}.")
+                next_url = request.GET.get('next')
+                if next_url:
+                    return redirect(next_url)
                 return redirect('profiles:profile')
             else:
                 messages.error(request, "Invalid username or password.")
         else:
             messages.error(request, "Invalid username or password.")
+    else:
+        if 'next' in request.GET:
+            messages.info(request, "You need to log in to enrol in this course.")
     form = AuthenticationForm()
     return render(request, 'profiles/login.html', {"form": form})
 

@@ -1,5 +1,7 @@
 from django.shortcuts import render
 
+app_name = 'stream'
+
 
 def home_view(request, *args, **kwargs):
     template_name = "home.html"
