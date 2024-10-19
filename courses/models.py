@@ -3,6 +3,7 @@ import helpers
 from django.db import models
 from django.utils.text import slugify
 from cloudinary.models import CloudinaryField
+from markdownx.models import MarkdownxField
 
 
 helpers.cloudinary_init()
@@ -59,7 +60,7 @@ def get_display_name(instance, *args, **kwargs):
 
 class Course(models.Model):
     title = models.CharField(max_length=120)
-    description = models.TextField(blank=True, null=True)
+    description = MarkdownxField(blank=True, null=True) # Use MarkdownxField instead of TextField
     public_id = models.CharField(max_length=130, blank=True, null=True, db_index=True)
     image = CloudinaryField(
         "image", 

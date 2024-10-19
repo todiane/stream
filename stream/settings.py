@@ -38,6 +38,7 @@ INSTALLED_APPS = [
     'allauth',
     'allauth.account',
     'allauth.socialaccount',
+    'markdownx',
     'theme',  # django-tailwind theme app
 ]
 

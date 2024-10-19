@@ -1,8 +1,7 @@
 import helpers
-# from cloudinary import CloudinaryImage  # Removed unused import
 from django.contrib import admin
 from django.utils.html import format_html
-# Register your models here.
+from markdownx.admin import MarkdownxModelAdmin
 from .models import Course, Lesson
 
 
@@ -39,7 +38,7 @@ class LessonInline(admin.StackedInline):
 
 
 @admin.register(Course)
-class CourseAdmin(admin.ModelAdmin):
+class CourseAdmin(MarkdownxModelAdmin):
     inlines = [LessonInline]
     list_display = ['title', 'status', 'access']
     list_filter = ['status', 'access']

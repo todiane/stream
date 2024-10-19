@@ -20,7 +20,7 @@
     <div id="message-container" class="fixed top-0 right-0 m-4 z-50">
       {% for message in messages %}
       <div
-        class="bg-white border-t-4 rounded-b px-4 py-3 shadow-md mb-2 {% if message.tags %}{{ message.tags }}{% endif %}"
+        class="bg-gray-200 border-t-4 rounded-b px-4 py-3 shadow-md mb-2 {% if message.tags %}{{ message.tags }}{% endif %}"
         role="alert"
       >
         <div class="flex">

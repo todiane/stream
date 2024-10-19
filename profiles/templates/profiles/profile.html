@@ -1,4 +1,4 @@
-{% extends 'base.html' %} {% block content %}
+{% extends 'base.html' %} {% load markdown %} {% block content %}
 
 <div class="container mx-auto px-4 py-8">
   <h1 class="text-3xl font-bold mb-8">{{ user.username }}'s Profile</h1>
@@ -42,7 +42,7 @@
     {% if enrolled_courses %} {% for course in enrolled_courses %}
     <div class="mb-6">
       <h3 class="text-lg font-semibold">{{ course.title }}</h3>
-      <p>{{ course.description|truncatewords:20 }}</p>
+      <p>{{ course.description|markdown_to_html|truncatewords:25 }}</p>
 
       <div class="mt-2">
         <div class="bg-gray-200 rounded-full h-2">
