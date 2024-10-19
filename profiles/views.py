@@ -17,6 +17,7 @@ from django.utils import timezone
 from django.urls import reverse
 from courses.models import Course
 
+
 def signup_view(request):
     if request.method == 'POST':
         form = UserRegisterForm(request.POST)
