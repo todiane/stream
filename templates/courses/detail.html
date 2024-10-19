@@ -24,7 +24,7 @@
     </div>
 
     <!-- Enroll button -->
-    <div class="flex justify-center items-center mt-8">
+    <div class="flex justify-center mt-8">
       {% if user.is_authenticated %}
       <form
         method="post"
@@ -33,7 +33,18 @@
         {% csrf_token %}
         <button
           type="submit"
-          class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded transition duration-300"
+          style="
+            background-color: #e6d464;
+            color: black;
+            font-weight: 500;
+            padding: 8px 16px;
+            border-radius: 4px;
+            border: none;
+            cursor: pointer;
+            transition: all 0.3s ease;
+          "
+          onmouseover="this.style.backgroundColor='#000000'; this.style.color='#FFFFFF';"
+          onmouseout="this.style.backgroundColor='#E6D464'; this.style.color='#000000';"
         >
           Enrol in Course
         </button>
@@ -41,13 +52,24 @@
       {% else %}
       <a
         href="{% url 'profiles:login' %}?next={{ request.path }}"
-        class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded transition duration-300"
+        style="
+          display: inline-block;
+          background-color: #e6d464;
+          color: black;
+          font-weight: 500;
+          padding: 8px 16px;
+          border-radius: 4px;
+          text-decoration: none;
+          cursor: pointer;
+          transition: all 0.3s ease;
+        "
+        onmouseover="this.style.backgroundColor='#000000'; this.style.color='#FFFFFF';"
+        onmouseout="this.style.backgroundColor='#E6D464'; this.style.color='#000000';"
       >
         Enrol in Course
       </a>
       {% endif %}
     </div>
-
     <div class="mt-16">
       <div class="mx-auto max-w-screen-sm text-center mb-8">
         <h2
