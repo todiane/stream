@@ -1,10 +1,11 @@
 {% extends 'base.html' %} {% block content %}
+
 <div class="container mx-auto px-4 py-8">
   <h1 class="text-3xl font-bold mb-8">{{ user.username }}'s Profile</h1>
 
-  <!-- Profile Overview -->
   <div class="bg-white shadow rounded-lg p-6 mb-8">
     <h2 class="text-2xl font-semibold mb-4">Profile Overview</h2>
+
     <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
       <div>
         <h3 class="text-lg font-semibold mb-2">Personal Information</h3>
@@ -13,39 +14,93 @@
         <p><strong>First Name:</strong> {{ user.profile.first_name }}</p>
         <p><strong>Bio:</strong> {{ user.profile.bio }}</p>
       </div>
+
       <div>
         <h3 class="text-lg font-semibold mb-2">Progress</h3>
         <div class="mb-4">
           <div class="bg-gray-200 rounded-full h-4">
-            <div class="bg-blue-600 rounded-full h-4" style="width: 75%"></div>
+            <div
+              class="bg-blue-600 rounded-full h-4"
+              style="width: {{ courses_completion_percentage }}%"
+            ></div>
           </div>
-          <p class="text-sm mt-1">75% of courses completed</p>
+          <p>
+            {{ courses_completion_percentage|floatformat:1 }}% of courses
+            completed
+          </p>
         </div>
+
         <h3 class="text-lg font-semibold mb-2">Watched Videos</h3>
-        <p>10 videos watched</p>
+        <p>{{ watched_videos_count }} videos watched</p>
       </div>
     </div>
   </div>
 
-  <!-- Courses Enrolled -->
   <div class="bg-white shadow rounded-lg p-6 mb-8">
     <h2 class="text-2xl font-semibold mb-4">Courses Enrolled</h2>
-    {% if enrolled_courses %}
-    <ul class="space-y-4">
-      {% for course in enrolled_courses %}
-      <li class="border-b pb-4">
-        <h3 class="text-lg font-semibold">{{ course.title }}</h3>
-        <p class="text-gray-600">{{ course.description|truncatewords:20 }}</p>
-        <div class="mt-2">
-          <div class="bg-gray-200 rounded-full h-2">
-            <div class="bg-green-500 rounded-full h-2" style="width: 60%"></div>
-          </div>
-          <p class="text-sm mt-1">60% complete</p>
+
+    {% if enrolled_courses %} {% for course in enrolled_courses %}
+    <div class="mb-6">
+      <h3 class="text-lg font-semibold">{{ course.title }}</h3>
+      <p>{{ course.description|truncatewords:20 }}</p>
+
+      <div class="mt-2">
+        <div class="bg-gray-200 rounded-full h-2">
+          <div
+            class="bg-green-500 rounded-full h-2"
+            style="width: {{ user.profile.get_course_completion_percentage|floatformat:1 }}%"
+          ></div>
         </div>
-      </li>
-      {% endfor %}
-    </ul>
-    {% else %}
+        <p>
+          {{ user.profile.get_course_completion_percentage|floatformat:1 }}%
+          complete
+        </p>
+      </div>
+
+      <div class="mt-4 flex space-x-2">
+        <a
+          href="{% url 'profiles:resume_course' course_id=course.public_id %}"
+          class="bg-blue-500 text-white px-4 py-2 rounded"
+          style="
+            background-color: #000000;
+            color: white;
+            font: medium;
+            padding: 6px 12px;
+            border-radius: 4px;
+            border: none;
+            cursor: pointer;
+            transition: background-color 0.3s;
+          "
+          onmouseover="this.style.backgroundColor='#2563eb';"
+          onmouseout="this.style.backgroundColor='#000000';"
+          >Resume</a
+        >
+        <form
+          action="{% url 'profiles:remove_course' course_id=course.public_id %}"
+          method="post"
+        >
+          {% csrf_token %}
+          <button
+            type="submit"
+            style="
+              background-color: #ff0000;
+              color: white;
+              font: medium;
+              padding: 6px 12px;
+              border-radius: 4px;
+              border: none;
+              cursor: pointer;
+              transition: background-color 0.3s;
+            "
+            onmouseover="this.style.backgroundColor='#2563eb';"
+            onmouseout="this.style.backgroundColor='#ff0000';"
+          >
+            Remove Course
+          </button>
+        </form>
+      </div>
+    </div>
+    {% endfor %} {% else %}
     <p>You are not enrolled in any courses yet.</p>
     {% endif %}
   </div>
