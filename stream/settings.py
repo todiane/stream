@@ -176,7 +176,7 @@ DEFAULT_FILE_STORAGE = 'cloudinary_storage.storage.MediaCloudinaryStorage'
 STATICFILES_STORAGE = 'cloudinary_storage.storage.StaticHashedCloudinaryStorage'
 
 # Set the path to the npm executable
-NPM_BIN_PATH = r"C:\Program Files\nodejs\npm.cmd"  # path to Node.js npm executable
+NPM_BIN_PATH = "/usr/bin/npm"  # path to Node.js npm executable
 # Set the path to the tailwindcss executable
 # TAILWIND_CSS_PATH = "css/styles.css"
 AUTHENTICATION_BACKENDS = [

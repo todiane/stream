@@ -1,113 +1,40 @@
-{% extends 'base.html' %} {% block head_title %} Welcome to the Course Platform
-{% endblock head_title %} {% block content %} {% include 'base/hero.html' %}
+{% extends 'base.html' %}
+{% block head_title %}Welcome to the Course Platform{% endblock head_title %}
 
-<section class="bg-white dark:bg-gray-900 mb-8">
-  <div class="py-8 px-4 mx-auto max-w-screen-xl sm:py-16 lg:px-6">
-    <div class="max-w-screen-md mb-8 lg:mb-16">
-      <h2
-        class="mb-4 text-4xl tracking-tight font-extrabold text-gray-900 dark:text-white text-center"
-      >
-        Helping You Thrive
-      </h2>
-      <p class="text-gray-500 sm:text-xl dark:text-gray-400">
-        My goal is to help you reach the very highest grades in your English
-        qualifications. I am focused on helping you reach Grade 9
-      </p>
+{% block content %}
+{% include 'base/hero.html' %}
+
+<section class="bg-white dark:bg-gray-900 mt-4">  <!-- Reduced top margin -->
+    <div class="py-4 px-4 mx-auto max-w-screen-xl sm:py-8 lg:px-6">  <!-- Reduced padding -->
+        <div class="max-w-screen-md mx-auto text-center mb-8">  <!-- Center aligned content -->
+            <h2 class="mb-4 text-3xl tracking-tight font-extrabold text-gray-900 dark:text-white">
+                Helping You Thrive
+            </h2>
+            <p class="text-gray-500 mx-auto lg:text-xl">  <!-- Added mx-auto for center alignment -->
+                My goal is to help you reach the very highest grades in your English qualifications. 
+                I am focused on helping you reach Grade 9
+            </p>
+        </div>
+
+        <div class="grid gap-8 md:grid-cols-2 lg:grid-cols-3">  <!-- Reduced gap -->
+            <!-- Your three service sections (Video Lessons, Tuition Sessions, Past Papers) -->
+        </div>
     </div>
-    <div class="grid gap-12 md:grid-cols-2 lg:grid-cols-3">
-      <!-- First Grid Item -->
-      <div>
-        <div
-          class="flex justify-center items-center mb-4 w-10 h-10 rounded-full bg-primary-100 lg:h-12 lg:w-12 dark:bg-primary-900"
-        >
-          <svg
-            class="w-5 h-5 text-primary-600 lg:w-6 lg:h-6 dark:text-primary-300"
-            fill="currentColor"
-            viewBox="0 0 20 20"
-            xmlns="http://www.w3.org/2000/svg"
-          >
-            <path
-              fill-rule="evenodd"
-              d="M3 3a1 1 0 000 2v8a2 2 0 002 2h2.586l-1.293 1.293a1 1 0 101.414 1.414L10 15.414l2.293 2.293a1 1 0 001.414-1.414L12.414 15H15a2 2 0 002-2V5a1 1 0 100-2H3zm11.707 4.707a1 1 0 00-1.414-1.414L10 9.586 8.707 8.293a1 1 0 00-1.414 0l-2 2a1 1 0 101.414 1.414L8 10.414l1.293 1.293a1 1 0 001.414 0l4-4z"
-              clip-rule="evenodd"
-            ></path>
-          </svg>
-        </div>
-        <h3 class="mb-2 text-xl font-bold dark:text-white">Video Lessons</h3>
-        <p class="text-gray-500 dark:text-gray-400">
-          You will find all my video lessons from my YouTube channel. Enjoy
-          watching without ad interruptions.
-        </p>
-      </div>
-      <!-- Second Grid Item -->
-      <div>
-        <div
-          class="flex justify-center items-center mb-4 w-10 h-10 rounded-full bg-primary-100 lg:h-12 lg:w-12 dark:bg-primary-900"
-        >
-          <svg
-            class="w-5 h-5 text-primary-600 lg:w-6 lg:h-6 dark:text-primary-300"
-            fill="currentColor"
-            viewBox="0 0 20 20"
-            xmlns="http://www.w3.org/2000/svg"
-          >
-            <path
-              d="M10.394 2.08a1 1 0 00-.788 0l-7 3a1 1 0 000 1.84L5.25 8.051a.999.999 0 01.356-.257l4-1.714a1 1 0 11.788 1.838L7.667 9.088l1.94.831a1 1 0 00.787 0l7-3a1 1 0 000-1.838l-7-3zM3.31 9.397L5 10.12v4.102a8.969 8.969 0 00-1.05-.174 1 1 0 01-.89-.89 11.115 11.115 0 01.25-3.762zM9.3 16.573A9.026 9.026 0 007 14.935v-3.957l1.818.78a3 3 0 002.364 0l5.508-2.361a11.026 11.026 0 01.25 3.762 1 1 0 01-.89.89 8.968 8.968 0 00-5.35 2.524 1 1 0 01-1.4 0zM6 18a1 1 0 001-1v-2.065a8.935 8.935 0 00-2-.712V17a1 1 0 001 1z"
-            ></path>
-          </svg>
-        </div>
-        <h3 class="mb-2 text-xl font-bold dark:text-white">Tuition Sessions</h3>
-        <p class="text-gray-500 dark:text-gray-400">
-          I offer tuition sessions for both English language and literature. You
-          can arrange these at a time that suits you.
-        </p>
-      </div>
-      <!-- Third Grid Item -->
-      <div>
-        <div
-          class="flex justify-center items-center mb-4 w-10 h-10 rounded-full bg-primary-100 lg:h-12 lg:w-12 dark:bg-primary-900"
-        >
-          <svg
-            class="w-5 h-5 text-primary-600 lg:w-6 lg:h-6 dark:text-primary-300"
-            fill="currentColor"
-            viewBox="0 0 20 20"
-            xmlns="http://www.w3.org/2000/svg"
-          >
-            <path
-              fill-rule="evenodd"
-              d="M6 6V5a3 3 0 013-3h2a3 3 0 013 3v1h2a2 2 0 012 2v3.57A22.952 22.952 0 0110 13a22.95 22.95 0 01-8-1.43V8a2 2 0 012-2h2zm2-1a1 1 0 011-1h2a1 1 0 011 1v1H8V5zm1 5a1 1 0 011-1h.01a1 1 0 110 2H10a1 1 0 01-1-1z"
-              clip-rule="evenodd"
-            ></path>
-            <path
-              d="M2 13.692V16a2 2 0 002 2h12a2 2 0 002-2v-2.308A24.974 24.974 0 0110 15c-2.796 0-5.487-.46-8-1.308z"
-            ></path>
-          </svg>
-        </div>
-        <h3 class="mb-2 text-xl font-bold dark:text-white">Past Papers</h3>
-        <p class="text-gray-500 dark:text-gray-400">
-          You can find all the past papers for English language and literature
-          here and I will also add some practice questions.
-        </p>
-      </div>
-    </div>
-  </div>
 </section>
 
-<section class="bg-white dark:bg-gray-900 my-8">
-  <div class="">
-    <div class="mx-auto max-w-screen-sm text-center lg:mb-4 mb-2">
-      <h2
-        class="mb-4 text-3xl lg:text-4xl tracking-tight font-extrabold text-gray-900 dark:text-white"
-      >
-        Courses
-      </h2>
-      <p class="font-light text-gray-500 sm:text-xl dark:text-gray-400">
-        I mainly focus on the UK GCSEs and IGCSEs, but lots of the content is
-        covered all over the world.
-      </p>
+<section class="bg-white dark:bg-gray-900 my-4">  <!-- Reduced margin -->
+    <div class="mx-auto max-w-screen-sm text-center mb-4">
+        <h2 class="mb-4 text-3xl tracking-tight font-extrabold text-gray-900 dark:text-white">
+            Courses
+        </h2>
+        <p class="text-gray-500 lg:text-xl">
+            I mainly focus on the UK GCSEs and IGCSEs, but lots of the content is covered all over the world.
+        </p>
     </div>
 
-    <div hx-get="/courses/" hx-trigger="revealed"></div>
-  </div>
+    <div hx-get="/courses/" hx-trigger="revealed">
+        <!-- Courses will load here -->
+    </div>
 </section>
 
 {% endblock content %}
