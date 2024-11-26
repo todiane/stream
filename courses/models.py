@@ -3,8 +3,6 @@ import helpers
 from django.db import models
 from django.utils.text import slugify
 from cloudinary.models import CloudinaryField
-from markdownx.models import MarkdownxField
-
 
 helpers.cloudinary_init()
 
@@ -16,6 +14,24 @@ class PublishStatus(models.TextChoices):
     PUBLISHED = "publish", "Published"
     COMING_SOON = "soon", "Coming Soon"
     DRAFT = "draft", "Draft"
+
+class Category(models.Model):
+    name = models.CharField(max_length=100)
+    slug = models.SlugField(unique=True)
+    description = models.TextField(blank=True)
+    exam_board = models.CharField(
+        max_length=20,
+        choices=[
+            ('AQA', 'AQA'),
+            ('EDEXCEL', 'Edexcel')
+        ]
+    )
+    
+    class Meta:
+        verbose_name_plural = 'categories'
+        
+    def __str__(self):
+        return f"{self.name} ({self.exam_board})"
 
 
 def handle_upload(instance, filename):
@@ -60,7 +76,14 @@ def get_display_name(instance, *args, **kwargs):
 
 class Course(models.Model):
     title = models.CharField(max_length=120)
-    description = MarkdownxField(blank=True, null=True) # Use MarkdownxField instead of TextField
+    description = models.TextField(blank=True, null=True)
+    category = models.ForeignKey(
+        Category,
+        on_delete=models.CASCADE,
+        related_name='courses',
+        null=True,  
+        blank=True  
+    )
     public_id = models.CharField(max_length=130, blank=True, null=True, db_index=True)
     image = CloudinaryField(
         "image", 

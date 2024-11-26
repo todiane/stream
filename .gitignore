@@ -297,3 +297,6 @@ dist
 /media/
 /static/
 
+venv/
+__pycache__/
+*.pyc

@@ -1,3 +1,10 @@
+"""
+This module contains the settings for the Stream project.
+
+It includes configuration for installed apps, middleware, database settings,
+and other project-specific settings.
+"""
+
 from pathlib import Path
 from decouple import config # os.environ.get()
 
@@ -28,7 +35,10 @@ INSTALLED_APPS = [
     'django.contrib.contenttypes',
     'django.contrib.sessions',
     'django.contrib.messages',
+    'cloudinary_storage',
     'django.contrib.staticfiles',
+    'django_ckeditor_5',
+    'whitenoise.runserver_nostatic',
     #internal apps
     'courses',
     'profiles',
@@ -38,7 +48,8 @@ INSTALLED_APPS = [
     'allauth',
     'allauth.account',
     'allauth.socialaccount',
-    'markdownx',
+    'cloudinary',
+    
     'theme',  # django-tailwind theme app
 ]
 
@@ -150,9 +161,19 @@ MEDIA_ROOT = BASE_DIR / 'media'
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
 # cloudinary video config
-CLOUDINARY_CLOUD_NAME = config("CLOUDINARY_CLOUD_NAME", default="")
-CLOUDINARY_PUBLIC_API_KEY = config("CLOUDINARY_PUBLIC_API_KEY", default="")
-CLOUDINARY_SECRET_API_KEY= config("CLOUDINARY_SECRET_API_KEY")
+# Cloudinary settings
+CLOUDINARY_STORAGE = {
+    'CLOUD_NAME': config('CLOUDINARY_CLOUD_NAME'),
+    'API_KEY': config('CLOUDINARY_API_KEY'),
+    'API_SECRET': config('CLOUDINARY_API_SECRET'),
+}
+
+CLOUDINARY_CLOUD_NAME = config('CLOUDINARY_CLOUD_NAME')
+CLOUDINARY_API_KEY = config('CLOUDINARY_API_KEY')
+CLOUDINARY_API_SECRET = config('CLOUDINARY_API_SECRET')
+
+DEFAULT_FILE_STORAGE = 'cloudinary_storage.storage.MediaCloudinaryStorage'
+STATICFILES_STORAGE = 'cloudinary_storage.storage.StaticHashedCloudinaryStorage'
 
 # Set the path to the npm executable
 NPM_BIN_PATH = r"C:\Program Files\nodejs\npm.cmd"  # path to Node.js npm executable
@@ -189,7 +210,6 @@ ACCOUNT_ACTIVATION_DAYS = 7
 LOGIN_REDIRECT_URL = '/courses/'
 LOGIN_URL = '/profiles/login/'
 ACCOUNT_LOGOUT_REDIRECT_URL = '/profiles/login/'
-  
 
 # Email settings (for development)
 EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'
@@ -202,4 +222,21 @@ EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'
 # EMAIL_HOST_USER = 'your-email@example.com'
 # EMAIL_HOST_PASSWORD = 'your-email-password'
 
+# CKEditor configuration settings 
 
+CKEDITOR_5_UPLOAD_PATH = "uploads/"
+
+CKEDITOR_5_CONFIGS = {
+    'default': {
+        'toolbar': ['heading', '|', 'bold', 'italic', 'link',
+                   'bulletedList', 'numberedList', 'blockQuote', 'imageUpload', 'blockQuote', 'codeBlock', '|',
+            'link', 'imageUpload', 'insertTable', 'mediaEmbed', '|',
+            'alignment', '|',
+            'findAndReplace', '|',
+            'undo', 'redo', '|',],
+        'height': '300px',
+        'width': '100%',
+    },
+}
+
+CKEDITOR_5_FILE_STORAGE = 'cloudinary_storage.storage.MediaCloudinaryStorage'
