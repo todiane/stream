@@ -97,7 +97,21 @@
       </p>
     </div>
 
-    <div hx-get="/courses/" hx-trigger="revealed"></div>
+    <div id="courses-container"></div>
+<script>
+  document.addEventListener("DOMContentLoaded", function () {
+    const container = document.getElementById("courses-container");
+    fetch("/courses/")
+      .then((response) => response.text())
+      .then((data) => {
+        container.innerHTML = data;
+      })
+      .catch((error) => {
+        console.error("Error fetching courses:", error);
+      });
+  });
+</script>
+
   </div>
 </section>
 

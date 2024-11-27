@@ -1,33 +1,48 @@
 {% extends 'base.html' %}
+{% load static %}
 
-{% block head_title %}Welcome to the Course Platform{% endblock head_title %}
+{% block head_title %}Welcome to Stream English{% endblock head_title %}
 
 {% block content %}
-    {% include 'base/hero.html' %}
+{% include 'base/hero.html' %}
 
-    <section class="bg-white dark:bg-gray-900 mt-4">
-        <div class="py-4 px-4 mx-auto max-w-screen-xl sm:py-8 lg:px-6">
-            <div class="max-w-screen-md mx-auto text-center mb-8">
-                <h2 class="mb-4 text-3xl tracking-tight font-extrabold text-gray-900 dark:text-white">
-                    Helping You Thrive
-                </h2>
-                <p>
-                    My goal is to help you reach the very highest grades in your English qualifications. I am focused on helping you reach Grade 9
-                </p>
+<section class="bg-white dark:bg-gray-900 py-12">
+    <div class="container mx-auto px-4 text-center">
+        <h2 class="text-3xl font-extrabold mb-4 dark:text-white">
+            Helping You Thrive
+        </h2>
+        <p>
+            My goal is to help you reach the very highest grades in your English
+            qualifications. I am focused on helping you reach Grade 9.
+        </p>
+    </div>
+</section>
+
+<section class="bg-slate-50 dark:bg-gray-800 py-12">
+    <div class="container mx-auto px-4">
+        <h2 class="text-3xl font-extrabold text-center mb-8 dark:text-white">
+            Courses
+        </h2>
+
+        <div class="grid gap-8 md:grid-cols-2 lg:grid-cols-3">
+            <div class="course-card">
+                <img src="{% static 'images/inspector-calls.png' %}" alt="An Inspector Calls" class="rounded">
+                <h3 class="mt-4 text-lg font-bold">An Inspector Calls</h3>
+                <a href="/courses/inspector-calls/" class="btn-link">View →</a>
             </div>
-            <div class="grid gap-8 md:grid-cols-2 lg:grid-cols-3"></div>
-        </div>
-    </section>
 
-    <section class="bg-white dark:bg-gray-900 my-4">
-        <div class="mx-auto max-w-screen-sm text-center mb-4">
-            <h2 class="mb-4 text-3xl tracking-tight font-extrabold text-gray-900 dark:text-white">
-                Courses
-            </h2>
-            <p>
-                I mainly focus on the UK GCSEs and IGCSEs, but lots of the content is covered all over the world.
-            </p>
+            <div class="course-card">
+                <img src="{% static 'images/macbeth.png' %}" alt="Macbeth" class="rounded">
+                <h3 class="mt-4 text-lg font-bold">Macbeth</h3>
+                <a href="/courses/macbeth/" class="btn-link">View →</a>
+            </div>
+
+            <div class="course-card">
+                <img src="{% static 'images/english-language.png' %}" alt="English Language" class="rounded">
+                <h3 class="mt-4 text-lg font-bold">AQA English Language</h3>
+                <a href="/courses/english-language/" class="btn-link">View →</a>
+            </div>
         </div>
-        <div hx-get="/courses/" hx-trigger="revealed"></div>
-    </section>
+    </div>
+</section>
 {% endblock content %}

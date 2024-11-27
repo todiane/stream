@@ -8,6 +8,8 @@ and other project-specific settings.
 from pathlib import Path
 from decouple import config # os.environ.get()
 
+import dj_database_url
+
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
@@ -20,12 +22,26 @@ TEMPLATE_DIR = BASE_DIR / "templates"
 # SECURITY WARNING: keep the secret key used in production secret!
 SECRET_KEY = 'django-insecure-&zi9qci4535^_q8_+(1bb08nv0fl-^b66879ngpdaq%)uh%*)z'
 
-# SECURITY WARNING: don't run with debug turned on in production!
+# SECURITY WARNING: don't run with debug turned on in production! Set to False in production 
 DEBUG = True
 
-ALLOWED_HOSTS = ['*']
+ALLOWED_HOSTS = ['streamenglish.up.railway.app', 'streamenglish.co.uk', 'www.streamenglish.co.uk', 'localhost', '127.0.0.1']
 
 SITE_ID = 1
+
+# Database
+# https://docs.djangoproject.com/en/5.1/ref/settings/#databases
+
+DEVELOPMENT_DB = {
+    "default": {
+        "ENGINE": "django.db.backends.sqlite3",
+        "NAME": BASE_DIR / "db.sqlite3",
+    }
+}
+
+PRODUCTION_DB = {"default": dj_database_url.parse(config("DATABASE_URL"))}
+
+DATABASES = DEVELOPMENT_DB
 
 # Application definition
 
@@ -43,17 +59,13 @@ INSTALLED_APPS = [
     'courses',
     'profiles',
     # third party
-    'django_htmx',
-    'tailwind',
     'allauth',
     'allauth.account',
     'allauth.socialaccount',
     'cloudinary',
-    
-    'theme',  # django-tailwind theme app
 ]
 
-TAILWIND_APP_NAME="theme" # django-tailwind theme app
+
 INTERNAL_IPS = [
     "0.0.0.0",
     "127.0.0.1",
@@ -93,15 +105,7 @@ TEMPLATES = [
 WSGI_APPLICATION = 'stream.wsgi.application'
 
 
-# Database
-# https://docs.djangoproject.com/en/5.1/ref/settings/#databases
 
-DATABASES = {
-    'default': {
-        'ENGINE': 'django.db.backends.sqlite3',
-        'NAME': BASE_DIR / 'db.sqlite3',
-    }
-}
 
 
 # Password validation
