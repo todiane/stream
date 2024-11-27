@@ -1,40 +1,33 @@
 {% extends 'base.html' %}
+
 {% block head_title %}Welcome to the Course Platform{% endblock head_title %}
 
 {% block content %}
-{% include 'base/hero.html' %}
+    {% include 'base/hero.html' %}
 
-<section class="bg-white dark:bg-gray-900 mt-4">  <!-- Reduced top margin -->
-    <div class="py-4 px-4 mx-auto max-w-screen-xl sm:py-8 lg:px-6">  <!-- Reduced padding -->
-        <div class="max-w-screen-md mx-auto text-center mb-8">  <!-- Center aligned content -->
+    <section class="bg-white dark:bg-gray-900 mt-4">
+        <div class="py-4 px-4 mx-auto max-w-screen-xl sm:py-8 lg:px-6">
+            <div class="max-w-screen-md mx-auto text-center mb-8">
+                <h2 class="mb-4 text-3xl tracking-tight font-extrabold text-gray-900 dark:text-white">
+                    Helping You Thrive
+                </h2>
+                <p>
+                    My goal is to help you reach the very highest grades in your English qualifications. I am focused on helping you reach Grade 9
+                </p>
+            </div>
+            <div class="grid gap-8 md:grid-cols-2 lg:grid-cols-3"></div>
+        </div>
+    </section>
+
+    <section class="bg-white dark:bg-gray-900 my-4">
+        <div class="mx-auto max-w-screen-sm text-center mb-4">
             <h2 class="mb-4 text-3xl tracking-tight font-extrabold text-gray-900 dark:text-white">
-                Helping You Thrive
+                Courses
             </h2>
-            <p class="text-gray-500 mx-auto lg:text-xl">  <!-- Added mx-auto for center alignment -->
-                My goal is to help you reach the very highest grades in your English qualifications. 
-                I am focused on helping you reach Grade 9
+            <p>
+                I mainly focus on the UK GCSEs and IGCSEs, but lots of the content is covered all over the world.
             </p>
         </div>
-
-        <div class="grid gap-8 md:grid-cols-2 lg:grid-cols-3">  <!-- Reduced gap -->
-            <!-- Your three service sections (Video Lessons, Tuition Sessions, Past Papers) -->
-        </div>
-    </div>
-</section>
-
-<section class="bg-white dark:bg-gray-900 my-4">  <!-- Reduced margin -->
-    <div class="mx-auto max-w-screen-sm text-center mb-4">
-        <h2 class="mb-4 text-3xl tracking-tight font-extrabold text-gray-900 dark:text-white">
-            Courses
-        </h2>
-        <p class="text-gray-500 lg:text-xl">
-            I mainly focus on the UK GCSEs and IGCSEs, but lots of the content is covered all over the world.
-        </p>
-    </div>
-
-    <div hx-get="/courses/" hx-trigger="revealed">
-        <!-- Courses will load here -->
-    </div>
-</section>
-
+        <div hx-get="/courses/" hx-trigger="revealed"></div>
+    </section>
 {% endblock content %}

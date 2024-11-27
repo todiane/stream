@@ -1,49 +1,38 @@
 {% load static tailwind_tags %}
-<!DOCTYPE html>
-<html lang="en" class="h-full">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    {% tailwind_css %}
-    <title>{% block head_title %}Stream English{% endblock head_title %}</title>
-</head>
-<body class="flex flex-col min-h-screen text-base antialiased">
-    {% include 'base/navbar.html' %}
+{% include 'base/navbar.html' %}
 
-    <main role="main" class="flex-grow">
-        {% block content %}
-        <h1 class="text-3xl font-bold underline">Hello world from base!</h1>
-        {% endblock content %}
-    </main>
+<main class="flex-grow" role="main">
+    {% block content %}
+    <h1 class="text-3xl font-bold underline">Hello world from base!</h1>
+    {% endblock content %}
+</main>
 
-    {% if messages %}
-    <div id="message-container" class="fixed top-0 right-0 m-4 z-50">
-        {% for message in messages %}
-        <div class="bg-gray-200 border-t-4 rounded-b px-4 py-3 shadow-md mb-2 {% if message.tags %}{{ message.tags }}{% endif %}" role="alert">
-            <div class="flex">
-                <div class="py-1">
-                    {% if message.level == 40 %}
-                    <svg class="fill-current h-6 w-6 text-red-500 mr-4" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20">
-                        <path d="M2.93 17.07A10 10 0 1 1 17.07 2.93 10 10 0 0 1 2.93 17.07zm12.73-1.41A8 8 0 1 0 4.34 4.34a8 8 0 0 0 11.32 11.32zM9 11V9h2v6H9v-4zm0-6h2v2H9V5z"/>
-                    </svg>
-                    {% elif message.level == 25 %}
-                    <svg class="fill-current h-6 w-6 text-green-500 mr-4" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20">
-                        <path d="M2.93 17.07A10 10 0 1 1 17.07 2.93 10 10 0 0 1 2.93 17.07zm12.73-1.41A8 8 0 1 0 4.34 4.34a8 8 0 0 0 11.32 11.32zM6.7 9.29L9 11.6l4.3-4.3 1.4 1.42L9 14.4l-3.7-3.7 1.4-1.42z"/>
-                    </svg>
-                    {% else %}
-                    <svg class="fill-current h-6 w-6 text-blue-500 mr-4" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20">
-                        <path d="M2.93 17.07A10 10 0 1 1 17.07 2.93 10 10 0 0 1 2.93 17.07zm12.73-1.41A8 8 0 1 0 4.34 4.34a8 8 0 0 0 11.32 11.32zM9 11V9h2v6H9v-4zm0-6h2v2H9V5z"/>
-                    </svg>
-                    {% endif %}
-                </div>
-                <div>{{ message }}</div>
+{% if messages %}
+<div id="message-container" class="fixed top-0 right-0 m-4 z-50">
+    {% for message in messages %}
+    <div class="bg-gray-200 border-t-4 rounded-b px-4 py-3 shadow-md mb-2 {% if message.tags %}{{ message.tags }}{% endif %}" role="alert">
+        <div class="flex">
+            <div class="py-1">
+                {% if message.level == 40 %}
+                <svg class="fill-current h-6 w-6 text-red-500 mr-4" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20">
+                    <path d="M2.93 17.07A10 10 0 1 1 17.07 2.93 10 10 0 0 1 2.93 17.07zm12.73-1.41A8 8 0 1 0 4.34 4.34a8 8 0 0 0 11.32 11.32zM9 11V9h2v6H9v-4zm0-6h2v2H9V5z" />
+                </svg>
+                {% elif message.level == 25 %}
+                <svg class="fill-current h-6 w-6 text-green-500 mr-4" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20">
+                    <path d="M2.93 17.07A10 10 0 1 1 17.07 2.93 10 10 0 0 1 2.93 17.07zm12.73-1.41A8 8 0 1 0 4.34 4.34a8 8 0 0 0 11.32 11.32zM6.7 9.29L9 11.6l4.3-4.3 1.4 1.42L9 14.4l-3.7-3.7 1.4-1.42z" />
+                </svg>
+                {% else %}
+                <svg class="fill-current h-6 w-6 text-blue-500 mr-4" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20">
+                    <path d="M2.93 17.07A10 10 0 1 1 17.07 2.93 10 10 0 0 1 2.93 17.07zm12.73-1.41A8 8 0 1 0 4.34 4.34a8 8 0 0 0 11.32 11.32zM9 11V9h2v6H9v-4zm0-6h2v2H9V5z" />
+                </svg>
+                {% endif %}
             </div>
+            <div>{{ message }}</div>
         </div>
-        {% endfor %}
     </div>
-    {% endif %}
+    {% endfor %}
+</div>
+{% endif %}
 
-    {% include 'base/footer.html' %}
-    {% include 'base/js.html' %}
-</body>
-</html>
+{% include 'base/footer.html' %}
+{% include 'base/js.html' %}

@@ -71,10 +71,6 @@ MIDDLEWARE = [
     "django_htmx.middleware.HtmxMiddleware",
 ]
 
-if DEBUG:
-    # django-tailwind theme app
-    INSTALLED_APPS.append('django_browser_reload')
-    MIDDLEWARE.append("django_browser_reload.middleware.BrowserReloadMiddleware")
 
 ROOT_URLCONF = 'stream.urls'
 
