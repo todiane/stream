@@ -1,10 +1,12 @@
 import uuid
-import helpers
 from django.db import models
 from django.utils.text import slugify
 from cloudinary.models import CloudinaryField
+from django.conf import settings
+import cloudinary
+from helpers._cloudinary import get_cloudinary_image_object, cloudinary_init
 
-helpers.cloudinary_init()
+cloudinary_init()
 
 class AccessRequirement(models.TextChoices):
     ANYONE = "any", "Anyone"
@@ -33,10 +35,8 @@ class Category(models.Model):
     def __str__(self):
         return f"{self.name} ({self.exam_board})"
 
-
 def handle_upload(instance, filename):
     return f"{filename}"
-
 
 def generate_public_id(instance, *args, **kwargs):
     title = instance.title
@@ -46,7 +46,6 @@ def generate_public_id(instance, *args, **kwargs):
     slug = slugify(title)
     unique_id_short = unique_id[:5]
     return f"{slug}-{unique_id_short}"
-
 
 def get_public_id_prefix(instance, *args, **kwargs):
     if hasattr(instance, 'path'):
@@ -64,7 +63,6 @@ def get_public_id_prefix(instance, *args, **kwargs):
         return f"{model_name_slug}"
     return f"{model_name_slug}/{public_id}"
 
-# get_display_name is a function that returns the display name of an instance
 def get_display_name(instance, *args, **kwargs):
     if hasattr(instance, 'get_display_name'):
         return instance.get_display_name()
@@ -77,40 +75,18 @@ def get_display_name(instance, *args, **kwargs):
 class Course(models.Model):
     title = models.CharField(max_length=120)
     description = models.TextField(blank=True, null=True)
-    category = models.ForeignKey(
-        Category,
-        on_delete=models.CASCADE,
-        related_name='courses',
-        null=True,  
-        blank=True  
-    )
+    category = models.ForeignKey(Category, on_delete=models.CASCADE, related_name='courses', null=True, blank=True)
     public_id = models.CharField(max_length=130, blank=True, null=True, db_index=True)
-    image = CloudinaryField(
-        "image", 
-        null=True, 
-        public_id_prefix=get_public_id_prefix,
-        display_name=get_display_name,
-        tags=["course", "thumbnail"]
-    )
-    access = models.CharField(
-        max_length=5, 
-        choices=AccessRequirement.choices,
-        default=AccessRequirement.EMAIL_REQUIRED
-    )
-    status = models.CharField(
-        max_length=10, 
-        choices=PublishStatus.choices,
-        default=PublishStatus.DRAFT
-        )
+    image = CloudinaryField('image', null=True, blank=True)
+    access = models.CharField(max_length=5, choices=AccessRequirement.choices, default=AccessRequirement.EMAIL_REQUIRED)
+    status = models.CharField(max_length=10, choices=PublishStatus.choices, default=PublishStatus.DRAFT)
     timestamp = models.DateTimeField(auto_now_add=True)
     updated = models.DateTimeField(auto_now=True)
 
     def save(self, *args, **kwargs):
-        # before save
         if self.public_id == "" or self.public_id is None:
             self.public_id = generate_public_id(self)
         super().save(*args, **kwargs)
-        # after save
 
     def get_absolute_url(self):
         return self.path
@@ -122,24 +98,40 @@ class Course(models.Model):
     def get_display_name(self):
         return f"{self.title} - Course"
 
+    def get_image_url(self):
+        return get_cloudinary_image_object(self, 'image')
+
+    def clear_image(self):
+        if self.image:
+            try:
+                public_id = self.image.public_id
+                cloudinary.uploader.destroy(public_id)
+                self.image = None
+                self.save()
+                return True
+            except Exception as e:
+                print(f"Error clearing course image: {e}")
+                return False
+        return False
+
     def get_thumbnail(self):
         if not self.image:
-            return None
-        return helpers.get_cloudinary_image_object(
+            return settings.DEFAULT_PLACEHOLDER_IMAGE
+        return get_cloudinary_image_object(
             self, 
             field_name='image',
-            as_html=False,
-            width=382
+            width=382,
+            as_html=False
         )
 
     def get_display_image(self):
         if not self.image:
-            return None
-        return helpers.get_cloudinary_image_object(
+            return settings.DEFAULT_PLACEHOLDER_IMAGE
+        return get_cloudinary_image_object(
             self, 
             field_name='image',
-            as_html=False,
-            width=750
+            width=750,
+            as_html=False
         )
 
     @property
@@ -151,13 +143,7 @@ class Lesson(models.Model):
     public_id = models.CharField(max_length=130, blank=True, null=True, db_index=True)
     title = models.CharField(max_length=120)
     description = models.TextField(blank=True, null=True)
-    thumbnail = CloudinaryField(
-        "image", 
-        public_id_prefix=get_public_id_prefix,
-        display_name=get_display_name,
-        tags=['thumbnail', 'lesson'],
-        blank=True, null=True
-    )
+    thumbnail = CloudinaryField('thumbnail', null=True, blank=True)
     video = CloudinaryField(
         "video", 
         public_id_prefix=get_public_id_prefix,
@@ -176,11 +162,7 @@ class Lesson(models.Model):
     )
     order = models.IntegerField(default=0)
     can_preview = models.BooleanField(default=False, help_text="If user does not have access to course, can they see this?")
-    status = models.CharField(
-        max_length=10, 
-        choices=PublishStatus.choices,
-        default=PublishStatus.PUBLISHED
-    )
+    status = models.CharField(max_length=10, choices=PublishStatus.choices, default=PublishStatus.PUBLISHED)
     timestamp = models.DateTimeField(auto_now_add=True)
     updated = models.DateTimeField(auto_now=True)
 
@@ -188,7 +170,6 @@ class Lesson(models.Model):
         ordering = ['order', '-updated']
 
     def save(self, *args, **kwargs):
-        # before save
         if self.public_id == "" or self.public_id is None:
             self.public_id = generate_public_id(self)
         super().save(*args, **kwargs)
@@ -202,6 +183,9 @@ class Lesson(models.Model):
         if course_path.endswith("/"):
             course_path = course_path[:-1]
         return f"{course_path}/lessons/{self.public_id}"
+
+    def get_thumbnail_url(self):
+        return get_cloudinary_image_object(self, 'thumbnail')
 
     @property
     def requires_email(self):
@@ -221,28 +205,28 @@ class Lesson(models.Model):
     def get_thumbnail(self):
         width = 382
         if self.thumbnail:
-            return helpers.get_cloudinary_image_object(
-                self, 
+            return get_cloudinary_image_object(
+                self,
                 field_name='thumbnail',
                 format='jpg',
-                as_html=False,
-                width=width
+                width=width,
+                as_html=False
             )
         elif self.video:
-            return helpers.get_cloudinary_image_object(
+            return get_cloudinary_image_object(
                 self, 
                 field_name='video',
                 format='jpg',
-                as_html=False,
-                width=width
+                width=width,
+                as_html=False
             )
-        return
+        return settings.DEFAULT_PLACEHOLDER_IMAGE
 
-    def get_video_embed(self):
+    def get_display_image(self):
         if self.youtube_url:
-            # Extract the video ID from the YouTube URL
             video_id = self.youtube_url.split('v=')[-1]
             return f"https://www.youtube.com/embed/{video_id}"
         elif self.video:
-            return helpers.get_cloudinary_video_object(self, field_name='video')
+            return get_cloudinary_image_object(self, field_name='video')
         return None
+    

@@ -63,6 +63,7 @@ INSTALLED_APPS = [
     'allauth.account',
     'allauth.socialaccount',
     'cloudinary',
+    'tailwind',
 ]
 
 
@@ -175,6 +176,8 @@ CLOUDINARY_API_SECRET = config('CLOUDINARY_API_SECRET')
 DEFAULT_FILE_STORAGE = 'cloudinary_storage.storage.MediaCloudinaryStorage'
 STATICFILES_STORAGE = 'cloudinary_storage.storage.StaticHashedCloudinaryStorage'
 
+DEFAULT_PLACEHOLDER_IMAGE = "https://res.cloudinary.com/dehgeciaw/image/upload/v1732702367/samples/animals/three-dogs.jpg"
+
 # Set the path to the npm executable
 NPM_BIN_PATH = "/usr/bin/npm"  # path to Node.js npm executable
 # Set the path to the tailwindcss executable
@@ -215,12 +218,12 @@ ACCOUNT_LOGOUT_REDIRECT_URL = '/profiles/login/'
 EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'
 
 # For production, use SMTP backend
-# EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
-# EMAIL_HOST = 'smtp.your-email-provider.com'
-# EMAIL_PORT = 587
-# EMAIL_USE_TLS = True
-# EMAIL_HOST_USER = 'your-email@example.com'
-# EMAIL_HOST_PASSWORD = 'your-email-password'
+EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
+EMAIL_HOST = config('EMAIL_HOST')
+EMAIL_PORT = 587
+EMAIL_USE_TLS = True
+EMAIL_HOST_USER = config('EMAIL_HOST_USER')
+EMAIL_HOST_PASSWORD = config('EMAIL_HOST_PASSWORD')
 
 # CKEditor configuration settings 
 

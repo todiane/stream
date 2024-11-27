@@ -1,48 +1,38 @@
-{% extends 'base.html' %}
-{% load static %}
+{% extends 'base.html' %} 
+{% load static %} 
 
-{% block head_title %}Welcome to Stream English{% endblock head_title %}
+{% block head_title %}Welcome to Stream English{% endblock head_title %} 
 
 {% block content %}
 {% include 'base/hero.html' %}
 
 <section class="bg-white dark:bg-gray-900 py-12">
     <div class="container mx-auto px-4 text-center">
-        <h2 class="text-3xl font-extrabold mb-4 dark:text-white">
+        <h2 class="text-3xl font-extrabold mb-4 text-gray-900 dark:text-white">
             Helping You Thrive
         </h2>
-        <p>
-            My goal is to help you reach the very highest grades in your English
-            qualifications. I am focused on helping you reach Grade 9.
+        <p class="text-gray-600 dark:text-gray-300">
+            My goal is to help you reach the very highest grades in your English qualifications. 
+            I am focused on helping you reach Grade 9.
         </p>
     </div>
 </section>
 
 <section class="bg-slate-50 dark:bg-gray-800 py-12">
     <div class="container mx-auto px-4">
-        <h2 class="text-3xl font-extrabold text-center mb-8 dark:text-white">
+        <h2 class="text-3xl font-extrabold text-center mb-8 text-gray-900 dark:text-white">
             Courses
         </h2>
+        
+        {% include 'courses/snippets/list-display.html' with queryset=object_list %}
 
-        <div class="grid gap-8 md:grid-cols-2 lg:grid-cols-3">
-            <div class="course-card">
-                <img src="{% static 'images/inspector-calls.png' %}" alt="An Inspector Calls" class="rounded">
-                <h3 class="mt-4 text-lg font-bold">An Inspector Calls</h3>
-                <a href="/courses/inspector-calls/" class="btn-link">View →</a>
-            </div>
-
-            <div class="course-card">
-                <img src="{% static 'images/macbeth.png' %}" alt="Macbeth" class="rounded">
-                <h3 class="mt-4 text-lg font-bold">Macbeth</h3>
-                <a href="/courses/macbeth/" class="btn-link">View →</a>
-            </div>
-
-            <div class="course-card">
-                <img src="{% static 'images/english-language.png' %}" alt="English Language" class="rounded">
-                <h3 class="mt-4 text-lg font-bold">AQA English Language</h3>
-                <a href="/courses/english-language/" class="btn-link">View →</a>
-            </div>
+        <div class="text-center mt-8">
+            <a href="{% url 'courses:course_list' %}" 
+               class="inline-flex items-center px-5 py-3 text-base font-medium text-white bg-blue-600 rounded-lg hover:bg-blue-700">
+                View All Courses
+            </a>
         </div>
     </div>
 </section>
+
 {% endblock content %}

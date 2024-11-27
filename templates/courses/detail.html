@@ -13,7 +13,7 @@
 
     <div class="flex justify-center items-center">
       <img
-        src="{{ object.get_display_image }}"
+        src="{{ object.get_display_image|safe }}"
         alt="{{ object.title }}"
         class="w-full max-w-2xl rounded-lg shadow-xl"
       />
@@ -82,11 +82,11 @@
       <div class="grid gap-8 md:grid-cols-2 lg:grid-cols-3">
         {% for lesson in lessons_queryset %}
         <div class="bg-white rounded-lg shadow-md overflow-hidden">
-          {% if lesson.get_thumbnail %}
-          <img
-            src="{{ lesson.get_thumbnail }}"
-            alt="{{ lesson.title }}"
-            class="w-full h-48 object-cover"
+          {% if lesson.thumbnail %}
+          <img 
+              src="{{ lesson.get_thumbnail_url }}"
+              alt="{{ lesson.title }}"
+              class="w-full h-48 object-cover"
           />
           {% endif %}
           <div class="p-4">

@@ -85,7 +85,7 @@
         {% if lesson.get_thumbnail %}
         <a href="{{ lesson.get_absolute_url }}">
           <img
-            src="{{ lesson.get_thumbnail }}"
+            src="{{ lesson.get_thumbnail|safe }}"
             alt="{{ lesson.title }}"
             class="w-full h-48 object-cover"
           />
