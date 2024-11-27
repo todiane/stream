@@ -14,6 +14,7 @@ django-allauth==65.0.2
 django-ckeditor-5==0.2.15
 django-cloudinary-storage==0.3.0
 django-crispy-forms==2.3
+django-environ==0.11.2
 django-htmx==1.19.0
 django-js-asset==2.2.0
 django-markdownx==4.0.7
@@ -21,7 +22,6 @@ django-tailwind==3.8.0
 gunicorn==20.1.0
 idna==3.10
 Jinja2==3.1.4
-Markdown==3.7
 MarkupSafe==3.0.1
 mdurl==0.1.2
 pillow==10.4.0
