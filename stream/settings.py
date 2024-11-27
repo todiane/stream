@@ -25,23 +25,23 @@ SECRET_KEY = 'django-insecure-&zi9qci4535^_q8_+(1bb08nv0fl-^b66879ngpdaq%)uh%*)z
 # SECURITY WARNING: don't run with debug turned on in production! Set to False in production 
 DEBUG = False
 
-ALLOWED_HOSTS = ['streamenglish.up.railway.app', 'streamenglish.co.uk', 'www.streamenglish.co.uk', 'localhost', '127.0.0.1']
+ALLOWED_HOSTS = ['streamenglish.up.railway.app', 'localhost', '127.0.0.1']
 
 SITE_ID = 1
 
 # Database
 # https://docs.djangoproject.com/en/5.1/ref/settings/#databases
 
-DEVELOPMENT_DB = {
-    "default": {
-        "ENGINE": "django.db.backends.sqlite3",
-        "NAME": BASE_DIR / "db.sqlite3",
-    }
-}
+# DATABASES = {
+#     "default": {
+#         "ENGINE": "django.db.backends.sqlite3",
+#         "NAME": BASE_DIR / "db.sqlite3",
+#     }
+# }
 
-PRODUCTION_DB = {"default": dj_database_url.parse(config("DATABASE_URL"))}
+DATABASES = {"default": dj_database_url.parse(config("DATABASE_URL"))}
 
-DATABASES = PRODUCTION_DB
+
 
 # Application definition
 
