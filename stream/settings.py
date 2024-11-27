@@ -23,7 +23,7 @@ TEMPLATE_DIR = BASE_DIR / "templates"
 SECRET_KEY = 'django-insecure-&zi9qci4535^_q8_+(1bb08nv0fl-^b66879ngpdaq%)uh%*)z'
 
 # SECURITY WARNING: don't run with debug turned on in production! Set to False in production 
-DEBUG = True
+DEBUG = False
 
 ALLOWED_HOSTS = ['streamenglish.up.railway.app', 'streamenglish.co.uk', 'www.streamenglish.co.uk', 'localhost', '127.0.0.1']
 
@@ -41,7 +41,7 @@ DEVELOPMENT_DB = {
 
 PRODUCTION_DB = {"default": dj_database_url.parse(config("DATABASE_URL"))}
 
-DATABASES = DEVELOPMENT_DB
+DATABASES = PRODUCTION_DB
 
 # Application definition
 
@@ -105,10 +105,6 @@ TEMPLATES = [
 
 WSGI_APPLICATION = 'stream.wsgi.application'
 
-
-
-
-
 # Password validation
 # https://docs.djangoproject.com/en/5.1/ref/settings/#auth-password-validators
 
@@ -161,7 +157,7 @@ MEDIA_ROOT = BASE_DIR / 'media'
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
-# cloudinary video config
+
 # Cloudinary settings
 CLOUDINARY_STORAGE = {
     'CLOUD_NAME': config('CLOUDINARY_CLOUD_NAME'),
@@ -169,12 +165,7 @@ CLOUDINARY_STORAGE = {
     'API_SECRET': config('CLOUDINARY_API_SECRET'),
 }
 
-CLOUDINARY_CLOUD_NAME = config('CLOUDINARY_CLOUD_NAME')
-CLOUDINARY_API_KEY = config('CLOUDINARY_API_KEY')
-CLOUDINARY_API_SECRET = config('CLOUDINARY_API_SECRET')
-
 DEFAULT_FILE_STORAGE = 'cloudinary_storage.storage.MediaCloudinaryStorage'
-STATICFILES_STORAGE = 'cloudinary_storage.storage.StaticHashedCloudinaryStorage'
 
 DEFAULT_PLACEHOLDER_IMAGE = "https://res.cloudinary.com/dehgeciaw/image/upload/v1732702367/samples/animals/three-dogs.jpg"
 

@@ -2,19 +2,20 @@ import cloudinary
 from django.conf import settings
 from django.core.exceptions import ImproperlyConfigured
 
-def cloudinary_init():   
-    if not all([settings.CLOUDINARY_CLOUD_NAME, 
-                settings.CLOUDINARY_API_KEY, 
-                settings.CLOUDINARY_API_SECRET]):
+def cloudinary_init():
+    """Initialize cloudinary configuration"""
+    if not all([settings.CLOUDINARY_STORAGE['CLOUD_NAME'], 
+                settings.CLOUDINARY_STORAGE['API_KEY'], 
+                settings.CLOUDINARY_STORAGE['API_SECRET']]):
         raise ImproperlyConfigured(
-            'Cloudinary settings CLOUDINARY_CLOUD_NAME, CLOUDINARY_API_KEY, '
-            'and CLOUDINARY_API_SECRET must be set in your settings.'
+            'Cloudinary settings CLOUD_NAME, API_KEY, and API_SECRET '
+            'must be set in your CLOUDINARY_STORAGE settings.'
         )
     
     cloudinary.config( 
-        cloud_name = settings.CLOUDINARY_CLOUD_NAME, 
-        api_key = settings.CLOUDINARY_API_KEY, 
-        api_secret = settings.CLOUDINARY_API_SECRET,
+        cloud_name=settings.CLOUDINARY_STORAGE['CLOUD_NAME'],
+        api_key=settings.CLOUDINARY_STORAGE['API_KEY'],
+        api_secret=settings.CLOUDINARY_STORAGE['API_SECRET'],
         secure=True
     )
-    
+    return True
