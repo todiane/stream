@@ -2,7 +2,4 @@
 NODE_VERSION = "20.18.0"
 
 [install]
-command = "npm ci --omit=dev"
-
-[install]
 command = "npm ci --omit=dev && echo 'npm ci completed successfully'"
