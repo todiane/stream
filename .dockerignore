@@ -1,0 +1,13 @@
+# .dockerignore
+.git
+.gitignore
+.env
+*.pyc
+__pycache__
+.pytest_cache
+*.sqlite3
+media/
+static/
+node_modules/
+venv/
+.vscode/

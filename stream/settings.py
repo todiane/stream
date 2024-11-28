@@ -54,7 +54,6 @@ INSTALLED_APPS = [
     'cloudinary_storage',
     'django.contrib.staticfiles',
     'django_ckeditor_5',
-    'whitenoise.runserver_nostatic',
     #internal apps
     'courses',
     'profiles',
