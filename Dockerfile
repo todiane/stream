@@ -7,7 +7,8 @@ ENV PYTHONDONTWRITEBYTECODE=1 \
     NODE_VERSION=20.18.0 \
     DJANGO_SETTINGS_MODULE=stream.settings \
     DEBUG=False \
-    USE_CLOUDINARY=True
+    USE_CLOUDINARY=True \
+    NODE_ENV=production
 
 # Install system dependencies
 RUN apt-get update && apt-get install -y \
@@ -24,18 +25,21 @@ WORKDIR /app
 COPY requirements.txt .
 RUN pip install -r requirements.txt
 
-# Install Node dependencies
-COPY package*.json .
+# Copy package files and install Tailwind globally
+COPY package.json .
+COPY tailwind.config.js .
+RUN npm install -g tailwindcss@latest postcss@latest autoprefixer@latest
 RUN npm install
 
-# Copy project files
+# Copy the project files
 COPY . .
 
-# Create necessary directories
-RUN mkdir -p static staticfiles
+# Create directories and verify input.css exists
+RUN mkdir -p static/css
+RUN ls -la static/css/input.css
 
-# Build Tailwind CSS
-RUN npx tailwindcss -i ./static/css/input.css -o ./static/css/output.css
+# Build Tailwind CSS (using globally installed tailwindcss)
+RUN tailwindcss -i ./static/css/input.css -o ./static/css/output.css
 
 # Collect static files
 RUN python manage.py collectstatic --noinput
