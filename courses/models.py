@@ -62,7 +62,7 @@ class Course(models.Model):
         null=True,
         folder="courses",  
         resource_type="auto",  # Add this line to handle different file types
-        allowed_formats=['jpg', 'png', 'svg', 'webp', 'gif'],
+        allowed_formats=['jpg', 'jpeg', 'png', 'svg', 'webp', 'gif'],
         transformation={"quality": "auto:eco"},
     )
 
@@ -137,7 +137,7 @@ class Lesson(models.Model):
         null=True,
         folder="lessons",
         resource_type="image",
-        allowed_formats=['jpg', 'png', 'svg', 'webp', 'gif'],
+        allowed_formats=['jpg', 'jpeg', 'png', 'svg', 'webp', 'gif'],
         transformation={"quality": "auto:eco"},
     )
     video = CloudinaryField(
