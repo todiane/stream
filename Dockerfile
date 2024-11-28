@@ -9,9 +9,11 @@ ENV PYTHONDONTWRITEBYTECODE=1 \
     NODE_ENV=production
 
 # Install system dependencies
+# Include procps to enable pkill and other process management tools
 RUN apt-get update && apt-get install -y \
     curl \
     build-essential \
+    procps \
     && curl -fsSL https://deb.nodesource.com/setup_20.x | bash - \
     && apt-get install -y nodejs \
     && rm -rf /var/lib/apt/lists/*
@@ -38,6 +40,7 @@ RUN npx tailwindcss -i ./static/css/input.css -o ./static/css/output.css
 
 # Expose the port
 EXPOSE 8080
+
 
 # Command to start the application
 CMD ["./start.sh"]
