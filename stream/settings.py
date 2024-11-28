@@ -7,7 +7,8 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 
 # Security
 SECRET_KEY = config("SECRET_KEY", default="unsafe-default-secret-key")
-ALLOWED_HOSTS = config("ALLOWED_HOSTS", default="localhost").split(",")
+
+ALLOWED_HOSTS = ['streamenglish.up.railway.app', '127.0.0.1']
 
 
 # SECURITY WARNING: don't run with debug turned on in production!
@@ -63,6 +64,7 @@ INSTALLED_APPS = [
     "cloudinary_storage",
     "cloudinary",
     "tailwind",
+    "django_ckeditor_5",
     # Internal apps
     "courses",
     "profiles",
@@ -103,6 +105,15 @@ TEMPLATES = [
 
 WSGI_APPLICATION = "stream.wsgi.application"
 
+
+# Security Settings
+SECURE_SSL_REDIRECT = True
+SESSION_COOKIE_SECURE = True
+CSRF_COOKIE_SECURE = True
+SECURE_BROWSER_XSS_FILTER = True
+SECURE_CONTENT_TYPE_NOSNIFF = True
+SECURE_PROXY_SSL_HEADER = ('HTTP_X_FORWARDED_PROTO', 'https')
+
 # Email settings
 EMAIL_BACKEND = "django.core.mail.backends.smtp.EmailBackend"
 EMAIL_HOST = config("EMAIL_HOST", default="localhost")
@@ -125,3 +136,66 @@ LANGUAGE_CODE = "en-us"
 TIME_ZONE = "UTC"
 USE_I18N = True
 USE_TZ = True
+
+# Default primary key field type
+# https://docs.djangoproject.com/en/5.1/ref/settings/#default-auto-field
+
+DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
+
+DEFAULT_PLACEHOLDER_IMAGE = "https://res.cloudinary.com/dehgeciaw/image/upload/v1732702367/samples/animals/three-dogs.jpg"
+
+# Provider specific settings
+SOCIALACCOUNT_PROVIDERS = {
+    # Add social providers here if needed
+}
+
+# django-allauth settings
+ACCOUNT_EMAIL_REQUIRED = True
+ACCOUNT_UNIQUE_EMAIL = True
+ACCOUNT_EMAIL_VERIFICATION = 'mandatory'
+ACCOUNT_CONFIRM_EMAIL_ON_GET = True
+ACCOUNT_EMAIL_CONFIRMATION_EXPIRE_DAYS = 3
+ACCOUNT_RATE_LIMITS = {
+       "login_failed": {"per": 3600, "num": 5},
+       "signup": {"per": 3600, "num": 10},
+       "password_reset": {"per": 3600, "num": 5},
+   }
+ACCOUNT_USERNAME_REQUIRED = True
+ACCOUNT_AUTHENTICATION_METHOD = "email"
+ACCOUNT_ACTIVATION_DAYS = 7
+
+
+# Login/logout settings
+LOGIN_REDIRECT_URL = '/courses/'
+LOGIN_URL = '/profiles/login/'
+ACCOUNT_LOGOUT_REDIRECT_URL = '/profiles/login/'
+
+# Email settings (for development)
+EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'
+
+# For production, use SMTP backend
+EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
+EMAIL_HOST = config('EMAIL_HOST')
+EMAIL_PORT = 587
+EMAIL_USE_TLS = True
+EMAIL_HOST_USER = config('EMAIL_HOST_USER')
+EMAIL_HOST_PASSWORD = config('EMAIL_HOST_PASSWORD')
+
+# CKEditor configuration settings 
+
+CKEDITOR_5_UPLOAD_PATH = "uploads/"
+
+CKEDITOR_5_CONFIGS = {
+    'default': {
+        'toolbar': ['heading', '|', 'bold', 'italic', 'link',
+                   'bulletedList', 'numberedList', 'blockQuote', 'imageUpload', 'blockQuote', 'codeBlock', '|',
+            'link', 'imageUpload', 'insertTable', 'mediaEmbed', '|',
+            'alignment', '|',
+            'findAndReplace', '|',
+            'undo', 'redo', '|',],
+        'height': '300px',
+        'width': '100%',
+    },
+}
+
+CKEDITOR_5_FILE_STORAGE = 'cloudinary_storage.storage.MediaCloudinaryStorage'
