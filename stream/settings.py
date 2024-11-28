@@ -8,7 +8,12 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 # Security
 SECRET_KEY = config("SECRET_KEY", default="unsafe-default-secret-key")
 
-ALLOWED_HOSTS = ['streamenglish.up.railway.app', '127.0.0.1']
+ALLOWED_HOSTS = os.environ.get('ALLOWED_HOSTS', '').split(',') or [
+    'streamenglish.up.railway.app',
+    '.up.railway.app',
+    '127.0.0.1',
+    '0.0.0.0'
+]
 
 
 # SECURITY WARNING: don't run with debug turned on in production!
@@ -22,6 +27,7 @@ DEBUG = False
 #         'NAME': BASE_DIR / 'db.sqlite3',
 #     }
 # }
+
 DATABASES = {"default": dj_database_url.config(default=os.environ.get("DATABASE_URL"))}
 
 # Static and media files
