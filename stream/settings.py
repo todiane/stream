@@ -2,6 +2,8 @@ from pathlib import Path
 from decouple import config
 import dj_database_url
 import os
+import logging
+from django.core.exceptions import ImproperlyConfigured
 
 BASE_DIR = Path(__file__).resolve().parent.parent
 
@@ -12,8 +14,10 @@ ALLOWED_HOSTS = os.environ.get('ALLOWED_HOSTS', '').split(',') or [
     'streamenglish.up.railway.app',
     '.up.railway.app',
     '127.0.0.1',
-    '0.0.0.0'
+    'localhost',
+    '*',
 ]
+
 
 
 # SECURITY WARNING: don't run with debug turned on in production!
@@ -28,7 +32,18 @@ DEBUG = False
 #     }
 # }
 
+
+
 DATABASES = {"default": dj_database_url.config(default=os.environ.get("DATABASE_URL"))}
+
+CSRF_TRUSTED_ORIGINS = [
+    'https://streamenglish.up.railway.app',
+    'https://*.up.railway.app',
+    'https://streamenglish.co.uk',
+    'https://www.streamenglish.co.uk',
+]
+
+
 
 # Static and media files
 STATIC_URL = "/static/"
@@ -67,6 +82,7 @@ INSTALLED_APPS = [
     "django.contrib.sessions",
     "django.contrib.messages",
     "django.contrib.staticfiles",
+    "whitenoise.runserver_nostatic",
     "cloudinary_storage",
     "cloudinary",
     "tailwind",
@@ -82,6 +98,7 @@ INSTALLED_APPS = [
 
 MIDDLEWARE = [
     "django.middleware.security.SecurityMiddleware",
+    "whitenoise.middleware.WhiteNoiseMiddleware",
     "django.contrib.sessions.middleware.SessionMiddleware",
     "django.middleware.common.CommonMiddleware",
     "django.middleware.csrf.CsrfViewMiddleware",
