@@ -5,6 +5,19 @@ set -e
 
 echo "Starting application deployment: $(date)"
 
+# Function to check environment variables
+check_environment() {
+    echo "Checking environment variables..."
+    if [ -z "$DATABASE_URL" ]; then
+        echo "ERROR: DATABASE_URL is not set"
+        # Print all environment variables for debugging (excluding sensitive values)
+        printenv | grep -v "SECRET\|KEY\|PASSWORD"
+        exit 1
+    else
+        echo "DATABASE_URL is set"
+    fi
+}
+
 # Function to run migrations with error handling
 run_migrations() {
     echo "Running migrations..."
@@ -34,15 +47,14 @@ clean_up() {
     pkill -f "gunicorn" || true
 }
 
-# Ensure migrations don't hang by cleaning up before running
+# Run all checks and setup
 clean_up
-
-# Run setup tasks
+check_environment
 collect_static
 run_migrations
 
 echo "Starting Gunicorn..."
-exec gunicorn config.wsgi:application \
+exec gunicorn stream.wsgi:application \
     --bind "0.0.0.0:${PORT:-8000}" \
     --workers 2 \
     --threads 2 \
@@ -50,3 +62,4 @@ exec gunicorn config.wsgi:application \
     --log-level debug \
     --capture-output \
     --enable-stdio-inheritance
+    
