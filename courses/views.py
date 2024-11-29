@@ -1,4 +1,4 @@
-from courses.models import Course
+from courses.models import Course, PublishStatus
 import helpers
 from django.http import JsonResponse, Http404
 from django.shortcuts import get_object_or_404, render, redirect
@@ -10,29 +10,24 @@ from django.db.models import Q
 from . import services
 from django.core.serializers import serialize
 
-
 def course_list_view(request):
-    try:
-        if request.headers.get('X-Requested-With') == 'XMLHttpRequest':
-            query = request.GET.get('query', '').strip()
-            queryset = Course.objects.filter(Q(title__icontains=query))
-            results = []
-            for course in queryset:
-                results.append({
-                    'id': course.id,
-                    'title': course.title,
-                    'slug': course.slug if hasattr(course, 'slug') else str(course.id)
-                })
-            return JsonResponse({'results': results})
-    except Exception as e:
-        return JsonResponse({'error': str(e)}, status=400)
+    if request.headers.get('X-Requested-With') == 'XMLHttpRequest':
+        query = request.GET.get('query', '')
+        courses = Course.objects.filter(
+            Q(title__icontains=query),
+            status=PublishStatus.PUBLISHED
+        )
+        data = [{
+            'title': course.title,
+            'path': f"/courses/{course.public_id}/"
+        } for course in courses]
+        return JsonResponse({'results': data})
     
     queryset = services.get_publish_courses()
     context = {
         "object_list": queryset
     }
     return render(request, "courses/list.html", context)
-
 
 @login_required
 def enrol_course(request, course_id):
