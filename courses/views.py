@@ -125,3 +125,26 @@ def lesson_detail_view(request, course_id=None, lesson_id=None, *args, **kwargs)
         context['video_embed'] = video_embed_html
     
     return render(request, template_name, context)
+
+
+def htmx_nav_menu(request):
+    return render(request, 'courses/htmx/nav_menu.html')
+
+def htmx_video_modal(request):
+    return render(request, 'courses/htmx/video_modal.html')
+
+def htmx_booking_form(request):
+    return render(request, 'courses/htmx/booking_form.html')
+
+def htmx_latest_courses(request):
+    latest_courses = services.get_publish_courses()[:3]
+    return render(request, 'courses/htmx/latest_courses.html', {
+        'latest_courses': latest_courses
+    })
+
+@login_required
+def htmx_submit_booking(request):
+    if request.method == 'POST':
+        # Add your booking logic here
+        return render(request, 'courses/htmx/booking_confirmation.html')
+    return render(request, 'courses/htmx/booking_form.html')
