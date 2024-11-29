@@ -7,21 +7,21 @@ import logging
 BASE_DIR = Path(__file__).resolve().parent.parent
 
 # Add this after your BASE_DIR definition
-LOGGING = {
-    'version': 1,
-    'disable_existing_loggers': False,
-    'handlers': {
-        'console': {
-            'class': 'logging.StreamHandler',
-        },
-    },
-    'loggers': {
-        'django': {
-            'handlers': ['console'],
-            'level': 'DEBUG',
-        },
-    },
-}
+# LOGGING = {
+#     'version': 1,
+#     'disable_existing_loggers': False,
+#     'handlers': {
+#         'console': {
+#             'class': 'logging.StreamHandler',
+#         },
+#     },
+#     'loggers': {
+#         'django': {
+#             'handlers': ['console'],
+#             'level': 'DEBUG',
+#         },
+#     },
+# }
 
 # Security
 SECRET_KEY = config("SECRET_KEY", default="unsafe-default-secret-key")
@@ -43,18 +43,16 @@ DATABASES = {
 # DATABASES = {"default": dj_database_url.config(default=os.environ.get("DATABASE_URL"))}
 
 
-# ALLOWED_HOSTS = os.environ.get('DJANGO_ALLOWED_HOSTS', '*').split(',')
-
-ALLOWED_HOSTS = ['127.0.0.1:8000', 'localhost:8000', '127.0.0.1', 'localhost', '*']
+ALLOWED_HOSTS = os.environ.get('DJANGO_ALLOWED_HOSTS', '*').split(',')
 
 
-# CSRF_TRUSTED_ORIGINS = [
-#     'https://streamenglish.up.railway.app',
-#     'https://*.railway.app',
-#     'https://*.up.railway.app',
-#     'http://localhost:8000',
-#     'http://127.0.0.1:8000',
-# ]
+CSRF_TRUSTED_ORIGINS = [
+    'https://streamenglish.up.railway.app',
+    'https://*.railway.app',
+    'https://*.up.railway.app',
+    'http://localhost:8000',
+    'http://127.0.0.1:8000',
+]
 
 
 

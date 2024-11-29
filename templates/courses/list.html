@@ -1,4 +1,6 @@
-{% extends "base.html" %} {% block content %}
+{% extends "base.html" %}
+{% load static %}
+{% block content %}
 
 <section class="bg-white dark:bg-gray-900">
   <div class="">
@@ -15,8 +17,26 @@
         very highest grades in your English qualifications.
       </p>
     </div>
-    {% include 'courses/snippets/list-display.html' with queryset=object_list %}
+
+    <!-- Search Bar -->
+    <div class="flex justify-center mb-4">
+      <input
+          type="text"
+          id="search-bar"
+          placeholder="Search courses..."
+          class="w-1/2 max-w-md px-4 py-2 text-center text-md border rounded-md text-dark-700 placeholder:text-dark-600 focus:outline-none focus:ring-2 focus:ring-blue-500"
+      />
+    </div>
+
+    <!-- Course List -->
+    <div id="course-list" class="mx-auto items-center text-center w-1/2">
+      {% include 'courses/snippets/list-display.html' with queryset=object_list %}
+    </div>
   </div>
 </section>
+
+<!-- JavaScript for Live Search -->
+
+<script src="{% static 'js/course-search.js' %}"></script>
 
 {% endblock content %}

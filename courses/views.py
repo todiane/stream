@@ -1,23 +1,37 @@
 from courses.models import Course
 import helpers
-from django.http import Http404
-from django.shortcuts import get_object_or_404, render
-from django.shortcuts import redirect
+from django.http import JsonResponse, Http404
+from django.shortcuts import get_object_or_404, render, redirect
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required
 from django.core.mail import send_mail
 from django.conf import settings
-from django.contrib import messages 
-
+from django.db.models import Q
 from . import services
+from django.core.serializers import serialize
+
 
 def course_list_view(request):
+    try:
+        if request.headers.get('X-Requested-With') == 'XMLHttpRequest':
+            query = request.GET.get('query', '').strip()
+            queryset = Course.objects.filter(Q(title__icontains=query))
+            results = []
+            for course in queryset:
+                results.append({
+                    'id': course.id,
+                    'title': course.title,
+                    'slug': course.slug if hasattr(course, 'slug') else str(course.id)
+                })
+            return JsonResponse({'results': results})
+    except Exception as e:
+        return JsonResponse({'error': str(e)}, status=400)
+    
     queryset = services.get_publish_courses()
     context = {
         "object_list": queryset
     }
-    template_name = "courses/list.html"
-    return render(request, template_name, context)
+    return render(request, "courses/list.html", context)
 
 
 @login_required
@@ -44,10 +58,7 @@ def lesson_detail_view(request, course_id=None, lesson_id=None, *args, **kwargs)
         request.session['next_url'] = request.path
         return render(request, "courses/email-required.html", {})
     
-    # Get all lessons for the current course
     lessons_queryset = services.get_course_lessons(lesson_obj.course)
-    
-    # Get next and previous lessons
     lesson_list = list(lessons_queryset)
     current_index = lesson_list.index(lesson_obj)
     previous_lesson = lesson_list[current_index - 1] if current_index > 0 else None
@@ -79,7 +90,7 @@ def lesson_detail_view(request, course_id=None, lesson_id=None, *args, **kwargs)
     
     return render(request, template_name, context)
 
-def course_detail_view(request, course_id=None, *args, **kwarg):
+def course_detail_view(request, course_id=None, *args, **kwargs):
     course_obj = services.get_course_detail(course_id=course_id)
     if course_obj is None:
         raise Http404
@@ -93,30 +104,24 @@ def course_detail_view(request, course_id=None, *args, **kwarg):
     return render(request, "courses/detail.html", context)
 
 def booking_form_view(request):
-    # Add any context or logic needed for the booking form
     return render(request, 'courses/booking/booking_form.html')
-
 
 def booking_form(request):
     if request.method == 'POST':
-        # Process form data
         name = request.POST.get('name')
         email = request.POST.get('email')
         message = request.POST.get('message')
         
         try:
-            # Send email
             send_mail(
                 subject=f'New Booking from {name}',
                 message=f'Name: {name}\nEmail: {email}\nMessage: {message}',
                 from_email=settings.DEFAULT_FROM_EMAIL,
-                recipient_list=[settings.CONTACT_EMAIL],  # Use the email from .env
+                recipient_list=[settings.CONTACT_EMAIL],
                 fail_silently=False,
             )
-            # Return confirmation template
             return render(request, 'courses/booking_confirmation.html')
-        except Exception as e:
-            # Handle error
+        except Exception:
             messages.error(request, 'There was an error processing your booking.')
             
     return render(request, 'courses/booking_form.html')

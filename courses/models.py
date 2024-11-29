@@ -50,6 +50,7 @@ def generate_public_id(instance, *args, **kwargs):
 
 class Course(models.Model):
     title = models.CharField(max_length=120)
+    slug = models.SlugField(unique=True, null=True, blank=True)
     description = models.TextField(blank=True, null=True)
     category = models.ForeignKey(Category, on_delete=models.CASCADE, related_name='courses', null=True, blank=True)
     public_id = models.CharField(max_length=130, blank=True, null=True, db_index=True)
@@ -67,6 +68,8 @@ class Course(models.Model):
     )
 
     def save(self, *args, **kwargs):
+        if not self.slug:
+            self.slug = slugify(self.title)
         super().save(*args, **kwargs)
         if self.image:
             try:
@@ -74,10 +77,7 @@ class Course(models.Model):
                 print(f"Uploading image with public_id: {public_id}")
             except AttributeError:
                 print("Image has not been uploaded yet, no public_id available.")
-        print(f"Using cloud name: {settings.CLOUDINARY_STORAGE['CLOUD_NAME']}")
-
-    def get_absolute_url(self):
-        return self.path
+    print(f"Using cloud name: {settings.CLOUDINARY_STORAGE['CLOUD_NAME']}")
     
     @property
     def path(self):
