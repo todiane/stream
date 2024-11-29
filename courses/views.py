@@ -96,6 +96,9 @@ def htmx_nav_menu(request):
 def htmx_video_modal(request):
     return render(request, 'courses/htmx/video_modal.html')
 
+def load_video(request):
+    return render(request, 'courses/htmx/video-section.html')
+
 
 def htmx_booking_form(request):
     return render(request, 'courses/htmx/booking_form.html')

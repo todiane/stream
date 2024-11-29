@@ -125,6 +125,10 @@ class Course(models.Model):
     @property
     def is_published(self):
         return self.status == PublishStatus.PUBLISHED
+    
+    @property
+    def is_coming_soon(self):
+        return self.status == PublishStatus.COMING_SOON
 
 class Lesson(models.Model):
     course = models.ForeignKey(Course, on_delete=models.CASCADE)
