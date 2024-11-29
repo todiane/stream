@@ -1,38 +1,40 @@
-{% extends 'base.html' %} 
-{% load static %} 
+{% extends 'base.html' %}
+{% load static %}
 
-{% block head_title %}Welcome to Stream English{% endblock head_title %} 
+{% block head_title %}Welcome to Stream English{% endblock head_title %}
 
 {% block content %}
 {% include 'base/hero.html' %}
 
-<section class="bg-white dark:bg-gray-900 py-12">
+<section class="section bg-white dark:bg-gray-900 py-12">
     <div class="container mx-auto px-4 text-center">
         <h2 class="text-3xl font-extrabold mb-4 text-gray-900 dark:text-white">
             Helping You Thrive
         </h2>
-        <p class="text-gray-600 dark:text-gray-300">
+        <p class="text-gray-700 dark:text-gray-300">
             My goal is to help you reach the very highest grades in your English qualifications. 
             I am focused on helping you reach Grade 9.
         </p>
     </div>
 </section>
 
-<section class="bg-slate-50 dark:bg-gray-800 py-12">
+<section class="section bg-slate-50 dark:bg-gray-800 py-12">
     <div class="container mx-auto px-4">
         <h2 class="text-3xl font-extrabold text-center mb-8 text-gray-900 dark:text-white">
             Courses
         </h2>
-        
-        {% include 'courses/snippets/list-display.html' with queryset=object_list %}
+
+        <div id="course-list">
+            {% include 'courses/snippets/list-display.html' with queryset=object_list %}
+        </div>
 
         <div class="text-center mt-8">
             <a href="{% url 'courses:course_list' %}" 
-               class="inline-flex items-center px-5 py-3 text-base font-medium text-white bg-blue-600 rounded-lg hover:bg-blue-700">
+               class="inline-flex items-center px-5 py-3 text-base font-medium text-white bg-blue-600 rounded-lg hover:bg-blue-700"
+               hx-push-url="true">
                 View All Courses
             </a>
         </div>
     </div>
 </section>
-
 {% endblock content %}

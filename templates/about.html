@@ -1,20 +1,22 @@
 {% extends 'base.html' %} 
-
-{% block head_title %}
-    About Stream English Platform
-{% endblock head_title %} 
-
+{% block head_title %}About Stream English Platform{% endblock head_title %} 
 {% block content %}
-<section class="bg-white dark:bg-gray-900">
+
+<section class="section bg-white dark:bg-gray-900">
     <div class="py-8 px-4 mx-auto max-w-screen-xl lg:py-16 lg:px-6">
         <div class="max-w-screen-lg text-gray-500 sm:text-lg dark:text-gray-400">
             <h2 class="mb-4 text-4xl tracking-tight font-bold text-gray-900 dark:text-white">
                 Helping Students <span class="font-extrabold">achieve Grade 9</span>
             </h2>
+
             <div class="mb-4">
-                <p>Hi. My name is Mrs Robyn Wear and I am an English teacher and Examiner. My goal is to help you reach the very highest grades in your English qualifications.</p>
-                <p class="mt-4">My Qualifications:</p>
-                <ul class="mt-2">
+                Hi. My name is Mrs Robyn Wear and I am an English teacher and Examiner.
+                My goal is to help you reach the very highest grades in your English
+                qualifications.
+
+                My Qualifications:
+
+                <ul class="list-disc pl-5 mt-2">
                     <li>GCSEs -- A* in both Language & Literature</li>
                     <li>A Level -- A* Language & Literature</li>
                     <li>Degree -- 1st in English & Creative Writing from the University of Warwick</li>
@@ -22,54 +24,68 @@
                 </ul>
             </div>
 
-            </ul>
-            </div>
-
             <div class="aspect-w-16 aspect-h-9 mb-8">
-                <iframe 
-                    class="w-[580px] h-[315px]"
-                    src="https://www.youtube.com/embed/Ww_XxRREs-U" 
-                    title="YouTube video player" 
-                    frameborder="0" 
-                    allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" 
-                    allowfullscreen>
-                </iframe>
+                <!-- Video section preserved and enhanced with HTMX for loading state -->
+                <div id="video-container"
+                     hx-get="/load-video/"
+                     hx-trigger="load"
+                     hx-swap="innerHTML"
+                     class="relative">
+                    <div class="absolute inset-0 flex items-center justify-center bg-gray-100">
+                        <div class="animate-spin rounded-full h-8 w-8 border-b-2 border-gray-900"></div>
+                    </div>
+                </div>
             </div>
 
             <h2 class="mb-4 text-4xl tracking-tight font-extrabold text-gray-900 dark:text-white">
                 Arrange tuition sessions
             </h2>
-          
-            <p class="mb-4">
-                My tution lessons are tailored to help you and i need to add some stuff here that you can add later because this is just placeholder text.
-            </p>
-            <p class="mb-4">
-                Now you can enjoy more placeholder text here and maybe a link to something to book sessions
-            </p>
-            <p class="mb-4">
-                My tution lessons are tailored to help you and i need to add some stuff here that you can add later because this is just placeholder text. You can also talk about your shop and the ability to buy and download stuff here.
-            </p>
-            <a href="#" class="inline-flex justify-center items-center py-3 px-5 text-base font-medium text-center text-white rounded-lg bg-blue-600 hover:bg-blue-700 focus:ring-4 focus:ring-blue-300 dark:focus:ring-blue-900">
+
+            <p>My tution lessons are tailored to help you and i need to add some stuff
+            here that you can add later because this is just placeholder text.</p>
+
+            <p>Now you can enjoy more placeholder text here and maybe a link to
+            something to book sessions</p>
+
+            <p>My tution lessons are tailored to help you and i need to add some stuff
+            here that you can add later because this is just placeholder text. You
+            can also talk about your shop and the ability to buy and download stuff
+            here.</p>
+
+            <button 
+                class="inline-flex justify-center items-center py-3 px-5 text-base font-medium text-center text-white rounded-lg bg-blue-600 hover:bg-blue-700 focus:ring-4 focus:ring-blue-300 dark:focus:ring-blue-900"
+                hx-get="/booking-form/"
+                hx-target="#booking-modal"
+                hx-trigger="click">
                 Book HERE!
                 <svg class="ml-2 -mr-1 w-5 h-5" fill="currentColor" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg">
                     <path fill-rule="evenodd" d="M10.293 3.293a1 1 0 011.414 0l6 6a1 1 0 010 1.414l-6 6a1 1 0 01-1.414-1.414L14.586 11H3a1 1 0 110-2h11.586l-4.293-4.293a1 1 0 010-1.414z" clip-rule="evenodd" />
                 </svg>
-            </a>
+            </button>
         </div>
     </div>
 </section>
 
-<section class="bg-white dark:bg-gray-900">
+<section class="section bg-white dark:bg-gray-900">
     <div class="container mx-auto px-4">
         <div class="mx-auto max-w-screen-sm text-center lg:mb-16 mb-8">
             <h2 class="mb-4 text-3xl lg:text-4xl tracking-tight font-extrabold text-gray-900 dark:text-white">
                 Take A Look At My Courses
             </h2>
-            <p class="text-gray-500 sm:text-xl dark:text-gray-400">
-                I mainly focus on the UK GCSEs and IGCSEs, but lots of the content is covered all over the world.
-            </p>
+            <p>I mainly focus on the UK GCSEs and IGCSEs, but lots of the content is covered all over the world.</p>
         </div>
-        {% include 'courses/snippets/list-display.html' with queryset=object_list %}
+
+        <div id="courses-list"
+             hx-get="{% url 'courses:course_list' %}"
+             hx-trigger="revealed"
+             hx-swap="outerHTML">
+            {% include 'courses/snippets/list-display.html' with queryset=object_list %}
+        </div>
     </div>
 </section>
+
+<!-- Booking Modal -->
+<div id="booking-modal" class="hidden fixed inset-0 bg-gray-600 bg-opacity-50 overflow-y-auto h-full w-full">
+</div>
+
 {% endblock content %}
