@@ -79,6 +79,9 @@ class Course(models.Model):
                 print("Image has not been uploaded yet, no public_id available.")
     print(f"Using cloud name: {settings.CLOUDINARY_STORAGE['CLOUD_NAME']}")
     
+    def get_absolute_url(self):
+        return self.path
+
     @property
     def path(self):
         return f"/courses/{self.public_id}"
@@ -129,6 +132,7 @@ class Course(models.Model):
     @property
     def is_coming_soon(self):
         return self.status == PublishStatus.COMING_SOON
+
 
 class Lesson(models.Model):
     course = models.ForeignKey(Course, on_delete=models.CASCADE)
