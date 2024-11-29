@@ -43,15 +43,18 @@ DATABASES = {
 # DATABASES = {"default": dj_database_url.config(default=os.environ.get("DATABASE_URL"))}
 
 
-ALLOWED_HOSTS = os.environ.get('DJANGO_ALLOWED_HOSTS', '*').split(',')
+# ALLOWED_HOSTS = os.environ.get('DJANGO_ALLOWED_HOSTS', '*').split(',')
 
-CSRF_TRUSTED_ORIGINS = [
-    'https://streamenglish.up.railway.app',
-    'https://*.railway.app',
-    'https://*.up.railway.app',
-    'http://localhost:8000',
-    'http://127.0.0.1:8000',
-]
+ALLOWED_HOSTS = ['127.0.0.1:8000', 'localhost:8000', '127.0.0.1', 'localhost', '*']
+
+
+# CSRF_TRUSTED_ORIGINS = [
+#     'https://streamenglish.up.railway.app',
+#     'https://*.railway.app',
+#     'https://*.up.railway.app',
+#     'http://localhost:8000',
+#     'http://127.0.0.1:8000',
+# ]
 
 
 
@@ -93,7 +96,6 @@ INSTALLED_APPS = [
     "django.contrib.messages",
     "django.contrib.staticfiles",
     "whitenoise.runserver_nostatic",
-    "django_htmx",
     "cloudinary_storage",
     "cloudinary",
     "tailwind",
@@ -118,7 +120,6 @@ MIDDLEWARE = [
     "allauth.account.middleware.AccountMiddleware",
     "django.contrib.messages.middleware.MessageMiddleware",
     "django.middleware.clickjacking.XFrameOptionsMiddleware",
-    "django_htmx.middleware.HtmxMiddleware",
 ]
 
 ROOT_URLCONF = "stream.urls"

@@ -14,9 +14,6 @@ def course_list_view(request):
         "object_list": queryset
     }
     template_name = "courses/list.html"
-    if request.htmx:
-        template_name = "courses/snippets/list-display.html"
-        context['queryset'] = queryset[:3]
     return render(request, template_name, context)
 
 
@@ -89,31 +86,7 @@ def lesson_detail_view(request, course_id=None, lesson_id=None, *args, **kwargs)
     return render(request, template_name, context)
 
 
-def htmx_nav_menu(request):
-    return render(request, 'courses/htmx/nav_menu.html')
+def booking_form_view(request):
+    # Add any context or logic needed for the booking form
+    return render(request, 'courses/booking/booking_form.html')
 
-
-def htmx_video_modal(request):
-    return render(request, 'courses/htmx/video_modal.html')
-
-def load_video(request):
-    return render(request, 'courses/htmx/video-section.html')
-
-
-def htmx_booking_form(request):
-    return render(request, 'courses/htmx/booking_form.html')
-
-
-def htmx_latest_courses(request):
-    latest_courses = services.get_publish_courses()[:3]
-    return render(request, 'courses/htmx/latest_courses.html', {
-        'latest_courses': latest_courses
-    })
-
-
-@login_required
-def htmx_submit_booking(request):
-    if request.method == 'POST':
-        # Add your booking logic here
-        return render(request, 'courses/htmx/booking_confirmation.html')
-    return render(request, 'courses/htmx/booking_form.html')

@@ -13,15 +13,9 @@ def home_view(request, *args, **kwargs):
     return render(request, template_name, context)
 
 
-from courses import services
-
 def about_view(request):
-    queryset = services.get_publish_courses()
-    context = {
-        "object_list": queryset
-    }
     template_name = "about.html"
-    return render(request, template_name, context)
+    return render(request, template_name)
 
 def privacy_view(request):
     template_name = "policy/privacy.html"
