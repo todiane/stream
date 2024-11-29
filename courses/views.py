@@ -5,6 +5,9 @@ from django.shortcuts import get_object_or_404, render
 from django.shortcuts import redirect
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required
+from django.core.mail import send_mail
+from django.conf import settings
+from django.contrib import messages 
 
 from . import services
 
@@ -93,3 +96,27 @@ def booking_form_view(request):
     # Add any context or logic needed for the booking form
     return render(request, 'courses/booking/booking_form.html')
 
+
+def booking_form(request):
+    if request.method == 'POST':
+        # Process form data
+        name = request.POST.get('name')
+        email = request.POST.get('email')
+        message = request.POST.get('message')
+        
+        try:
+            # Send email
+            send_mail(
+                subject=f'New Booking from {name}',
+                message=f'Name: {name}\nEmail: {email}\nMessage: {message}',
+                from_email=settings.DEFAULT_FROM_EMAIL,
+                recipient_list=[settings.CONTACT_EMAIL],  # Use the email from .env
+                fail_silently=False,
+            )
+            # Return confirmation template
+            return render(request, 'courses/booking_confirmation.html')
+        except Exception as e:
+            # Handle error
+            messages.error(request, 'There was an error processing your booking.')
+            
+    return render(request, 'courses/booking_form.html')
