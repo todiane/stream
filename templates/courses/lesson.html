@@ -1,4 +1,5 @@
 {% extends "base.html" %} {% block content %}
+{% include "courses/components/breadcrumb.html" with course=object.course lesson=object %}
 
 <section class="section bg-white dark:bg-gray-900">
   <div
@@ -55,13 +56,13 @@
       <a
         href="{{ previous_lesson.get_absolute_url }}"
         class="text-blue-500 hover:underline"
-        >Previous</a
+        >Previous Lesson</a
       >
       {% endif %} {% if next_lesson %}
       <a
         href="{{ next_lesson.get_absolute_url }}"
         class="text-blue-500 hover:underline"
-        >Next</a
+        >Next Lesson</a
       >
       {% endif %}
     </div>
