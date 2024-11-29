@@ -1,4 +1,6 @@
 {% extends "base.html" %} {% load static %} {% block content %}
+{% include "courses/components/breadcrumb.html" with course=object %}
+
 <div class="bg-white">
   <div
     class="py-8 lg:py-16 space-y-8 lg:space-y-16 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8"
