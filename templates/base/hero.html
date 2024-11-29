@@ -1,27 +1,49 @@
 <section class="hero bg-slate-50 dark:bg-gray-900 py-12">
-    <div class="container mx-auto px-4 text-center">
-        <a href="/courses/" class="inline-flex items-center py-1 px-4 mb-7 text-sm bg-gray-100 text-gray-700 rounded-full dark:bg-gray-800 dark:text-white">
-            <span class="bg-blue-600 text-white text-xs px-4 py-1.5 rounded-full mr-2">New</span>
-            New Videos Available! See what's new
-        </a>
-
-        <h1 class="text-4xl font-extrabold tracking-tight mb-4 text-gray-900 dark:text-white">
-            English Language & Literature Tuition
-        </h1>
-
-        <p class="mb-8 text-lg text-gray-700 dark:text-gray-300">
-            Stream English is all about providing GCSE English tuition for both 
-            English language and literature, with a real English teacher and 
-            Examiner.
-        </p>
-
-        <div class="flex flex-col sm:flex-row justify-center space-y-4 sm:space-y-0 sm:space-x-4">
-            <a href="/about" class="inline-flex justify-center items-center py-3 px-5 text-base font-medium text-center text-white rounded-lg bg-blue-700 hover:bg-blue-800 focus:ring-4 focus:ring-blue-300 dark:focus:ring-blue-900">
-                Learn more
+    <div class="container mx-auto px-4">
+        <!-- Top Section -->
+        <div class="text-center mb-12">
+            <a href="/courses/" class="inline-flex items-center py-1 px-4 mb-7 text-sm bg-gray-100 text-gray-700 rounded-full dark:bg-gray-800 dark:text-white">
+                <span class="bg-blue-600 text-white text-xs px-4 py-1.5 rounded-full mr-2">New</span>
+                New Videos Available! See what's new
             </a>
-            <a href="/about" class="inline-flex justify-center items-center py-3 px-5 text-base font-medium text-center text-gray-900 rounded-lg border border-gray-300 hover:bg-gray-100 focus:ring-4 focus:ring-gray-100 dark:text-white dark:border-gray-700 dark:hover:bg-gray-700 dark:focus:ring-gray-800">
-                Watch video
-            </a>
+            <h1 class="text-4xl font-extrabold tracking-tight mb-4 text-gray-900 dark:text-white">
+                English Language & Literature Tuition
+            </h1>
+        </div>
+
+        <!-- Two Column Section -->
+        <div class="grid lg:grid-cols-2 gap-8 items-center">
+            <!-- Left Column -->
+            <div class="flex flex-col items-center justify-center">
+                <p class="mb-8 text-lg text-gray-700 dark:text-gray-300 text-center">
+                    Stream English is all about providing GCSE English tuition for both 
+                    English language and literature, with a real English teacher and 
+                    Examiner.
+                </p>
+                <p class="mb-8 text-lg text-gray-700 dark:text-gray-300 text-center">
+                    I've been teaching English for over 10 years and have a wealth of 
+                    experience teaching students from all over the world.
+                </p>
+                <div class="flex justify-center">
+                    <a href="/about" class="inline-flex justify-center items-center py-3 px-5 text-base font-medium text-center text-white rounded-lg bg-blue-700 hover:bg-blue-800 focus:ring-4 focus:ring-blue-300 dark:focus:ring-blue-900">
+                        Learn more
+                    </a>
+                </div>
+            </div>
+
+            <!-- Right Column -->
+            <div class="flex justify-center items-center">
+                <div class="w-full max-w-[580px] aspect-video">
+                    <iframe 
+                        class="w-full h-full rounded-lg shadow-lg"
+                        src="https://www.youtube.com/embed/Ww_XxRREs-U"
+                        title="GCSE English Language and Literature Tuition"
+                        frameborder="0"
+                        allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                        allowfullscreen>
+                    </iframe>
+                </div>
+            </div>
         </div>
     </div>
 </section>

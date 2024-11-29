@@ -1,26 +1,17 @@
 {% load static %}
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
-    <script src="https://unpkg.com/htmx.org@1.9.10"></script>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block head_title %}Stream English{% endblock %}</title>
+    
     <link href="{% static 'css/output.css' %}" rel="stylesheet">
-    <style>
-        .transition-fade {
-            opacity: 1;
-            transition: opacity 200ms ease-out;
-        }
-        .transition-fade.htmx-swapping {
-            opacity: 0;
-        }
-    </style>
 </head>
-<body hx-boost="true">
+<body class="min-h-screen flex flex-col" hx-boost="true">
     {% include 'base/navbar.html' %}
     
-    <main id="content" 
-          class="flex-grow transition-fade" 
-          hx-swap="innerHTML show:window:top transition:true"
-          hx-push-url="true">
+    <main id="content" class="flex-grow" role="main">
         {% block content %}{% endblock %}
     </main>
 
