@@ -3,21 +3,28 @@ from decouple import config
 import dj_database_url
 import os
 import logging
-from django.core.exceptions import ImproperlyConfigured
 
 BASE_DIR = Path(__file__).resolve().parent.parent
 
+# Add this after your BASE_DIR definition
+LOGGING = {
+    'version': 1,
+    'disable_existing_loggers': False,
+    'handlers': {
+        'console': {
+            'class': 'logging.StreamHandler',
+        },
+    },
+    'loggers': {
+        'django': {
+            'handlers': ['console'],
+            'level': 'DEBUG',
+        },
+    },
+}
+
 # Security
 SECRET_KEY = config("SECRET_KEY", default="unsafe-default-secret-key")
-
-ALLOWED_HOSTS = os.environ.get('ALLOWED_HOSTS', '').split(',') or [
-    'streamenglish.up.railway.app',
-    '.up.railway.app',
-    '127.0.0.1',
-    'localhost',
-    '*',
-]
-
 
 
 # SECURITY WARNING: don't run with debug turned on in production!
@@ -33,14 +40,17 @@ DEBUG = False
 # }
 
 
-
 DATABASES = {"default": dj_database_url.config(default=os.environ.get("DATABASE_URL"))}
+
+
+ALLOWED_HOSTS = os.environ.get('DJANGO_ALLOWED_HOSTS', '*').split(',')
 
 CSRF_TRUSTED_ORIGINS = [
     'https://streamenglish.up.railway.app',
+    'https://*.railway.app',
     'https://*.up.railway.app',
-    'https://streamenglish.co.uk',
-    'https://www.streamenglish.co.uk',
+    'http://localhost:8000',
+    'http://127.0.0.1:8000',
 ]
 
 
@@ -83,6 +93,7 @@ INSTALLED_APPS = [
     "django.contrib.messages",
     "django.contrib.staticfiles",
     "whitenoise.runserver_nostatic",
+    "django_htmx",
     "cloudinary_storage",
     "cloudinary",
     "tailwind",
@@ -99,6 +110,7 @@ INSTALLED_APPS = [
 MIDDLEWARE = [
     "django.middleware.security.SecurityMiddleware",
     "whitenoise.middleware.WhiteNoiseMiddleware",
+    "django.middleware.common.BrokenLinkEmailsMiddleware",
     "django.contrib.sessions.middleware.SessionMiddleware",
     "django.middleware.common.CommonMiddleware",
     "django.middleware.csrf.CsrfViewMiddleware",
@@ -130,12 +142,13 @@ WSGI_APPLICATION = "stream.wsgi.application"
 
 
 # Security Settings
-SECURE_SSL_REDIRECT = True
-SESSION_COOKIE_SECURE = True
-CSRF_COOKIE_SECURE = True
-SECURE_BROWSER_XSS_FILTER = True
-SECURE_CONTENT_TYPE_NOSNIFF = True
+# SECURE_SSL_REDIRECT = True
+# SESSION_COOKIE_SECURE = True
+# CSRF_COOKIE_SECURE = True
+# SECURE_BROWSER_XSS_FILTER = True
+# SECURE_CONTENT_TYPE_NOSNIFF = True
 SECURE_PROXY_SSL_HEADER = ('HTTP_X_FORWARDED_PROTO', 'https')
+USE_X_FORWARDED_HOST = True
 
 # Email settings
 EMAIL_BACKEND = "django.core.mail.backends.smtp.EmailBackend"
