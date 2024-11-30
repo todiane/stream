@@ -99,8 +99,6 @@ INSTALLED_APPS = [
     "whitenoise.runserver_nostatic",
     "cloudinary_storage",
     "cloudinary",
-    "tailwind",
-    "theme",
     "django_ckeditor_5",
     # Internal apps
     "courses",
@@ -111,7 +109,6 @@ INSTALLED_APPS = [
     "allauth.socialaccount",
 ]
 
-TAILWIND_APP_NAME = "theme"
 
 MIDDLEWARE = [
     "django.middleware.security.SecurityMiddleware",
