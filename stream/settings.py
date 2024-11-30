@@ -28,7 +28,7 @@ SECRET_KEY = config("SECRET_KEY", default="unsafe-default-secret-key")
 
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = False
+DEBUG = os.environ.get('DEBUG', 'False') == 'True'
 
 # Database configuration - comment out local database and set debug to false in production. For local use comment out production database and set debug to true.
 
