@@ -54,8 +54,6 @@ CSRF_TRUSTED_ORIGINS = [
     'http://127.0.0.1:8000',
 ]
 
-
-
 # Static and media files
 STATIC_URL = "/static/"
 STATIC_ROOT = os.path.join(BASE_DIR, 'staticfiles')
@@ -65,9 +63,9 @@ MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
 
 # Update Cloudinary storage settings
 CLOUDINARY_STORAGE = {
-    'CLOUD_NAME': os.environ.get('CLOUDINARY_CLOUD_NAME'),
-    'API_KEY': os.environ.get('CLOUDINARY_API_KEY'),
-    'API_SECRET': os.environ.get('CLOUDINARY_API_SECRET'),
+    'CLOUD_NAME': os.environ.get('CLOUDINARY_CLOUD_NAME', 'your_default_cloud_name'),
+    'API_KEY': os.environ.get('CLOUDINARY_API_KEY', ''),
+    'API_SECRET': os.environ.get('CLOUDINARY_API_SECRET', ''),
     'SECURE': True,
     'MEDIA_TAG': 'media',
     'INVALID_VIDEO_ERROR_MESSAGE': 'Please upload a valid video file.',
@@ -75,15 +73,20 @@ CLOUDINARY_STORAGE = {
     'STATIC_TAG': 'static',
 }
 
-
-DEFAULT_FILE_STORAGE = "cloudinary_storage.storage.MediaCloudinaryStorage"
-
-if all(CLOUDINARY_STORAGE.values()):
+# Check if all required Cloudinary credentials are available
+if all([
+    os.environ.get('CLOUDINARY_CLOUD_NAME'),
+    os.environ.get('CLOUDINARY_API_KEY'),
+    os.environ.get('CLOUDINARY_API_SECRET')
+]):
     DEFAULT_FILE_STORAGE = "cloudinary_storage.storage.MediaCloudinaryStorage"
     STATICFILES_STORAGE = "cloudinary_storage.storage.StaticHashedCloudinaryStorage"
 else:
     DEFAULT_FILE_STORAGE = "django.core.files.storage.FileSystemStorage"
     STATICFILES_STORAGE = "django.contrib.staticfiles.storage.StaticFilesStorage"
+
+
+
 
 # Application definition
 INSTALLED_APPS = [
