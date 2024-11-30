@@ -31,6 +31,14 @@ class LessonInline(admin.StackedInline):
 
     display_image.short_description = "Current Image"
 
+    def formfield_for_dbfield(self, db_field, **kwargs):
+        if db_field.name == 'description':
+            kwargs['widget'] = django_ckeditor_5.widgets.CKEditor5Widget(
+                config_name='default',
+                attrs={'class': 'django_ckeditor_5'}
+            )
+        return super().formfield_for_dbfield(db_field, **kwargs)
+
     def display_video(self, obj, *args, **kwargs):
         video_embed_html = helpers.get_cloudinary_video_object(
             obj, 
