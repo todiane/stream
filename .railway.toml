@@ -1,0 +1,11 @@
+[build]
+builder = "nixpacks"
+buildCommand = "npm install && npm run build"
+
+[deploy]
+startCommand = "gunicorn stream.wsgi:application --bind 0.0.0.0:$PORT"
+healthcheckPath = "/"
+healthcheckTimeout = 100
+
+[phases.setup]
+nixPkgs = ["nodejs", "python311"]
