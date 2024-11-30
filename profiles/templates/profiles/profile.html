@@ -1,118 +1,168 @@
 {% extends 'base.html' %}
+{% load static %}{% load custom_filters %}
+
+{% block head_title %}Profile - Stream English{% endblock %}
+
+{% block extra_head %}
+<script src="{% static 'js/tooltips.js' %}"></script>
+{% endblock %}
+
 {% block content %}
+<div class="container mx-auto px-4 py-8 font-poppins">
+    {% if messages %}
+    <div class="mb-8">
+        {% for message in messages %}
+        <div 
+            class="bg-{{ message.tags|default:'blue' }}-100 
+                   border border-{{ message.tags|default:'blue' }}-400 
+                   text-{{ message.tags|default:'blue' }}-700 
+                   px-4 py-3 rounded relative" 
+            role="alert">
+            <span class="block sm:inline">{{ message }}</span>
+        </div>
+        {% endfor %}
+    </div>
+    {% endif %}
 
-<div class="container mx-auto px-4 py-8">
-    <h1 class="text-3xl font-bold mb-8">{{ user.username }}'s Profile</h1>
+    <h1 class="text-3xl font-bold mb-8 text-gray-800">Your Profile</h1>
 
+    <!-- Profile Overview -->
     <div class="bg-white shadow rounded-lg p-6 mb-8">
-        <h2 class="text-2xl font-semibold mb-4">Profile Overview</h2>
-
-        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+        <h2 class="text-2xl font-semibold mb-6 text-gray-800">Profile Overview</h2>
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
+            <!-- Personal Information -->
             <div>
-                <h3 class="text-lg font-semibold mb-2">Personal Information</h3>
-                <p><strong>Username:</strong> {{ user.username }}</p>
-                <p><strong>Email:</strong> {{ user.email }}</p>
-                <p><strong>First Name:</strong> {{ user.profile.first_name }}</p>
-                <p><strong>Bio:</strong> {{ user.profile.bio }}</p>
+                <h3 class="text-lg font-semibold mb-4 text-gray-700">Personal Information</h3>
+                <div class="space-y-3">
+                    <p class="flex items-center">
+                        <span class="font-medium w-24">Username:</span>
+                        <span class="text-gray-600 ml-2">{{ user.username }}</span>
+                    </p>
+                    <p class="flex items-center">
+                        <span class="font-medium w-24">Email:</span>
+                        <span class="text-gray-600 ml-2">{{ user.email }}</span>
+                    </p>
+                    <p class="flex items-center">
+                        <span class="font-medium w-24">First Name:</span>
+                        <span class="text-gray-600 ml-2">{{ user.profile.first_name }}</span>
+                    </p>
+                    <p class="flex items-start">
+                        <span class="font-medium w-24">Bio:</span>
+                        <span class="text-gray-600 ml-2">{{ user.profile.bio|striptags }}</span>
+                    </p>
+                </div>
             </div>
 
+            <!-- Progress Section -->
             <div>
-                <h3 class="text-lg font-semibold mb-2">Progress</h3>
-                <div class="mb-4">
-                  <div class="bg-gray-200 rounded-full h-4 w-full">
-                    <div class="bg-blue-600 rounded-full h-4 transition-all duration-300" 
-                         x-data
-                         x-init="$el.style.width = '{{ courses_completion_percentage }}%'">
+                <h3 class="text-lg font-semibold mb-4 text-gray-700">Learning Progress</h3>
+                <div class="space-y-6">
+                    <!-- Overall Progress -->
+                    <div class="relative">
+                        <div class="flex items-center mb-2">
+                            <span class="text-sm font-medium text-gray-700">Overall Progress</span>
+                        </div>
+                        <div class="flex items-center">
+                            <div class="w-full bg-gray-200 rounded-full h-4 mr-2">
+                                {% with completion=courses_completion_percentage|default:0|floatformat:1 %}
+                                <div 
+                                    class="bg-green-500 rounded-full h-4 transition-all duration-300"
+                                    style="width: {{ completion }}%"
+                                    data-tooltip="{{ completion }}% completed"
+                                ></div>
+                                {% endwith %}
+                            </div>
+                            <span class="text-sm text-gray-600 w-16 text-right">
+                                {{ courses_completion_percentage|default:0|floatformat:1 }}%
+                            </span>
+                        </div>
+                    </div>
+
+                    <!-- Videos Watched -->
+                    <div>
+                        <h4 class="text-sm font-medium text-gray-700 mb-1">Videos Watched</h4>
+                        <p class="text-2xl font-bold text-blue-600">{{ watched_videos_count }}</p>
                     </div>
                 </div>
-                    <p>{{ courses_completion_percentage|floatformat:1 }}% of courses completed</p>
-                </div>
-
-                <h3 class="text-lg font-semibold mb-2">Watched Videos</h3>
-                <p>{{ watched_videos_count }} videos watched</p>
             </div>
         </div>
     </div>
 
+    <!-- Enrolled Courses -->
     <div class="bg-white shadow rounded-lg p-6 mb-8">
-        <h2 class="text-2xl font-semibold mb-4">Courses Enrolled</h2>
-
+        <h2 class="text-2xl font-semibold mb-6 text-gray-800">Enrolled Courses</h2>
+        
         {% if enrolled_courses %}
-            {% for course in enrolled_courses %}
-                <div class="mb-6">
-                    <h3 class="text-lg font-semibold">{{ course.title }}</h3>
-                    {{ course.description|truncatewords:15 }}
+            <div class="space-y-8">
+                {% for course in enrolled_courses %}
+                    <div class="border-b border-gray-200 pb-6 last:border-b-0 last:pb-0">
+                        <h3 class="text-lg font-semibold text-gray-800 mb-2">{{ course.title }}</h3>
+                        <p class="text-gray-600 mb-4 text-justify">{{ course.description|striptags|truncatewords:110|remove_linebreaks }}</p>
 
-                    <div class="mt-2">
-                      <div class="bg-gray-200 rounded-full h-2 w-full">
-                        <div class="bg-green-500 rounded-full h-2 transition-all duration-300"
-                             x-data
-                             x-init="$el.style.width = '{{ user.profile.get_course_completion_percentage|floatformat:1 }}%'">
+                        <div class="mb-4">
+                            <div class="flex items-center">
+                                <div class="w-full bg-gray-200 rounded-full h-4 mr-2">
+                                    {% with completion=course.completion_percentage|default:0|floatformat:1 %}
+                                    <div 
+                                        class="bg-green-500 rounded-full h-4 transition-all duration-300"
+                                        style="width: {{ completion }}%"
+                                        data-tooltip="{{ completion }}% completed"
+                                    ></div>
+                                    {% endwith %}
+                                </div>
+                                <span class="text-sm text-gray-600 w-16 text-right">
+                                    {{ course.completion_percentage|default:0|floatformat:1 }}%
+                                </span>
+                            </div>
+                        </div>
+
+                        <div class="flex space-x-3">
+                            <a href="{% url 'profiles:resume_course' course_id=course.public_id %}" 
+                               class="inline-flex items-center px-4 py-2 bg-black text-white rounded hover:bg-blue-600 transition-colors duration-300">
+                                Resume Course
+                            </a>
+                            <form method="POST" action="{% url 'profiles:remove_course' course_id=course.public_id %}" class="inline">
+                                {% csrf_token %}
+                                <button type="submit" 
+                                        class="inline-flex items-center px-4 py-2 bg-red-500 text-white rounded hover:bg-red-600 transition-colors duration-300"
+                                        onclick="return confirm('Are you sure you want to remove this course?')">
+                                    Remove Course
+                                </button>
+                            </form>
                         </div>
                     </div>
-                        <p>{{ user.profile.get_course_completion_percentage|floatformat:1 }}% complete</p>
-                    </div>
-
-                    <div class="mt-4 flex space-x-2">
-                        <a href="{% url 'profiles:resume_course' course_id=course.public_id %}" 
-                           class="bg-black hover:bg-blue-600 text-white px-3 py-2 rounded transition-colors duration-300">
-                            Resume
-                        </a>
-                        <form method="POST" action="{% url 'profiles:remove_course' course_id=course.public_id %}" class="inline">
-                            {% csrf_token %}
-                            <button type="submit" class="bg-red-500 hover:bg-red-600 text-white px-3 py-2 rounded transition-colors duration-300">
-                                Remove Course
-                            </button>
-                        </form>
-                    </div>
-                </div>
-            {% endfor %}
+                {% endfor %}
+            </div>
         {% else %}
-            <p>You are not enrolled in any courses yet.</p>
+            <p class="text-gray-600">You are not enrolled in any courses yet.</p>
         {% endif %}
     </div>
 
-    <div class="bg-white shadow rounded-lg p-6 mb-8">
-        <h2 class="text-2xl font-semibold mb-4">Contact Tutor</h2>
-        <form method="POST" action="">
-            {% csrf_token %}
-            <div class="mb-4">
-                <label class="block text-gray-700 mb-2">Subject</label>
-                <input type="text" class="w-full border rounded px-3 py-2">
-            </div>
-            <div class="mb-4">
-                <label class="block text-gray-700 mb-2">Message</label>
-                <textarea class="w-full border rounded px-3 py-2 h-32"></textarea>
-            </div>
-            <button type="submit" class="bg-blue-500 hover:bg-blue-600 text-white px-4 py-2 rounded">
-                Send Message
-            </button>
-        </form>
-    </div>
-
+    <!-- Edit Profile -->
     <div class="bg-white shadow rounded-lg p-6 mb-8">
         <h2 class="text-2xl font-semibold mb-4">Edit Profile</h2>
         <form method="POST">
             {% csrf_token %}
             {{ u_form.as_p }}
             {{ p_form.as_p }}
-            <button type="submit" class="bg-blue-500 hover:bg-blue-600 text-white px-4 py-2 rounded mt-4">
+            <button type="submit" class="bg-blue-500 hover:bg-blue-600 text-white px-4 py-2 rounded transition-colors duration-300 mt-4">
                 Update Profile
             </button>
         </form>
     </div>
 
+    <!-- Delete Account -->
     <div class="bg-white shadow rounded-lg p-6">
         <h2 class="text-2xl font-semibold mb-4 text-red-600">Delete Account</h2>
         <p class="mb-4">Warning: This action cannot be undone. All your data will be permanently deleted.</p>
         <form method="POST" action="{% url 'profiles:delete_account' %}">
             {% csrf_token %}
-            <button type="submit" class="bg-red-500 hover:bg-red-600 text-white px-4 py-2 rounded" 
-                    onclick="return confirm('Are you sure you want to delete your account?')">
+            <button type="submit" 
+                    class="bg-red-500 hover:bg-red-600 text-white px-4 py-2 rounded transition-colors duration-300" 
+                    onclick="return confirm('Are you sure you want to delete your account? This cannot be undone.')">
                 Delete Account
             </button>
         </form>
     </div>
 </div>
-
 {% endblock %}
