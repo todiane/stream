@@ -302,16 +302,3 @@ __pycache__/
 *.pyc
 
 staticfiles/
-/static/*
-!/static/css/
-
-/static/css/*
-
-!/static/css/src/
-!/static/css/dist/
-
-
-!/static/css/input.css
-!/static/css/output.css
-!/static/css/styles.css
-
