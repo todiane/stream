@@ -1,24 +1,15 @@
 {
   "name": "stream-english",
-  "description": "",
-  "license": "MIT",
   "scripts": {
     "build:tailwind": "tailwindcss -i ./static/css/src/styles.css -o ./static/css/dist/styles.css --minify",
     "dev": "tailwindcss -i ./static/css/src/styles.css -o ./static/css/dist/styles.css --watch"
   },
   "dependencies": {
-    "autoprefixer": "^10.4.20",
-    "postcss": "^8.4.32",
-    "postcss-import": "^15.1.0",
-    "postcss-nested": "^6.0.1",
-    "postcss-simple-vars": "^7.0.1"
-  },
-  "devDependencies": {
     "@tailwindcss/aspect-ratio": "^0.4.2",
     "@tailwindcss/forms": "^0.5.9",
     "@tailwindcss/typography": "^0.5.15",
-    "cross-env": "^7.0.3",
-    "rimraf": "^5.0.5",
+    "autoprefixer": "^10.4.20",
+    "postcss": "^8.4.32",
     "tailwindcss": "^3.4.15"
   }
 }
