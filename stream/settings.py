@@ -97,6 +97,7 @@ INSTALLED_APPS = [
     "cloudinary_storage",
     "cloudinary",
     "tailwind",
+    "theme",
     "django_ckeditor_5",
     # Internal apps
     "courses",
@@ -106,6 +107,8 @@ INSTALLED_APPS = [
     "allauth.account",
     "allauth.socialaccount",
 ]
+
+TAILWIND_APP_NAME = "theme"
 
 MIDDLEWARE = [
     "django.middleware.security.SecurityMiddleware",
