@@ -118,14 +118,14 @@
 
                         <div class="flex space-x-3">
                             <a href="{% url 'profiles:resume_course' course_id=course.public_id %}" 
-                               class="inline-flex items-center px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700 transition-colors duration-300">
+                               class="bg-blue-600 hover:bg-blue-700 text-white font-medium py-2 px-4 rounded">
                                 Resume Course
                             </a>
                         
                             <form method="POST" action="{% url 'profiles:remove_course' course_id=course.public_id %}" class="inline">
                                 {% csrf_token %}
                                 <button type="submit" 
-                                        class="inline-flex items-center px-4 py-2 bg-red-600 text-white rounded hover:bg-red-700 transition-colors duration-300">
+                                        class="bg-red-600 hover:bg-red-700 text-white font-medium py-2 px-4 rounded">
                                     Remove Course
                                 </button>
                             </form>
@@ -146,9 +146,9 @@
             {{ u_form.as_p }}
             {{ p_form.as_p }}
             <button type="submit" 
-        class="inline-flex items-center px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700 transition-colors duration-300">
-                Update Profile
-            </button>
+                class="bg-blue-600 hover:bg-blue-700 text-white font-medium py-2 px-4 rounded">
+        Update Profile
+    </button>
         </form>
     </div>
 
@@ -159,7 +159,7 @@
         <form method="POST" action="{% url 'profiles:delete_account' %}">
             {% csrf_token %}
             <button type="submit" 
-                    class="inline-flex items-center px-4 py-2 bg-red-600 text-white rounded hover:bg-red-700 transition-colors duration-300"
+                    class="bg-red-600 hover:bg-red-700 text-white font-medium py-2 px-4 rounded"
                     onclick="return confirm('Are you sure you want to delete your account? This cannot be undone.')">
                 Delete Account
             </button>
