@@ -47,7 +47,6 @@ def generate_public_id(instance, *args, **kwargs):
     unique_id_short = unique_id[:5]
     return f"{slug}-{unique_id_short}"
 
-
 class Course(models.Model):
     title = models.CharField(max_length=120)
     slug = models.SlugField(unique=True, null=True, blank=True)
@@ -62,23 +61,31 @@ class Course(models.Model):
         "image", 
         null=True,
         folder="courses",  
-        resource_type="auto",  # Add this line to handle different file types
+        resource_type="auto",
         allowed_formats=['jpg', 'jpeg', 'png', 'svg', 'webp', 'gif'],
         transformation={"quality": "auto:eco"},
     )
 
     def save(self, *args, **kwargs):
+        # Generate slug if not exists
         if not self.slug:
             self.slug = slugify(self.title)
+        
+        # Generate public_id if not exists
+        if not self.public_id:
+            self.public_id = generate_public_id(self)
+        
         super().save(*args, **kwargs)
+        
+        # Handle image after save
         if self.image:
             try:
                 public_id = self.image.public_id
                 print(f"Uploading image with public_id: {public_id}")
             except AttributeError:
                 print("Image has not been uploaded yet, no public_id available.")
-    print(f"Using cloud name: {settings.CLOUDINARY_STORAGE['CLOUD_NAME']}")
-    
+        print(f"Using cloud name: {settings.CLOUDINARY_STORAGE['CLOUD_NAME']}")
+
     def get_absolute_url(self):
         return self.path
 

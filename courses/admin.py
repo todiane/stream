@@ -54,11 +54,12 @@ class LessonInline(admin.StackedInline):
 @admin.register(Course)
 class CourseAdmin(admin.ModelAdmin):  
     inlines = [LessonInline]
-    list_display = ['title', 'category', 'status', 'access']
+    list_display = ['title', 'category', 'status', 'access', 'slug', 'public_id'] 
     list_filter = ['status', 'access', 'category', 'category__exam_board']
-    fields = ['public_id', 'title', 'description', 'category', 'status', 'image', 'access', 'display_image']
+    fields = ['public_id', 'title', 'slug', 'description', 'category', 'status', 'image', 'access', 'display_image']
     readonly_fields = ['public_id', 'display_image']
-    search_fields = ['title', 'description', 'category__name']
+    prepopulated_fields = {'slug': ('title',)}  
+    search_fields = ['title', 'description', 'category__name', 'slug'] 
 
     def formfield_for_dbfield(self, db_field, **kwargs):
         if db_field.name == 'description':
