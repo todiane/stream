@@ -50,16 +50,15 @@ class LessonInline(admin.StackedInline):
 
     display_video.short_description = "Current Video"
 
-
 @admin.register(Course)
 class CourseAdmin(admin.ModelAdmin):  
     inlines = [LessonInline]
-    list_display = ['title', 'category', 'status', 'access', 'slug', 'public_id'] 
+    list_display = ['title', 'category', 'status', 'access', 'public_id']
     list_filter = ['status', 'access', 'category', 'category__exam_board']
     fields = ['public_id', 'title', 'slug', 'description', 'category', 'status', 'image', 'access', 'display_image']
     readonly_fields = ['public_id', 'display_image']
-    prepopulated_fields = {'slug': ('title',)}  
-    search_fields = ['title', 'description', 'category__name', 'slug'] 
+    prepopulated_fields = {'slug': ('title',)}
+    search_fields = ['title', 'description', 'category__name', 'slug']
 
     def formfield_for_dbfield(self, db_field, **kwargs):
         if db_field.name == 'description':
@@ -68,22 +67,6 @@ class CourseAdmin(admin.ModelAdmin):
                 attrs={'class': 'django_ckeditor_5'}
             )
         return super().formfield_for_dbfield(db_field, **kwargs)
-
-    def display_image(self, obj, *args, **kwargs):
-        url = helpers.get_cloudinary_image_object(
-            obj, 
-            field_name='image',
-            width=200
-        )
-        return format_html(f"<img src={url} />")
-
-    display_image.short_description = "Current Image"
-    inlines = [LessonInline]
-    list_display = ['title', 'category', 'status', 'access']
-    list_filter = ['status', 'access', 'category', 'category__exam_board']
-    fields = ['public_id', 'title', 'description', 'category', 'status', 'image', 'access', 'display_image']
-    readonly_fields = ['public_id', 'display_image']
-    search_fields = ['title', 'description', 'category__name']
 
     def display_image(self, obj, *args, **kwargs):
         url = helpers.get_cloudinary_image_object(
