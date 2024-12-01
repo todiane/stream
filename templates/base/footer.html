@@ -2,11 +2,11 @@
     <div class="mx-auto w-full max-w-screen-xl p-4 md:py-8">
       <div class="sm:flex sm:items-center sm:justify-between">
         <!-- Logo - Hidden on mobile -->
-        <a href="{% url 'home' %}" class="hidden md:flex mb-4 sm:mb-0">
+        {% comment %} <a href="{% url 'home' %}" class="hidden md:flex mb-4 sm:mb-0">
           <img src="https://res.cloudinary.com/dka7n7ady/image/upload/v1728674786/courses/another-wondering-5c5ac/lessons/this-is-me-ac1b9/i8mfabbpknbh3sqxhe0a.jpg" 
                class="h-8" 
                alt="Stream English Logo">
-        </a>
+        </a> {% endcomment %}
   
         <!-- Navigation Menu -->
         <div class="grid grid-cols-3 gap-8 sm:gap-6 w-full">
@@ -22,9 +22,15 @@
   
           <!-- Courses -->
           <div class="text-center sm:text-left">
-            <h2 class="mb-4 text-sm font-semibold uppercase text-gray-900 dark:text-white">Courses</h2>
+            <h2 class="mb-4 text-sm font-semibold uppercase text-gray-900 dark:text-white">Links</h2>
             <ul class="text-gray-600 dark:text-gray-400">
-              <li><a href="#" class="hover:underline">An Inspector Calls</a></li>
+              <li><a href="#" class="hover:underline">Do we need this?</a></li>
+            </ul>
+            <ul class="text-gray-600 dark:text-gray-400">
+              <li><a href="#" class="hover:underline">Add something here</a></li>
+            </ul>
+            <ul class="text-gray-600 dark:text-gray-400">
+              <li><a href="#" class="hover:underline">Or remove it?</a></li>
             </ul>
           </div>
   
