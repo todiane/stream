@@ -78,14 +78,23 @@ def profile_view(request):
     profile = request.user.profile
     enrolled_courses = profile.enrolled_courses.all()
     watched_videos_count = profile.get_watched_videos_count()
-    courses_completion_percentage = profile.get_courses_completion_percentage()
+    
+    # Get completion percentage for each course
+    courses_with_progress = []
+    for course in enrolled_courses:
+        progress = profile.get_course_completion_percentage(course)
+        courses_with_progress.append({
+            'course': course,
+            'progress': progress
+        })
 
     context = {
         'u_form': u_form,
         'p_form': p_form,
         'enrolled_courses': enrolled_courses,
+        'courses_with_progress': courses_with_progress,
         'watched_videos_count': watched_videos_count,
-        'courses_completion_percentage': courses_completion_percentage,
+        'overall_progress': profile.get_courses_completion_percentage(),
     }
 
     return render(request, 'profiles/profile.html', context)
