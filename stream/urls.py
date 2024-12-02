@@ -12,7 +12,6 @@ urlpatterns = [
     path("about/", views.about_view, name="about"),
     path("policy/privacy/", views.privacy_view, name="privacy_policy"),
     path("policy/terms-conditions/", views.terms_view, name="terms_conditions"),
-    path("accounts/", include("allauth.urls")), 
     path('profiles/', include('profiles.urls')),
    path('ckeditor5/', include('django_ckeditor_5.urls')),
 ]
