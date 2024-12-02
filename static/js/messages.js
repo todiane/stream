@@ -1,0 +1,64 @@
+document.addEventListener('DOMContentLoaded', function () {
+  // Auto-dismiss messages after 5 seconds
+  setTimeout(function () {
+    const messages = document.querySelectorAll('[role="alert"]');
+    messages.forEach(function (message) {
+      message.style.opacity = '0';
+      message.style.transition = 'opacity 0.5s ease-in-out';
+      setTimeout(function () {
+        message.remove();
+      }, 500);
+    });
+  }, 5000);
+
+  // Add click handlers to close buttons
+  document.querySelectorAll('[role="alert"] button').forEach(button => {
+    button.addEventListener('click', function () {
+      const alert = this.closest('[role="alert"]');
+      if (alert) {
+        alert.style.opacity = '0';
+        setTimeout(() => alert.remove(), 500);
+      }
+    });
+  });
+
+  // Confirmation dialog function
+  window.showConfirmation = function (message, onConfirm) {
+    const container = document.createElement('div');
+    container.className = "fixed inset-0 bg-gray-600 bg-opacity-50 flex items-center justify-center z-50";
+    container.setAttribute('role', 'dialog');
+
+    const dialog = document.createElement('div');
+    dialog.className = "bg-white rounded-lg p-6 max-w-sm mx-auto shadow-xl";
+
+    const messageEl = document.createElement('div');
+    messageEl.className = "mb-4 text-gray-700";
+    messageEl.textContent = message;
+
+    const buttonContainer = document.createElement('div');
+    buttonContainer.className = "flex justify-end gap-3";
+
+    const confirmButton = document.createElement('button');
+    confirmButton.className = "px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700 transition-colors";
+    confirmButton.textContent = "OK";
+    confirmButton.onclick = () => {
+      container.remove();
+      if (onConfirm) onConfirm();
+    };
+
+    const cancelButton = document.createElement('button');
+    cancelButton.className = "px-4 py-2 bg-gray-200 text-gray-700 rounded hover:bg-gray-300 transition-colors";
+    cancelButton.textContent = "Cancel";
+    cancelButton.onclick = () => container.remove();
+
+    buttonContainer.appendChild(cancelButton);
+    buttonContainer.appendChild(confirmButton);
+
+    dialog.appendChild(messageEl);
+    dialog.appendChild(buttonContainer);
+    container.appendChild(dialog);
+    document.body.appendChild(container);
+
+    confirmButton.focus();
+  };
+});

@@ -13,6 +13,7 @@ from django.utils import timezone
 from django.utils.encoding import force_bytes, force_str
 from django.utils.http import urlsafe_base64_encode, urlsafe_base64_decode
 from django.conf import settings
+from django.contrib.messages import get_messages
 
 from .forms import UserRegisterForm, UserUpdateForm, ProfileUpdateForm
 from .tokens import account_activation_token
@@ -51,7 +52,7 @@ def login_view(request):
             messages.error(request, "Invalid username or password.")
     else:
         if 'next' in request.GET:
-            messages.info(request, "You need to log in to enroll in this course.")
+            messages.info(request, "You need to log in to enrol in this course.")
     form = AuthenticationForm()
     return render(request, 'profiles/login.html', {"form": form})
 
@@ -133,6 +134,13 @@ def delete_account(request):
 @login_required
 def enrol_course(request, course_slug):
     course = get_object_or_404(Course, slug=course_slug)
+    
+    # Check if email verification is required
+    if course.access == "email" and not request.user.is_active:
+        messages.error(request, "Email verification is required to enroll in this course.")
+        request.session['next_url'] = request.path
+        return redirect('profiles:profile')
+        
     if request.method == 'POST':
         if course not in request.user.profile.enrolled_courses.all():
             request.user.profile.enrolled_courses.add(course)
@@ -140,6 +148,7 @@ def enrol_course(request, course_slug):
         else:
             messages.info(request, f'You are already enrolled in {course.title}')
     return redirect('courses:course_detail', course_slug=course_slug)
+
 
 @login_required
 def resume_course(request, course_slug):
@@ -168,8 +177,6 @@ def remove_course(request, course_slug):
         if course in request.user.profile.enrolled_courses.all():
             request.user.profile.enrolled_courses.remove(course)
             messages.success(request, f'You have successfully unenrolled from {course.title}')
-        else:
-            messages.info(request, f'You are not enrolled in {course.title}')
     return redirect('profiles:profile')
 
 @login_required
