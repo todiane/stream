@@ -79,7 +79,6 @@ def profile_view(request):
     enrolled_courses = profile.enrolled_courses.all()
     watched_videos_count = profile.get_watched_videos_count()
     
-    # Get completion percentage for each course
     courses_with_progress = []
     for course in enrolled_courses:
         progress = profile.get_course_completion_percentage(course)
@@ -127,47 +126,62 @@ def delete_account(request):
         logout(request)
         user.delete()
         messages.success(request, 'Your account has been successfully deleted.')
-        return redirect('home')  # Redirect to your home page
+        return redirect('home')  
     return redirect('profiles:profile')
 
 # Course-related views
 @login_required
-def enrol_course(request, course_id):
-    course = get_object_or_404(Course, public_id=course_id)
+def enrol_course(request, course_slug):
+    course = get_object_or_404(Course, slug=course_slug)
     if request.method == 'POST':
         if course not in request.user.profile.enrolled_courses.all():
             request.user.profile.enrolled_courses.add(course)
             messages.success(request, f'You have successfully enrolled in {course.title}')
         else:
             messages.info(request, f'You are already enrolled in {course.title}')
-    return redirect('profiles:profile')
+    return redirect('courses:course_detail', course_slug=course_slug)
 
 @login_required
-def resume_course(request, course_id):
-    course = get_object_or_404(Course, public_id=course_id)
+def resume_course(request, course_slug):
+    course = get_object_or_404(Course, slug=course_slug)
     profile = request.user.profile
     last_watched_lesson = profile.last_watched_lesson
 
     if last_watched_lesson and last_watched_lesson.course == course:
-        return redirect('courses:lesson_detail', course_id=course.public_id, lesson_id=last_watched_lesson.public_id)
+        return redirect('courses:lesson_detail',
+            course_slug=course.slug,
+            lesson_slug=last_watched_lesson.slug)
     else:
         first_lesson = course.lesson_set.first()
         if first_lesson:
-            return redirect('courses:lesson_detail', course_id=course.public_id, lesson_id=first_lesson.public_id)
+            return redirect('courses:lesson_detail',
+                course_slug=course.slug,
+                lesson_slug=first_lesson.slug)
         else:
             messages.warning(request, f'No lessons available in {course.title}')
             return redirect('profiles:profile')
 
 @login_required
-def remove_course(request, course_id):
+def remove_course(request, course_slug):
     if request.method == 'POST':
-        course = get_object_or_404(Course, public_id=course_id)
+        course = get_object_or_404(Course, slug=course_slug)
         if course in request.user.profile.enrolled_courses.all():
             request.user.profile.enrolled_courses.remove(course)
             messages.success(request, f'You have successfully unenrolled from {course.title}')
         else:
             messages.info(request, f'You are not enrolled in {course.title}')
     return redirect('profiles:profile')
+
+@login_required
+def mark_video_watched(request, lesson_id):
+    lesson = get_object_or_404(Lesson, id=lesson_id)
+    profile = request.user.profile
+    profile.watched_videos.add(lesson)
+    profile.last_watched_lesson = lesson
+    profile.save()
+    return redirect('courses:lesson_detail',
+        course_slug=lesson.course.slug,
+        lesson_slug=lesson.slug)
 
 # Email activation views
 def send_activation_email(request, user):
@@ -233,12 +247,4 @@ def extend_activation_time(request, uidb64):
     else:
         messages.error(request, 'Invalid activation link or user is already active.')
         return redirect('profiles:login')
-
-@login_required
-def mark_video_watched(request, lesson_id):
-    lesson = get_object_or_404(Lesson, id=lesson_id)
-    profile = request.user.profile
-    profile.watched_videos.add(lesson)
-    profile.last_watched_lesson = lesson
-    profile.save()
-    return redirect('courses:lesson_detail', course_id=lesson.course.public_id, lesson_id=lesson.public_id)
+    
