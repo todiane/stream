@@ -13,6 +13,7 @@ class CategoryAdmin(admin.ModelAdmin):
 
 class LessonInline(admin.StackedInline):
     model = Lesson
+    prepopulated_fields = {'slug': ('title',)}
     readonly_fields = [
         'public_id', 
         'updated', 

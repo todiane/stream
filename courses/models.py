@@ -1,5 +1,6 @@
 import uuid
 from django.db import models
+from django.urls import reverse
 from django.utils.text import slugify
 from cloudinary.models import CloudinaryField
 from django.conf import settings
@@ -67,11 +68,9 @@ class Course(models.Model):
     )
 
     def save(self, *args, **kwargs):
-        # Generate slug if not exists
         if not self.slug:
             self.slug = slugify(self.title)
         
-        # Generate public_id if not exists
         if not self.public_id:
             self.public_id = generate_public_id(self)
         
@@ -91,7 +90,7 @@ class Course(models.Model):
 
     @property
     def path(self):
-        return f"/courses/{self.public_id}"
+        return reverse('courses:course_detail', kwargs={'course_slug': self.slug})
 
     def get_display_name(self):
         return f"{self.title} - Course"
@@ -140,11 +139,11 @@ class Course(models.Model):
     def is_coming_soon(self):
         return self.status == PublishStatus.COMING_SOON
 
-
 class Lesson(models.Model):
     course = models.ForeignKey(Course, on_delete=models.CASCADE)
     public_id = models.CharField(max_length=130, blank=True, null=True, db_index=True)
     title = models.CharField(max_length=120)
+    slug = models.SlugField(max_length=150, blank=True)
     description = models.TextField(blank=True, null=True)
     thumbnail = CloudinaryField(
         "image",
@@ -177,21 +176,28 @@ class Lesson(models.Model):
 
     class Meta:
         ordering = ['order', '-updated']
+        unique_together = [['course', 'slug']]
 
     def save(self, *args, **kwargs):
-        if self.public_id == "" or self.public_id is None:
-            self.public_id = generate_public_id(self)
-        super().save(*args, **kwargs)
-    
-    def get_absolute_url(self):
-        return self.path
+        if not self.slug:
+            base_slug = slugify(self.title)
+            slug = base_slug
+            n = 1
+            while Lesson.objects.filter(course=self.course, slug=slug).exists():
+                slug = f"{base_slug}-{n}"
+                n += 1
+            self.slug = slug
 
-    @property
-    def path(self):
-        course_path = self.course.path
-        if course_path.endswith("/"):
-            course_path = course_path[:-1]
-        return f"{course_path}/lessons/{self.public_id}"
+        if not self.public_id:
+            self.public_id = generate_public_id(self)
+            
+        super().save(*args, **kwargs)
+
+    def get_absolute_url(self):
+        return reverse('courses:lesson_detail', kwargs={
+        'course_slug': self.course.slug,
+        'lesson_slug': self.slug
+    })
 
     def get_thumbnail_url(self):
         return get_cloudinary_image_object(self, 'thumbnail')
@@ -238,4 +244,3 @@ class Lesson(models.Model):
         elif self.video:
             return get_cloudinary_image_object(self, field_name='video')
         return None
-    

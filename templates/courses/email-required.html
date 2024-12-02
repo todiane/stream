@@ -1,20 +1,26 @@
 {% extends 'base.html' %}
 {% block head_title %}
-    Unlock content - {{ block.super }}
+    Unlock Content - {{ block.super }}
 {% endblock head_title %}
 
 {% block content %}
-<section class="section bg-gray-50 dark:bg-gray-900">
-    <div class="flex flex-col items-center justify-center px-6 py-8 mx-auto md:h-screen lg:py-0">
-        <div class="w-full bg-white rounded-lg shadow dark:border md:mt-0 sm:max-w-md xl:p-0 dark:bg-gray-800 dark:border-gray-700">
-            <div class="p-6 space-y-4 md:space-y-6 sm:p-8">
-                <h1 class="text-xl font-bold leading-tight tracking-tight text-gray-900 md:text-2xl dark:text-white">
-                    Verify your email to unlock.
-                </h1>
-                <a href="{% url 'login' %}" class="inline-flex items-center px-5 py-3 text-base font-medium text-white bg-blue-600 rounded-lg hover:bg-blue-700">
-                    Login
-                </a>
-            </div>
+<section class="min-h-screen flex items-center justify-center bg-gray-50 dark:bg-gray-900">
+    <div class="w-full max-w-md bg-white rounded-lg shadow dark:border dark:bg-gray-800 dark:border-gray-700 p-6 space-y-4">
+        <h1 class="text-xl font-bold leading-tight tracking-tight text-gray-900 md:text-2xl dark:text-white text-center">
+            Verify Your Email to Unlock Content
+        </h1>
+        <p class="text-gray-600 dark:text-gray-400 text-center">
+            Access to this course requires verifying your email. If you've already verified, please log in.
+        </p>
+        <div class="flex flex-col space-y-3">
+            <!-- Login Button -->
+            <a href="{% url 'profiles:login' %}" class="inline-flex items-center justify-center px-5 py-3 text-base font-medium text-white bg-blue-600 rounded-lg hover:bg-blue-700 transition duration-200 ease-in-out">
+                Login to Verify
+            </a>
+            <!-- Resend Verification Email -->
+            <a href="{% url 'profiles:resend_activation' user.pk|urlencode %}" class="inline-flex items-center justify-center px-5 py-3 text-base font-medium text-blue-600 bg-gray-100 rounded-lg hover:bg-gray-200 dark:bg-gray-700 dark:text-white dark:hover:bg-gray-600 transition duration-200 ease-in-out">
+                Resend Verification Email
+            </a>
         </div>
     </div>
 </section>
