@@ -14,6 +14,7 @@
     {% block extra_head %}{% endblock %}
 </head>
 <body class="flex flex-col min-h-screen">
+    {% include 'partials/_messages.html' %}
     {% include 'base/navbar.html' %}
     
     <main id="content" class="flex-grow" role="main">
@@ -22,5 +23,6 @@
 
     {% include 'base/footer.html' %}
     <script src="{% static 'js/menu.js' %}"></script>
+    <script src="{% static 'js/messages.js' %}"></script>
 </body>
 </html>
