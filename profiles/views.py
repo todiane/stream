@@ -13,11 +13,13 @@ from django.utils import timezone
 from django.utils.encoding import force_bytes, force_str
 from django.utils.http import urlsafe_base64_encode, urlsafe_base64_decode
 from django.conf import settings
-from django.contrib.messages import get_messages
+from django.core.mail import send_mail
 
 from .forms import UserRegisterForm, UserUpdateForm, ProfileUpdateForm
 from .tokens import account_activation_token
 from courses.models import Course, Lesson
+from .forms import ContactForm
+
 
 # Authentication views
 def signup_view(request):
@@ -80,6 +82,7 @@ def profile_view(request):
     enrolled_courses = profile.enrolled_courses.all()
     watched_videos_count = profile.get_watched_videos_count()
     
+    
     courses_with_progress = []
     for course in enrolled_courses:
         progress = profile.get_course_completion_percentage(course)
@@ -95,6 +98,7 @@ def profile_view(request):
         'courses_with_progress': courses_with_progress,
         'watched_videos_count': watched_videos_count,
         'overall_progress': profile.get_courses_completion_percentage(),
+        'contact_form': ContactForm(),
     }
 
     return render(request, 'profiles/profile.html', context)
@@ -254,4 +258,47 @@ def extend_activation_time(request, uidb64):
     else:
         messages.error(request, 'Invalid activation link or user is already active.')
         return redirect('profiles:login')
-    
+
+# Contact views
+
+
+
+@login_required
+def contact_tutor(request):
+    if request.method == 'POST':
+        if not request.user.is_active:
+            messages.error(request, 'Please verify your email to contact the tutor.')
+            return redirect('profiles:profile')
+            
+        form = ContactForm(request.POST)
+        if form.is_valid():
+            submission = form.save(commit=False)
+            submission.user = request.user
+            submission.save()
+            
+            # Email content
+            subject = f'New Contact Form Submission: {submission.get_reason_display()}'
+            message = f'From: {request.user.username}\n'
+            if submission.name:
+                message += f'Name: {submission.name}\n'
+            message += f'\nDescription: {submission.description}\n'
+            
+            if submission.reason == 'tuition':
+                message += f'\nParent Details:\n'
+                message += f'Name: {submission.parent_first_name} {submission.parent_last_name}\n'
+                message += f'Email: {submission.parent_email}\n'
+                message += f'Phone: {submission.parent_phone}\n'
+            
+            send_mail(
+                subject,
+                message,
+                'noreply@streamenglish.co.uk',
+                ['streamenglish@hotmail.com'],
+                fail_silently=False,
+            )
+            
+            messages.success(request, 'Your message has been sent successfully.')
+            return redirect('profiles:profile')
+            
+        messages.error(request, 'Please correct the errors below.')
+    return redirect('profiles:profile')

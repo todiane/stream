@@ -69,4 +69,25 @@ class ProfileUpdateForm(BaseForm, forms.ModelForm):
     class Meta:
         model = Profile
         fields = ['first_name', 'bio']
+
+from django import forms
+from .models import ContactSubmission
+
+class ContactForm(forms.ModelForm):
+    class Meta:
+        model = ContactSubmission
+        fields = ['reason', 'name', 'description', 'parent_first_name', 
+                 'parent_last_name', 'parent_email', 'parent_phone']
         
+    def clean(self):
+        cleaned_data = super().clean()
+        reason = cleaned_data.get('reason')
+        
+        if reason == 'tuition':
+            required_fields = ['parent_first_name', 'parent_last_name', 
+                             'parent_email', 'parent_phone']
+            for field in required_fields:
+                if not cleaned_data.get(field):
+                    self.add_error(field, 'This field is required for tuition enquiries')
+                    
+        return cleaned_data

@@ -45,3 +45,27 @@ def create_user_profile(sender, instance, created, **kwargs):
 @receiver(post_save, sender=User)
 def save_user_profile(sender, instance, **kwargs):
     instance.profile.save()
+
+class ContactSubmission(models.Model):
+    CONTACT_REASONS = [
+        ('tuition', 'Get More Details on Tuition'),
+        ('fault', 'Report a Fault/Error')
+    ]
+    
+    user = models.ForeignKey(User, on_delete=models.CASCADE)
+    reason = models.CharField(max_length=20, choices=CONTACT_REASONS)
+    submitted_at = models.DateTimeField(auto_now_add=True)
+    
+    # Common fields
+    name = models.CharField(max_length=100, blank=True)
+    description = models.TextField()
+    
+    # Parent details (for tuition enquiries)
+    parent_first_name = models.CharField(max_length=100, blank=True)
+    parent_last_name = models.CharField(max_length=100, blank=True)
+    parent_email = models.EmailField(blank=True)
+    parent_phone = models.CharField(max_length=20, blank=True)
+
+    def __str__(self):
+        return f"{self.user.username} - {self.get_reason_display()}"
+    

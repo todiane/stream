@@ -103,6 +103,7 @@ INSTALLED_APPS = [
     "cloudinary",
     "django_ckeditor_5",
     "simple_history",
+    'widget_tweaks',
     # Internal apps
     "courses",
     "profiles",
