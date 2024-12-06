@@ -7,21 +7,21 @@ import logging
 BASE_DIR = Path(__file__).resolve().parent.parent
 
 # Add this after your BASE_DIR definition
-LOGGING = {
-    'version': 1,
-    'disable_existing_loggers': False,
-    'handlers': {
-        'console': {
-            'class': 'logging.StreamHandler',
-        },
-    },
-    'loggers': {
-        'django': {
-            'handlers': ['console'],
-            'level': 'DEBUG',
-        },
-    },
-}
+# LOGGING = {
+#     'version': 1,
+#     'disable_existing_loggers': False,
+#     'handlers': {
+#         'console': {
+#             'class': 'logging.StreamHandler',
+#         },
+#     },
+#     'loggers': {
+#         'django': {
+#             'handlers': ['console'],
+#             'level': 'DEBUG',
+#         },
+#     },
+# }
 
 # Security
 SECRET_KEY = config("SECRET_KEY", default="unsafe-default-secret-key")
@@ -30,19 +30,19 @@ SECRET_KEY = config("SECRET_KEY", default="unsafe-default-secret-key")
 # SECURITY WARNING: don't run with debug turned on in production!
 
 
-DEBUG = False
+DEBUG = True
 
 # Database configuration - comment out local database and set debug to false in production. For local use comment out production database and set debug to true.
 
-# DATABASES = {
-#     'default': {
-#         'ENGINE': 'django.db.backends.sqlite3',
-#         'NAME': BASE_DIR / 'db.sqlite3',
-#     }
-# }
+DATABASES = {
+    'default': {
+        'ENGINE': 'django.db.backends.sqlite3',
+        'NAME': BASE_DIR / 'db.sqlite3',
+    }
+}
 
 
-DATABASES = {"default": dj_database_url.config(default=os.environ.get("DATABASE_URL"))}
+# DATABASES = {"default": dj_database_url.config(default=os.environ.get("DATABASE_URL"))}
 
 
 ALLOWED_HOSTS = os.environ.get('DJANGO_ALLOWED_HOSTS', '*').split(',')
@@ -102,9 +102,11 @@ INSTALLED_APPS = [
     "cloudinary_storage",
     "cloudinary",
     "django_ckeditor_5",
+    "simple_history",
     # Internal apps
     "courses",
     "profiles",
+    "pages",
 ]
 
 
@@ -157,7 +159,10 @@ EMAIL_USE_TLS = config('EMAIL_USE_TLS', default=True, cast=bool)
 EMAIL_HOST_USER = config('EMAIL_HOST_USER', default='')
 EMAIL_HOST_PASSWORD = config('EMAIL_HOST_PASSWORD', default='')
 
-
+# Account activation settings
+ACCOUNT_ACTIVATION_DAYS = 7  # One-week activation window
+ACCOUNT_ACTIVATION_LINK_EXPIRED_HOURS = 24 * ACCOUNT_ACTIVATION_DAYS
+REGISTRATION_SALT = 'registration'
 
 # Internationalization
 LANGUAGE_CODE = "en-us"
