@@ -2,7 +2,7 @@
 {% load static %}
 {% block head_title %}About Stream English Platform{% endblock head_title %}
 {% block content %}
-<section id="about" class="py-12 bg-gray-50 dark:bg-gray-800">
+<section id="about" class="py-12 bg-white dark:bg-gray-800">
     <div class="container mx-auto">
         {% if about_me %}
         <h1 class="text-4xl font-bold text-center mb-6 text-gray-900 dark:text-white">{{ about_me.title }}</h1>
@@ -30,7 +30,7 @@
 
         {% if tuition %}
         <!-- Two-Column Section -->
-        <div class="grid md:grid-cols-2 gap-6">
+        <div class="grid md:grid-cols-2 gap-6 lg:gap-12">
             <div class="bg-white rounded-lg shadow-md p-6">
                 <h3 class="text-xl font-semibold mb-3">{{ tuition.title }}</h3>
                 <div class="text-gray-600">
@@ -54,7 +54,7 @@
 
 {% if courses_section and courses_section.show_courses_section %}
 <!-- Courses Section -->
-<section class="py-12 bg-white dark:bg-gray-900">
+<section class="py-12 bg-slate-50 dark:bg-gray-900">
     <div class="container mx-auto px-4">
         <h2 class="text-3xl font-extrabold text-center mb-8 text-gray-900 dark:text-white">
             {{ courses_section.title }}

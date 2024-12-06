@@ -78,7 +78,15 @@
 </section>
 {% endif %}
 
-{{ page.content|safe }}
+<!-- Main Content Section -->
+<section class="bg-white py-16 px-6 lg:py-20 lg:px-8">
+    <div class="container mx-auto px-4 max-w-screen-xl">
+        <div class="prose prose-lg mx-auto">
+            <div class="text-center mb-12">
+            {{ page.content|safe }}
+        </div>
+    </div>
+</section>
 
 {% if object_list %}
 <section class="section bg-slate-50 dark:bg-gray-800 py-12">

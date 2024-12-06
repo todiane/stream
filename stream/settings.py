@@ -210,6 +210,18 @@ CKEDITOR_5_CONFIGS = {
             'undo', 'redo', '|',],
         'height': '300px',
         'width': '100%',
+        'removePlugins': ['Title'],
+        'contentsCss': [
+            '/static/css/dist/styles.css',  # Your Tailwind CSS
+        ],
+        'heading': {
+            'options': [
+                {'model': 'paragraph', 'title': 'Paragraph', 'class': 'font-normal text-gray-600 text-base'},
+                {'model': 'heading1', 'view': 'h1', 'title': 'Heading 1', 'class': 'text-4xl font-extrabold tracking-tight text-gray-900 mb-4'},
+                {'model': 'heading2', 'view': 'h2', 'title': 'Heading 2', 'class': 'text-3xl font-bold text-gray-900 mb-4'},
+                {'model': 'heading3', 'view': 'h3', 'title': 'Heading 3', 'class': 'text-2xl font-semibold text-gray-900 mb-3'},
+            ]
+        },
     },
 }
 
