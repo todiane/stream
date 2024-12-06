@@ -1,13 +1,13 @@
 <nav class=" px-3 py-2 mb-4 max-w-3xl">
     <ol class="flex items-center text-sm">
         <li class="flex items-center">
-            <a href="{% url 'home' %}" class="text-gray-700 hover:text-blue-600">Home</a>
+            <a href="{% url 'pages:home' %}" class="text-gray-700 hover:text-blue-600">Home</a>
         </li>
         <li class="flex items-center">
             <svg class="w-4 h-4 mx-2 text-gray-400" viewBox="0 0 24 24" fill="none" stroke="currentColor">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/>
             </svg>
-            <a href="{% url 'courses:course_list' %}" class="text-gray-700 hover:text-blue-600">Courses</a>
+            <a href="{% url 'courses:course_list' %}" class="text-gray-700 hover:text-blue-600">Lessons</a>
         </li>
         {% if course %}
         <li class="flex items-center">
