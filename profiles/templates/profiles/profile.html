@@ -76,7 +76,7 @@
                 {% for course_data in courses_with_progress %}
                     <div class="border-b border-gray-200 pb-6 last:border-b-0 last:pb-0">
                         <h3 class="text-lg font-semibold text-gray-800 mb-2">{{ course_data.course.title }}</h3>
-                        <p class="mb-4 text-gray-600">{{ course_data.course.description|striptags|truncatewords:90|remove_linebreaks }}</p>
+                        <p class="mb-4 text-gray-600">{{ course_data.course.description|striptags|truncatewords:50|remove_linebreaks }}</p>
                         
                         <div class="mb-4">
                             <div class="flex items-center">
@@ -117,7 +117,7 @@
     
     <div class="bg-white shadow rounded-lg p-6 mb-8">
         <h2 class="text-2xl font-semibold mb-6 text-gray-800">Contact Me</h2>
-        <p class="text-gray-600">Please use the form below to contact me. I will only reply to your parent/guardian about tuition so make sure you include their details.</p>
+        <p class="text-gray-600">Use this form to get in touch. If you are interested in tuition, you MUST include the details of your parent/guardian and I will contact them directly.</p>
         {% if not user.is_active %}
             <div class="bg-yellow-50 border-l-4 border-yellow-400 p-4 mb-6">
                 <div class="flex">
@@ -143,36 +143,33 @@
                 </div>
 
                 <div class="space-y-1">
-                    <label class="block text-sm font-medium text-gray-700">Description</label>
+                    <label class="block text-sm font-medium text-gray-700">Message Details</label>
                     {{ contact_form.description|add_class:"mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500" }}
                 </div>
-
-                <div id="parent-details" class="hidden space-y-6 border-t pt-6 mt-6">
+                <div class="space-y-6 pt-6 mt-6">
                     <h3 class="text-lg font-semibold text-gray-700">Parent/Guardian Details</h3>
-                    
-                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <p class="text-sm text-gray-600 mb-4">For tuition enquiries Only.</p>
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
                         <div class="space-y-1">
                             <label class="block text-sm font-medium text-gray-700">Parent's First Name</label>
                             {{ contact_form.parent_first_name|add_class:"mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500" }}
                         </div>
-
                         <div class="space-y-1">
                             <label class="block text-sm font-medium text-gray-700">Parent's Last Name</label>
                             {{ contact_form.parent_last_name|add_class:"mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500" }}
                         </div>
-
+                
                         <div class="space-y-1">
                             <label class="block text-sm font-medium text-gray-700">Parent's Email</label>
                             {{ contact_form.parent_email|add_class:"mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500" }}
                         </div>
-
+                
                         <div class="space-y-1">
                             <label class="block text-sm font-medium text-gray-700">Parent's Phone Number</label>
                             {{ contact_form.parent_phone|add_class:"mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500" }}
                         </div>
                     </div>
                 </div>
-
                 <div class="pt-4">
                     <button type="submit" class="bg-blue-600 hover:bg-blue-700 text-white font-medium py-2 px-4 rounded transition duration-150 ease-in-out">
                         Send Message
@@ -241,9 +238,4 @@
         </form>
     </div>
 </div>
-
-{% endblock %}
-
-{% block extra_js %}
-<script src="{% static 'js/profiles.js' %}"></script>
 {% endblock %}
