@@ -1,0 +1,77 @@
+{% extends 'base.html' %}
+{% load static %}
+{% block head_title %}About Stream English Platform{% endblock head_title %}
+{% block content %}
+<section id="about" class="py-12 bg-gray-50 dark:bg-gray-800">
+    <div class="container mx-auto">
+        {% if about_me %}
+        <h1 class="text-4xl font-bold text-center mb-6 text-gray-900 dark:text-white">{{ about_me.title }}</h1>
+        <!-- Main Section -->
+        <div class="bg-white rounded-lg shadow-md mb-8 p-6 flex flex-col md:flex-row items-center">
+            <!-- Text Content -->
+            <div class="md:w-1/2">
+                <h2 class="text-2xl font-semibold mb-4">{{ about_me.subtitle }}</h2>
+                <p class="mb-4">{{ about_me.description }}</p>
+                {% if about_me.qualifications %}
+                <p class="mb-4">My Qualifications:</p>
+                <div class="list-disc pl-5 mb-4">
+                    {{ about_me.qualifications|linebreaks }}
+                </div>
+                {% endif %}
+            </div>
+            <!-- Image -->
+            {% if about_me.image %}
+            <div class="md:w-1/2 flex justify-center">
+                <img src="{{ about_me.get_image_url }}" alt="{{ about_me.title }}" class="rounded-lg mb-4" />
+            </div>
+            {% endif %}
+        </div>
+        {% endif %}
+
+        {% if tuition %}
+        <!-- Two-Column Section -->
+        <div class="grid md:grid-cols-2 gap-6">
+            <div class="bg-white rounded-lg shadow-md p-6">
+                <h3 class="text-xl font-semibold mb-3">{{ tuition.title }}</h3>
+                <div class="text-gray-600">
+                    {{ tuition.description|safe }}
+                </div>
+            </div>
+            <div class="bg-white rounded-lg shadow-md p-6">
+                <h3 class="text-xl font-semibold mb-3">{{ tuition.booking_title }}</h3>
+                <div class="text-gray-600 mb-4">
+                    {{ tuition.booking_description|safe }}
+                </div>
+                <a href="{{ tuition.booking_button_url }}" 
+                   class="inline-flex items-center px-5 py-3 text-base font-medium text-white bg-blue-600 rounded-lg hover:bg-blue-700">
+                    {{ tuition.booking_button_text }}
+                </a>
+            </div>
+        </div>
+        {% endif %}
+    </div>
+</section>
+
+{% if courses_section and courses_section.show_courses_section %}
+<!-- Courses Section -->
+<section class="py-12 bg-white dark:bg-gray-900">
+    <div class="container mx-auto px-4">
+        <h2 class="text-3xl font-extrabold text-center mb-8 text-gray-900 dark:text-white">
+            {{ courses_section.title }}
+        </h2>
+        <div class="text-center mb-8">
+            {{ courses_section.description|safe }}
+        </div>
+        <div id="course-list">
+            {% include 'courses/snippets/list-display.html' with queryset=object_list %}
+        </div>
+        <div class="text-center mt-8">
+            <a href="{% url 'courses:course_list' %}" 
+               class="inline-flex items-center px-5 py-3 text-base font-medium text-white bg-blue-600 rounded-lg hover:bg-blue-700">
+                {{ courses_section.button_text }}
+            </a>
+        </div>
+    </div>
+</section>
+{% endif %}
+{% endblock content %}
