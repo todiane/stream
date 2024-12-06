@@ -25,20 +25,27 @@ def home_view(request):
     
 
 def about_view(request):
-    page = get_object_or_404(Page, template='about', is_active=True)
-    about_me = AboutMe.objects.filter(is_active=True).first()
-    tuition = AboutTuition.objects.filter(is_active=True).first()
-    courses_section = AboutCourses.objects.filter(is_active=True).first()
-    featured_courses = Course.objects.filter(status='publish')[:6] if courses_section and courses_section.show_courses_section else None
-    
-    context = {
-        'page': page,
-        'about_me': about_me,
-        'tuition': tuition,
-        'courses_section': courses_section,
-        'object_list': featured_courses,
-    }
-    return render(request, 'pages/about.html', context)
+    try:
+        page = get_object_or_404(Page, template='about', is_active=True)
+        about_me = AboutMe.objects.filter(is_active=True).first()
+        tuition = AboutTuition.objects.filter(is_active=True).first()
+        courses_section = AboutCourses.objects.filter(is_active=True).first()
+        featured_courses = Course.objects.filter(status='publish')[:6] if courses_section and courses_section.show_courses_section else None
+        
+        context = {
+            'page': page,
+            'about_me': about_me,
+            'tuition': tuition,
+            'courses_section': courses_section,
+            'object_list': featured_courses,
+        }
+        return render(request, 'pages/about.html', context)
+    except Exception as e:
+        print(f"Error in about_view: {e}")
+        # Return a basic context if data is missing
+        return render(request, 'pages/about.html', {
+            'page': page if 'page' in locals() else None
+        })
 
 @staff_member_required
 def preview_page(request, pk):
