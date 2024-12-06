@@ -1,5 +1,6 @@
 {% extends 'base.html' %}
 {% load static %}
+{% load widget_tweaks %}
 {% load custom_filters %}
 
 {% block head_title %}Profile - Stream English{% endblock %}
@@ -112,8 +113,78 @@
             <p class="text-gray-600">You are not enrolled in any courses yet.</p>
         {% endif %}
     </div>
+    <!-- Contact Teacher Section starts here -->
+    
+    <div class="bg-white shadow rounded-lg p-6 mb-8">
+        <h2 class="text-2xl font-semibold mb-6 text-gray-800">Contact Me</h2>
+        <p class="text-gray-600">Please use the form below to contact me. I will only reply to your parent/guardian about tuition so make sure you include their details.</p>
+        {% if not user.is_active %}
+            <div class="bg-yellow-50 border-l-4 border-yellow-400 p-4 mb-6">
+                <div class="flex">
+                    <div class="ml-3">
+                        <p class="text-sm text-yellow-700">
+                            Please verify your email address to contact the tutor.
+                        </p>
+                    </div>
+                </div>
+            </div>
+        {% else %}
+            <form method="POST" action="{% url 'profiles:contact_tutor' %}" class="space-y-6">
+                {% csrf_token %}
+                
+                <div class="space-y-1">
+                    <label class="block text-sm font-medium text-gray-700">Reason for Contact</label>
+                    {{ contact_form.reason|add_class:"mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500" }}
+                </div>
 
-    <!-- Edit Profile Section -->
+                <div class="space-y-1" id="name-field">
+                    <label class="block text-sm font-medium text-gray-700">Your Name </label>
+                    {{ contact_form.name|add_class:"mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500" }}
+                </div>
+
+                <div class="space-y-1">
+                    <label class="block text-sm font-medium text-gray-700">Description</label>
+                    {{ contact_form.description|add_class:"mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500" }}
+                </div>
+
+                <div id="parent-details" class="hidden space-y-6 border-t pt-6 mt-6">
+                    <h3 class="text-lg font-semibold text-gray-700">Parent/Guardian Details</h3>
+                    
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                        <div class="space-y-1">
+                            <label class="block text-sm font-medium text-gray-700">Parent's First Name</label>
+                            {{ contact_form.parent_first_name|add_class:"mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500" }}
+                        </div>
+
+                        <div class="space-y-1">
+                            <label class="block text-sm font-medium text-gray-700">Parent's Last Name</label>
+                            {{ contact_form.parent_last_name|add_class:"mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500" }}
+                        </div>
+
+                        <div class="space-y-1">
+                            <label class="block text-sm font-medium text-gray-700">Parent's Email</label>
+                            {{ contact_form.parent_email|add_class:"mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500" }}
+                        </div>
+
+                        <div class="space-y-1">
+                            <label class="block text-sm font-medium text-gray-700">Parent's Phone Number</label>
+                            {{ contact_form.parent_phone|add_class:"mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500" }}
+                        </div>
+                    </div>
+                </div>
+
+                <div class="pt-4">
+                    <button type="submit" class="bg-blue-600 hover:bg-blue-700 text-white font-medium py-2 px-4 rounded transition duration-150 ease-in-out">
+                        Send Message
+                    </button>
+                </div>
+            </form>
+        {% endif %}
+    </div>
+
+    <!-- End of Contact Teacher Section -->
+    
+    <!-- Edit Profile Section starts here -->
     <div class="bg-white shadow rounded-lg p-6 mb-8">
         <h2 class="text-2xl font-semibold mb-6 text-gray-800">Edit Profile</h2>
         <form method="POST" class="space-y-6">
@@ -156,7 +227,7 @@
         </form>
     </div>
 
-    <!-- Delete Account Section -->
+    <!-- Delete Account Section starts here -->
     <div class="bg-white shadow rounded-lg p-6">
         <h2 class="text-2xl font-semibold mb-4 text-blue-800-600">Delete Account</h2>
         <p class="mb-4 text-red-600">Warning: This action cannot be undone. All your data will be permanently deleted.</p>
@@ -171,5 +242,8 @@
     </div>
 </div>
 
+{% endblock %}
 
+{% block extra_js %}
+<script src="{% static 'js/profiles.js' %}"></script>
 {% endblock %}
