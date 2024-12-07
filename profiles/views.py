@@ -2,10 +2,12 @@ from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth import login, authenticate, logout
+from django.contrib.auth.views import PasswordResetView
 from django.contrib.auth.forms import AuthenticationForm
 from django.contrib.auth.models import User
 from django.contrib.sites.shortcuts import get_current_site
-from django.core.mail import EmailMessage
+from django.core.exceptions import ValidationError
+from django.core.mail import send_mail, EmailMultiAlternatives 
 from django.http import HttpResponse
 from django.template.loader import render_to_string
 from django.urls import reverse
@@ -13,12 +15,13 @@ from django.utils import timezone
 from django.utils.encoding import force_bytes, force_str
 from django.utils.http import urlsafe_base64_encode, urlsafe_base64_decode
 from django.conf import settings
-from django.core.mail import send_mail
 
 from .forms import UserRegisterForm, UserUpdateForm, ProfileUpdateForm
+from .forms import ContactForm
+from .forms import CustomPasswordResetForm
 from .tokens import account_activation_token
 from courses.models import Course, Lesson
-from .forms import ContactForm
+from .utils import check_email_throttle
 
 
 # Authentication views
@@ -197,33 +200,70 @@ def mark_video_watched(request, lesson_id):
 # Email activation views
 def send_activation_email(request, user):
     current_site = get_current_site(request)
-    mail_subject = 'Activate your account.'
-    message = render_to_string('accounts/email/email_confirmation_message.txt', {
+    unsubscribe_uid = urlsafe_base64_encode(force_bytes(user.pk))
+    context = {
         'user': user,
         'domain': current_site.domain,
         'uid': urlsafe_base64_encode(force_bytes(user.pk)),
         'token': account_activation_token.make_token(user),
         'protocol': 'https' if request.is_secure() else 'http',
         'expiration_days': settings.ACCOUNT_ACTIVATION_DAYS,
-    })
-    to_email = user.email
-    email = EmailMessage(mail_subject, message, to=[to_email])
-    email.send()
+        'email': user.email,
+        'unsubscribe_url': f"{request.scheme}://{current_site.domain}{reverse('profiles:unsubscribe_email', kwargs={'uidb64': unsubscribe_uid})}"
+    }
 
+    # Render both HTML and plain text versions
+    html_content = render_to_string('account/email/account_activation_email.html', context)
+    text_content = render_to_string('account/email/account_activation_email.txt', context)
+
+    # Create email
+    subject = 'Activate your Stream English account'
+    from_email = settings.DEFAULT_FROM_EMAIL
+    to_email = user.email
+
+    msg = EmailMultiAlternatives(subject, text_content, from_email, [to_email])
+    msg.attach_alternative(html_content, "text/html")
+    msg.send()
+
+# Activate account
 def activate(request, uidb64, token):
     try:
         uid = force_str(urlsafe_base64_decode(uidb64))
         user = User.objects.get(pk=uid)
-    except(TypeError, ValueError, OverflowError, User.DoesNotExist):
-        user = None
-    if user is not None and account_activation_token.check_token(user, token):
-        user.is_active = True
-        user.save()
-        login(request, user)
-        return HttpResponse('Thank you for your email confirmation. Your account is now active.')
-    else:
-        return render(request, 'profiles/activation_failed.html', {'uid': uidb64, 'token': token})
-
+        
+        # Check rate limiting
+        check_email_throttle(uid, 'activation_verification')
+        
+        if user is not None and account_activation_token.check_token(user, token):
+            # Verify token hasn't expired
+            token_age = timezone.now() - user.date_joined
+            if token_age.days > settings.ACCOUNT_ACTIVATION_DAYS:
+                messages.error(request, 'Activation link has expired')
+                return redirect('profiles:activation_failed')
+            
+            # Prevent reuse of activation link
+            if user.is_active:
+                messages.warning(request, 'Account already activated')
+                return redirect('home')
+                
+            user.is_active = True
+            user.save()
+            login(request, user)
+            
+            messages.success(request, 'Your account has been successfully activated!')
+            return redirect('home')
+        else:
+            messages.error(request, 'Invalid activation link')
+            return redirect('profiles:activation_failed')
+            
+    except (TypeError, ValueError, OverflowError, User.DoesNotExist) as e:
+        messages.error(request, 'Invalid activation link')
+        return redirect('profiles:activation_failed')
+    except ValidationError as e:
+        messages.error(request, str(e))
+        return redirect('profiles:activation_failed')
+    
+    
 def resend_activation_email(request, uidb64):
     try:
         uid = force_str(urlsafe_base64_decode(uidb64))
@@ -260,9 +300,6 @@ def extend_activation_time(request, uidb64):
         return redirect('profiles:login')
 
 # Contact views
-
-
-
 @login_required
 def contact_tutor(request):
     if request.method == 'POST':
@@ -302,3 +339,34 @@ def contact_tutor(request):
             
         messages.error(request, 'Please correct the errors below.')
     return redirect('profiles:profile')
+
+
+def unsubscribe_email(request, uidb64):
+    try:
+        uid = force_str(urlsafe_base64_decode(uidb64))
+        user = User.objects.get(pk=uid)
+        
+        # Set user preference to not receive emails
+        user.profile.email_subscribed = False
+        user.profile.save()
+        
+        messages.success(request, 'You have been successfully unsubscribed from our emails.')
+        return redirect('home')
+    except (TypeError, ValueError, OverflowError, User.DoesNotExist):
+        messages.error(request, 'Invalid unsubscribe link.')
+        return redirect('home')
+
+class SecurePasswordResetView(PasswordResetView):
+    form_class = CustomPasswordResetForm
+    
+    def form_valid(self, form):
+        try:
+            check_email_throttle(
+                form.cleaned_data['email'], 
+                'password_reset'
+            )
+        except ValidationError as e:
+            form.add_error(None, str(e))
+            return self.form_invalid(form)
+            
+        return super().form_valid(form)

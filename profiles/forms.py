@@ -1,9 +1,9 @@
 # profiles/forms.py
-
 from django import forms
 from django.contrib.auth.models import User
 from django.contrib.auth.forms import UserCreationForm
 from .models import Profile
+from .utils import send_password_reset_email
 
 class BaseForm:
     def __init__(self, *args, **kwargs):
@@ -91,3 +91,26 @@ class ContactForm(forms.ModelForm):
                     self.add_error(field, 'This field is required for tuition enquiries')
                     
         return cleaned_data
+
+class CustomPasswordResetForm(forms.Form):
+    email = forms.EmailField(
+        label="Email",
+        max_length=254,
+        widget=forms.EmailInput(attrs={
+            'class': 'mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-300 focus:ring focus:ring-blue-200 focus:ring-opacity-50',
+            'placeholder': 'Enter your email address'
+        })
+    )
+
+    def send_mail(self, subject_template_name, email_template_name,
+                 context, from_email, to_email, html_email_template_name=None):
+        user = context.get('user')
+        request = context.get('request')
+        
+        if user and request:
+            send_password_reset_email(
+                request=request,
+                user=user,
+                token=context.get('token'),
+                uid=context.get('uid')
+            )

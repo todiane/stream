@@ -11,6 +11,8 @@ class Profile(models.Model):
     enrolled_courses = models.ManyToManyField(Course, blank=True, related_name='enrolled_students')
     watched_videos = models.ManyToManyField(Lesson, blank=True, related_name='watched_by')
     last_watched_lesson = models.ForeignKey(Lesson, on_delete=models.SET_NULL, null=True, blank=True, related_name='last_watched_by')
+    email_subscribed = models.BooleanField(default=True)
+    
 
     def __str__(self):
         return f"{self.user.username}'s profile"
@@ -46,26 +48,37 @@ def create_user_profile(sender, instance, created, **kwargs):
 def save_user_profile(sender, instance, **kwargs):
     instance.profile.save()
 
+
 class ContactSubmission(models.Model):
-    CONTACT_REASONS = [
-        ('tuition', 'Get More Details on Tuition'),
-        ('fault', 'Report a Fault/Error')
+    REASON_CHOICES = [
+        ('general', 'General Inquiry'),
+        ('tuition', 'Tuition Inquiry'),
+        ('technical', 'Technical Support'),
+        ('other', 'Other')
     ]
-    
+
     user = models.ForeignKey(User, on_delete=models.CASCADE)
-    reason = models.CharField(max_length=20, choices=CONTACT_REASONS)
-    submitted_at = models.DateTimeField(auto_now_add=True)
-    
-    # Common fields
-    name = models.CharField(max_length=100, blank=True)
+    reason = models.CharField(max_length=20, choices=REASON_CHOICES)
+    name = models.CharField(max_length=100)
     description = models.TextField()
     
-    # Parent details (for tuition enquiries)
-    parent_first_name = models.CharField(max_length=100, blank=True)
-    parent_last_name = models.CharField(max_length=100, blank=True)
-    parent_email = models.EmailField(blank=True)
-    parent_phone = models.CharField(max_length=20, blank=True)
+    # Parent/Guardian details (for tuition inquiries)
+    parent_first_name = models.CharField(max_length=50, blank=True, null=True)
+    parent_last_name = models.CharField(max_length=50, blank=True, null=True)
+    parent_email = models.EmailField(blank=True, null=True)
+    parent_phone = models.CharField(max_length=20, blank=True, null=True)
+    
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
 
     def __str__(self):
-        return f"{self.user.username} - {self.get_reason_display()}"
-    
+        return f"{self.get_reason_display()} from {self.user.username}"
+
+@receiver(post_save, sender=User)
+def create_user_profile(sender, instance, created, **kwargs):
+    if created:
+        Profile.objects.create(user=instance)
+
+@receiver(post_save, sender=User)
+def save_user_profile(sender, instance, **kwargs):
+    instance.profile.save()
