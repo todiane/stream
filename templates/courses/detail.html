@@ -25,7 +25,7 @@
       <div class="prose prose-lg max-w-3xl">{{ object.description|safe }}</div>
     </div>
 
-    <!-- Enroll button -->
+   
     <!-- Enroll button -->
 <div class="flex justify-center mt-8">
   {% if user.is_authenticated %}
@@ -106,7 +106,7 @@
           <img 
               src="{{ lesson.get_thumbnail_url }}"
               alt="{{ lesson.title }}"
-              class="w-full h-72 object-cover"
+              class="w-full h-72 object-cover transition-all duration-300 hover:scale-105"
           />
           {% endif %}
           <div class="p-4">
