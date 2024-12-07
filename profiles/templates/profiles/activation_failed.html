@@ -1,12 +1,12 @@
-{% extends 'base.html' %} {% block head_title %} Activation Failed {% endblock head_title %} {% block content %}
-{% endblock head_title %} {% block content %}
+{% extends 'base.html' %}
 
+{% block head_title %}Activation Failed{% endblock head_title %}
+
+{% block content %}
 <section class="bg-white dark:bg-gray-900">
   <div class="py-8 px-4 mx-auto max-w-screen-xl lg:py-16 lg:px-6">
     <div class="max-w-screen-lg text-gray-500 sm:text-lg dark:text-gray-400">
-      <h2
-        class="mb-4 text-4xl tracking-tight font-bold text-gray-900 dark:text-white"
-      >
+      <h2 class="mb-4 text-4xl tracking-tight font-bold text-gray-900 dark:text-white">
         Sorry, your activation <span class="font-extrabold">failed!</span>
       </h2>
       <p class="mb-4 font-normal text-gray-500 leading-loose">
@@ -14,14 +14,15 @@
       </p>
       <p>You can:</p>
       <ul>
-      <li>
-        <a href="{% url 'resend_activation' uid %}">Resend activation email</a>
-      </li>
-      <li>
-        <a href="{% url 'extend_activation' uid %}">Extend activation period</a>
-      </li>
-    </ul>
-    <p>If you continue to have problems, please contact our support team.</p>
-  </body>
-</html>
+        <li>
+          <a href="{% url 'profiles:resend_activation' uidb64 %}">Resend activation email</a>
+        </li>
+        <li>
+          <a href="{% url 'profiles:extend_activation' uidb64 %}">Extend activation period</a>
+        </li>
+      </ul>
+      <p>If you continue to have problems, please contact our support team.</p>
+    </div>
+  </div>
+</section>
 {% endblock content %}

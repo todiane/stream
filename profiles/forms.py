@@ -4,6 +4,7 @@ from django.contrib.auth.models import User
 from django.contrib.auth.forms import UserCreationForm
 from .models import Profile
 from .utils import send_password_reset_email
+from django.core.exceptions import ValidationError
 
 class BaseForm:
     def __init__(self, *args, **kwargs):
@@ -18,29 +19,49 @@ class BaseForm:
                     'class': 'mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-300 focus:ring focus:ring-blue-200 focus:ring-opacity-50'
                 })
 
-class UserRegisterForm(BaseForm, UserCreationForm):
+                
+class UserRegisterForm(UserCreationForm):
     email = forms.EmailField(
         required=True,
-        widget=forms.EmailInput(attrs={'placeholder': 'Enter your email'})
+        widget=forms.EmailInput(attrs={
+            'class': 'bg-gray-50 border border-gray-300 text-gray-900 sm:text-sm rounded-lg focus:ring-primary-600 focus:border-primary-600 block w-full p-2.5',
+            'placeholder': 'name@youremail.com'
+        })
     )
     first_name = forms.CharField(
         max_length=30,
         required=True,
-        widget=forms.TextInput(attrs={'placeholder': 'Enter your first name'})
+        widget=forms.TextInput(attrs={
+            'class': 'bg-gray-50 border border-gray-300 text-gray-900 sm:text-sm rounded-lg focus:ring-primary-600 focus:border-primary-600 block w-full p-2.5',
+            'placeholder': 'Your first name'
+        })
     )
 
     class Meta:
         model = User
-        fields = ['username', 'first_name', 'email', 'password1', 'password2']
-        widgets = {
-            'username': forms.TextInput(attrs={'placeholder': 'Choose a username'})
-        }
+        fields = ['username', 'email', 'first_name', 'password1', 'password2']
+
+    def clean_email(self):
+        email = self.cleaned_data.get('email')
+        if User.objects.filter(email=email).exists():
+            raise ValidationError("This email address is already in use.")
+        return email
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
-        # Custom labels and help texts
-        self.fields['password1'].widget.attrs.update({'placeholder': 'Enter your password'})
-        self.fields['password2'].widget.attrs.update({'placeholder': 'Confirm your password'})
+        self.fields['username'].widget.attrs.update({
+            'class': 'bg-gray-50 border border-gray-300 text-gray-900 sm:text-sm rounded-lg focus:ring-primary-600 focus:border-primary-600 block w-full p-2.5',
+            'placeholder': 'Choose a username'
+        })
+        self.fields['password1'].widget.attrs.update({
+            'class': 'bg-gray-50 border border-gray-300 text-gray-900 sm:text-sm rounded-lg focus:ring-primary-600 focus:border-primary-600 block w-full p-2.5',
+            'placeholder': '••••••••'
+        })
+        self.fields['password2'].widget.attrs.update({
+            'class': 'bg-gray-50 border border-gray-300 text-gray-900 sm:text-sm rounded-lg focus:ring-primary-600 focus:border-primary-600 block w-full p-2.5',
+            'placeholder': '••••••••'
+        })
+
 
 class UserUpdateForm(BaseForm, forms.ModelForm):
     email = forms.EmailField(

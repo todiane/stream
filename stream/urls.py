@@ -8,10 +8,10 @@ from . import views
 urlpatterns = [
     path('', include('pages.urls')),
     path("admin/", admin.site.urls),
+    path('profiles/', include('profiles.urls', namespace='profiles')),
     path('courses/', include('courses.urls', namespace='courses')),
     path("policy/privacy/", views.privacy_view, name="privacy_policy"),
     path("policy/terms-conditions/", views.terms_view, name="terms_conditions"),
-    path('profiles/', include('profiles.urls')),
    path('ckeditor5/', include('django_ckeditor_5.urls')),
 ]
 
