@@ -13,7 +13,7 @@ module.exports = {
                 'custom-ease': 'cubic-bezier(0.4, 0, 0.2, 1)',
             },
             transitionDuration: {
-                '500': '500ms',
+                '300': '300ms',
             },
             safelist: [
                 {
