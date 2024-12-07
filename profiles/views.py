@@ -1,3 +1,4 @@
+from profiles.models import Profile
 from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required
@@ -8,7 +9,6 @@ from django.contrib.auth.models import User
 from django.contrib.sites.shortcuts import get_current_site
 from django.core.exceptions import ValidationError
 from django.core.mail import send_mail, EmailMultiAlternatives 
-from django.http import HttpResponse
 from django.template.loader import render_to_string
 from django.urls import reverse
 from django.utils import timezone
@@ -24,20 +24,64 @@ from courses.models import Course, Lesson
 from .utils import check_email_throttle
 
 
-# Authentication views
+
 def signup_view(request):
     if request.method == 'POST':
         form = UserRegisterForm(request.POST)
         if form.is_valid():
-            user = form.save()
-            user.profile.first_name = form.cleaned_data.get('first_name')
-            user.profile.save()
-            login(request, user)
-            messages.success(request, 'Your account has been created! You are now logged in.')
-            return redirect('profiles:profile')
+            try:
+                user = form.save(commit=False)
+                user.is_active = False  # Deactivate account till it is confirmed
+                user.save()
+                
+                # Get or update the profile
+                profile, created = Profile.objects.get_or_create(user=user)
+                profile.first_name = form.cleaned_data.get('first_name')
+                profile.save()
+                
+               # Send activation email
+                current_site = get_current_site(request)
+                subject = 'Activate your Stream English Account'
+                unsubscribe_uid = urlsafe_base64_encode(force_bytes(user.pk))
+                
+                context = {
+                    'user': user,
+                    'domain': current_site.domain,
+                    'uid': urlsafe_base64_encode(force_bytes(user.pk)),
+                    'token': account_activation_token.make_token(user),
+                    'protocol': 'https' if request.is_secure() else 'http',
+                    'expiration_days': settings.ACCOUNT_ACTIVATION_DAYS,
+                    'email': user.email,
+                    'unsubscribe_url': f"{request.scheme}://{current_site.domain}{reverse('profiles:unsubscribe_email', kwargs={'uidb64': unsubscribe_uid})}"
+                }
+
+                # Render both HTML and plain text versions
+                html_message = render_to_string('account/email/account_activation_email.html', context)
+                text_message = render_to_string('account/email/account_activation_email.txt', context)
+
+                # Create and send email with both HTML and text versions
+                msg = EmailMultiAlternatives(
+                    subject,
+                    text_message,
+                    settings.DEFAULT_FROM_EMAIL,
+                    [user.email]
+                )
+                msg.attach_alternative(html_message, "text/html")
+                msg.send()
+                
+                messages.success(request, 'Please check your email to complete registration.')
+                return redirect('profiles:login')
+            except Exception as e:
+                print(f"Registration error: {e}")  # For debugging
+                messages.error(request, 'An error occurred during registration. Please try again.')
+                # Clean up the user if it was created
+                if 'user' in locals():
+                    user.delete()
+                return redirect('profiles:signup')
     else:
         form = UserRegisterForm()
     return render(request, 'profiles/signup.html', {'form': form})
+
 
 def login_view(request):
     if request.method == 'POST':
@@ -239,7 +283,7 @@ def activate(request, uidb64, token):
             token_age = timezone.now() - user.date_joined
             if token_age.days > settings.ACCOUNT_ACTIVATION_DAYS:
                 messages.error(request, 'Activation link has expired')
-                return redirect('profiles:activation_failed')
+                return redirect(f"{reverse('profiles:activation_failed')}?uidb64={uidb64}")
             
             # Prevent reuse of activation link
             if user.is_active:
@@ -370,3 +414,9 @@ class SecurePasswordResetView(PasswordResetView):
             return self.form_invalid(form)
             
         return super().form_valid(form)
+
+
+def activation_failed(request):
+    # Get uidb64 from the request's GET parameters
+    uidb64 = request.GET.get('uidb64')
+    return render(request, 'profiles/activation_failed.html', {'uidb64': uidb64})

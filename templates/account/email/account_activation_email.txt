@@ -4,7 +4,7 @@ Hello {{ user.username }},
 
 Thank you for registering with Stream English. To complete your registration and activate your account, please visit the following link:
 
-{{ protocol }}://{{ domain }}{% url 'activate' uidb64=uid token=token %}
+{{ protocol }}://{{ domain }}{% url 'profiles:activate' uidb64=uid token=token %}
 
 This activation link will expire in {{ expiration_days }} days.
 

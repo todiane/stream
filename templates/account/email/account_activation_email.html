@@ -9,14 +9,15 @@
 
 <p>Thank you for registering with Stream English. To complete your registration and activate your account, please click the button below:</p>
 
-<a href="{{ protocol }}://{{ domain }}{% url 'activate' uidb64=uid token=token %}" class="button">
+<a href="{{ protocol }}://{{ domain }}{% url 'profiles:activate' uidb64=uid token=token %}" class="button">
     Activate Your Account
 </a>
+   
 
 <p>This activation link will expire in {{ expiration_days }} days.</p>
 
 <p>If the button above doesn't work, you can copy and paste this link into your browser:</p>
-<p style="word-break: break-all;">{{ protocol }}://{{ domain }}{% url 'activate' uidb64=uid token=token %}</p>
+<p style="word-break: break-all;">{{ protocol }}://{{ domain }}{% url 'profiles:activate' uidb64=uid token=token %}</p>
 
 <p>If you did not create this account, you can safely ignore this email.</p>
 

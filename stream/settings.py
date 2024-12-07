@@ -87,9 +87,6 @@ else:
     DEFAULT_FILE_STORAGE = "django.core.files.storage.FileSystemStorage"
     STATICFILES_STORAGE = "django.contrib.staticfiles.storage.StaticFilesStorage"
 
-
-
-
 # Application definition
 INSTALLED_APPS = [
     "django.contrib.admin",
@@ -158,15 +155,14 @@ SESSION_COOKIE_AGE = 1209600  # 2 weeks in seconds
 IP_RATE_LIMIT_MAX_ATTEMPTS = 5  # Maximum attempts per IP
 IP_RATE_LIMIT_TIMEOUT = 300     # Reset after 5 minutes (in seconds)
 
-
-
 # Email settings (for production)
 EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
-EMAIL_HOST = config('EMAIL_HOST', default='smtp.sendgrid.net')
-EMAIL_PORT = config('EMAIL_PORT', default=587, cast=int)
-EMAIL_USE_TLS = config('EMAIL_USE_TLS', default=True, cast=bool)
-EMAIL_HOST_USER = config('EMAIL_HOST_USER', default='')
-EMAIL_HOST_PASSWORD = config('EMAIL_HOST_PASSWORD', default='')
+EMAIL_HOST = 'smtp.sendgrid.net'
+EMAIL_PORT = 587
+EMAIL_USE_TLS = True
+EMAIL_HOST_USER = 'apikey'
+EMAIL_HOST_PASSWORD = config('SENDGRID_API_KEY') 
+DEFAULT_FROM_EMAIL = config('DEFAULT_FROM_EMAIL', default='streamenglish@outlook.com')
 EMAIL_TIMEOUT = 5  # seconds
 EMAIL_MAX_RETRIES = 3
 
@@ -209,12 +205,8 @@ LOGIN_REDIRECT_URL = '/profiles/profile/'
 LOGIN_URL = '/profiles/login/'
 ACCOUNT_LOGOUT_REDIRECT_URL = '/profiles/login/'
 
-# Email settings (for development)
-EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'
-
 
 # CKEditor configuration settings 
-
 CKEDITOR_5_UPLOAD_PATH = "uploads/"
 
 CKEDITOR_5_CONFIGS = {
