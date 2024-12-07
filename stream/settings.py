@@ -121,6 +121,7 @@ MIDDLEWARE = [
     "django.contrib.auth.middleware.AuthenticationMiddleware",
     "django.contrib.messages.middleware.MessageMiddleware",
     "django.middleware.clickjacking.XFrameOptionsMiddleware",
+    'profiles.middleware.IPRateLimitMiddleware',
 ]
 
 ROOT_URLCONF = "stream.urls"
@@ -145,12 +146,19 @@ WSGI_APPLICATION = "stream.wsgi.application"
 
 # Security Settings
 # SECURE_SSL_REDIRECT = True
-# SESSION_COOKIE_SECURE = True
-# CSRF_COOKIE_SECURE = True
-# SECURE_BROWSER_XSS_FILTER = True
-# SECURE_CONTENT_TYPE_NOSNIFF = True
-# SECURE_PROXY_SSL_HEADER = ('HTTP_X_FORWARDED_PROTO', 'https')
-# USE_X_FORWARDED_HOST = True
+SESSION_COOKIE_SECURE = True
+CSRF_COOKIE_SECURE = True
+SECURE_BROWSER_XSS_FILTER = True
+SECURE_CONTENT_TYPE_NOSNIFF = True
+SECURE_PROXY_SSL_HEADER = ('HTTP_X_FORWARDED_PROTO', 'https')
+USE_X_FORWARDED_HOST = True
+SESSION_COOKIE_AGE = 1209600  # 2 weeks in seconds
+
+# IP Rate limiting settings
+IP_RATE_LIMIT_MAX_ATTEMPTS = 5  # Maximum attempts per IP
+IP_RATE_LIMIT_TIMEOUT = 300     # Reset after 5 minutes (in seconds)
+
+
 
 # Email settings (for production)
 EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
@@ -159,11 +167,19 @@ EMAIL_PORT = config('EMAIL_PORT', default=587, cast=int)
 EMAIL_USE_TLS = config('EMAIL_USE_TLS', default=True, cast=bool)
 EMAIL_HOST_USER = config('EMAIL_HOST_USER', default='')
 EMAIL_HOST_PASSWORD = config('EMAIL_HOST_PASSWORD', default='')
+EMAIL_TIMEOUT = 5  # seconds
+EMAIL_MAX_RETRIES = 3
 
 # Account activation settings
 ACCOUNT_ACTIVATION_DAYS = 7  # One-week activation window
 ACCOUNT_ACTIVATION_LINK_EXPIRED_HOURS = 24 * ACCOUNT_ACTIVATION_DAYS
 REGISTRATION_SALT = 'registration'
+
+# Security settings for password reset
+PASSWORD_RESET_TIMEOUT = 259200  # 3 days in seconds
+AUTHENTICATION_BACKENDS = [
+    'django.contrib.auth.backends.ModelBackend',
+]
 
 # Internationalization
 LANGUAGE_CODE = "en-us"

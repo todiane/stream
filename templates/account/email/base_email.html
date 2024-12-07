@@ -1,0 +1,90 @@
+<!DOCTYPE html>
+<html lang="en-GB">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}Stream English{% endblock %}</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            line-height: 1.6;
+            color: #1F2937;
+            margin: 0;
+            padding: 0;
+        }
+        .container {
+            max-width: 600px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        .header {
+            text-align: center;
+            padding: 20px 0;
+            background-color: #2563EB;
+        }
+        .header img {
+            max-width: 200px;
+        }
+        .content {
+            padding: 30px 20px;
+            background-color: #ffffff;
+        }
+        .button {
+            display: inline-block;
+            padding: 12px 24px;
+            background-color: #2563EB;
+            color: #ffffff !important;
+            text-decoration: none;
+            border-radius: 4px;
+            margin: 20px 0;
+        }
+        .footer {
+            padding: 20px;
+            text-align: center;
+            font-size: 12px;
+            color: #6B7280;
+            border-top: 1px solid #E5E7EB;
+        }
+        .gdpr-notice {
+            margin-top: 20px;
+            font-size: 11px;
+            color: #6B7280;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <img src="https://res.cloudinary.com/dehgeciaw/image/upload/v1728903673/courses/logo-transparent-d78d3/c7svnkxc6uwcwscbwm21.png" alt="Stream English Logo">
+        </div>
+        
+        <div class="content">
+            {% block content %}{% endblock %}
+        </div>
+        
+        <div class="footer">
+            <p>Stream English<br>
+            Maddocks Clayfields<br>
+            Shropshire, TF4 3AR<br>
+            United Kingdom</p>
+            
+            <div class="gdpr-notice">
+                <p>This email was sent to {{ email }}. You're receiving this email because you have an account with Stream English.</p>
+                
+                <p>Your privacy is important to us. Under the General Data Protection Regulation (GDPR), you have the right to:</p>
+                <ul>
+                    <li>Access your personal data</li>
+                    <li>Rectify inaccurate personal data</li>
+                    <li>Request erasure of your personal data</li>
+                    <li>Object to processing of your personal data</li>
+                </ul>
+                
+                <p>For any privacy-related queries, please contact:<br>
+                streamenglish@hotmail.com</p>
+                
+                <p>To unsubscribe from these emails, please <a href="{{ unsubscribe_url }}">click here</a></p>
+            </div>
+        </div>
+    </div>
+</body>
+</html>

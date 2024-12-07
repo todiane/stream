@@ -1,0 +1,31 @@
+Welcome to Stream English!
+
+Hello {{ user.username }},
+
+Thank you for registering with Stream English. To complete your registration and activate your account, please visit the following link:
+
+{{ protocol }}://{{ domain }}{% url 'activate' uidb64=uid token=token %}
+
+This activation link will expire in {{ expiration_days }} days.
+
+If you did not create this account, you can safely ignore this email.
+
+Best regards,
+The Stream English Team
+
+---
+Stream English
+Maddocks Clayfields
+Shropshire, TF4 3AR
+United Kingdom
+
+This email was sent to {{ email }}. You're receiving this email because you have an account with Stream English.
+
+Under the GDPR, you have the right to:
+- Access your personal data
+- Rectify inaccurate personal data
+- Request erasure of your personal data
+- Object to processing of your personal data
+
+For privacy queries: streamenglish@hotmail.com
+To unsubscribe: {{ unsubscribe_url }}
