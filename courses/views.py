@@ -107,16 +107,18 @@ def booking_form(request):
         email = request.POST.get('email')
         message = request.POST.get('message')
         
-        try:
-            send_mail(
-                subject=f'New Booking from {name}',
-                message=f'Name: {name}\nEmail: {email}\nMessage: {message}',
-                from_email=settings.DEFAULT_FROM_EMAIL,
-                recipient_list=[settings.CONTACT_EMAIL],
-                fail_silently=False,
-            )
-            return render(request, 'courses/booking_confirmation.html')
-        except Exception:
-            messages.error(request, 'There was an error processing your booking.')
-            
+        if name and email and message:
+            try:
+                send_mail(
+                    subject=f'New Booking from {name}',
+                    message=f'Name: {name}\nEmail: {email}\nMessage: {message}',
+                    from_email=settings.DEFAULT_FROM_EMAIL,
+                    recipient_list=[settings.CONTACT_EMAIL],
+                    fail_silently=False,
+                )
+                return render(request, 'courses/booking_confirmation.html')
+            except Exception as e:
+                print(f"Error sending email: {e}")
+        else:
+            print("Missing form data")
     return render(request, 'courses/booking_form.html')

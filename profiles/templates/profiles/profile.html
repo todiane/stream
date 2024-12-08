@@ -230,9 +230,9 @@
         <p class="mb-4 text-red-600">Warning: This action cannot be undone. All your data will be permanently deleted.</p>
         <form method="POST" action="{% url 'profiles:delete_account' %}">
             {% csrf_token %}
-            <button type="submit" 
-                    class="bg-red-800 hover:bg-red-900 text-white font-medium py-2 px-4 rounded transition duration-150 ease-in-out"
-                    onclick="return confirm('Are you sure you want to delete your account? This cannot be undone.')">
+            <button type="button" 
+        class="bg-red-800 hover:bg-red-900 text-white font-medium py-2 px-4 rounded transition duration-150 ease-in-out"
+        onclick="showConfirmation('Are you sure you want to delete your account? This action cannot be undone.', () => this.closest('form').submit())">
                 Delete Account
             </button>
         </form>
