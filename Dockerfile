@@ -2,6 +2,10 @@ FROM python:3.11-slim
 
 WORKDIR /app
 
+# At the top of the Dockerfile
+ARG SENDGRID_API_KEY
+ARG DATABASE_URL
+
 # Install Node.js and required packages
 RUN apt-get update && apt-get install -y \
   nodejs \
@@ -18,6 +22,9 @@ ENV PYTHONUNBUFFERED=1 \
   CLOUDINARY_CLOUD_NAME=dehgeciaw \
   CLOUDINARY_API_KEY=your_api_key \
   CLOUDINARY_API_SECRET=your_api_secret
+ENV SENDGRID_API_KEY=${SENDGRID_API_KEY}
+ENV DATABASE_URL=${DATABASE_URL}
+
 
 # Install Python dependencies
 COPY requirements.txt .

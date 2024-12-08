@@ -178,7 +178,7 @@ def delete_account(request):
         logout(request)
         user.delete()
         messages.success(request, 'Your account has been successfully deleted.')
-        return redirect('home')  
+        return redirect('pages:home')  
     return redirect('profiles:profile')
 
 # Course-related views
@@ -269,44 +269,32 @@ def send_activation_email(request, user):
     msg.attach_alternative(html_content, "text/html")
     msg.send()
 
+    token = account_activation_token.make_token(user)
+    print(f"Generated token: {token}")  # Debugging line
+
 # Activate account
 def activate(request, uidb64, token):
     try:
         uid = force_str(urlsafe_base64_decode(uidb64))
         user = User.objects.get(pk=uid)
-        
-        # Check rate limiting
-        check_email_throttle(uid, 'activation_verification')
-        
+
         if user is not None and account_activation_token.check_token(user, token):
-            # Verify token hasn't expired
-            token_age = timezone.now() - user.date_joined
-            if token_age.days > settings.ACCOUNT_ACTIVATION_DAYS:
-                messages.error(request, 'Activation link has expired')
-                return redirect(f"{reverse('profiles:activation_failed')}?uidb64={uidb64}")
-            
-            # Prevent reuse of activation link
-            if user.is_active:
-                messages.warning(request, 'Account already activated')
-                return redirect('home')
-                
-            user.is_active = True
-            user.save()
-            login(request, user)
-            
-            messages.success(request, 'Your account has been successfully activated!')
-            return redirect('home')
+            if not user.is_active:
+                user.is_active = True
+                user.save()
+                login(request, user)
+                messages.success(request, 'Your account has been successfully activated!')
+                return redirect('pages:home')  # Ensure this is the correct redirect
+
+            messages.warning(request, 'Account already activated')
+            return redirect('pages:home')
         else:
             messages.error(request, 'Invalid activation link')
             return redirect('profiles:activation_failed')
-            
+
     except (TypeError, ValueError, OverflowError, User.DoesNotExist) as e:
         messages.error(request, 'Invalid activation link')
         return redirect('profiles:activation_failed')
-    except ValidationError as e:
-        messages.error(request, str(e))
-        return redirect('profiles:activation_failed')
-    
     
 def resend_activation_email(request, uidb64):
     try:
@@ -395,10 +383,10 @@ def unsubscribe_email(request, uidb64):
         user.profile.save()
         
         messages.success(request, 'You have been successfully unsubscribed from our emails.')
-        return redirect('home')
+        return redirect('pages:home')
     except (TypeError, ValueError, OverflowError, User.DoesNotExist):
         messages.error(request, 'Invalid unsubscribe link.')
-        return redirect('home')
+        return redirect('pages:home')
 
 class SecurePasswordResetView(PasswordResetView):
     form_class = CustomPasswordResetForm
