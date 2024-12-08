@@ -11,7 +11,23 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>{% block head_title %}Stream English{% endblock %}</title>
-    {% block extra_head %}{% endblock %}
+
+    {% block extra_head %}
+    <script type="application/ld+json">
+    {
+        "@context": "https://schema.org",
+    "@type": "CollectionPage",
+    "headline": "News - Stream English",
+    "description": "{{ meta_description }}",
+    "publisher": {
+        "@type": "Organisation",
+        "name": "Stream English",
+        "url": "{{ request.scheme }}://{{ request.get_host }}"
+    },
+        "url": "{{ request.build_absolute_uri }}"
+    }
+    </script>
+    {% endblock extra_head %}
 </head>
 <body class="flex flex-col min-h-screen">
     {% include 'partials/_messages.html' %}

@@ -18,6 +18,8 @@ check_environment() {
     fi
 }
 
+
+
 # Function to run migrations with error handling
 run_migrations() {
     echo "Running migrations..."

@@ -10,6 +10,7 @@ urlpatterns = [
     path("admin/", admin.site.urls),
     path('profiles/', include('profiles.urls', namespace='profiles')),
     path('courses/', include('courses.urls', namespace='courses')),
+    path('news/', include('news.urls', namespace='news')),
     path("policy/privacy/", views.privacy_view, name="privacy_policy"),
     path("policy/terms-conditions/", views.terms_view, name="terms_conditions"),
    path('ckeditor5/', include('django_ckeditor_5.urls')),

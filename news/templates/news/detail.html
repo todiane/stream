@@ -1,0 +1,73 @@
+{% extends 'base.html' %}
+{% block content %}
+<div class="mx-auto max-w-3xl px-6 sm:px-8 lg:px-12">
+    <div class="bg-white p-8 rounded-lg shadow-sm">
+        <header class="mb-8">
+            <h1 class="text-4xl font-bold">{{ post.title }}</h1>
+            <div class="mt-2 text-gray-600">
+                {{ post.publish_date|date:"F j, Y" }} | 
+                <a href="{{ post.category.get_absolute_url }}" class="text-blue-600 hover:text-blue-800">
+                    {{ post.category.name }}
+                </a>
+            </div>
+        </header>
+        
+        {% if post.get_image_url %}
+        <div class="mb-8">
+            <img src="{{ post.get_image_url }}" alt="{{ post.title }}" class="w-full h-auto rounded-lg shadow-sm">
+        </div>
+        {% endif %}
+
+        {% if post.youtube_url %}
+        <div class="mb-8">
+            <div class="relative w-full" style="padding-top: 56.25%">
+                <iframe 
+                    class="absolute inset-0 w-full h-full rounded-lg shadow-lg"
+                    src="{{ post.get_youtube_embed_url }}"
+                    frameborder="0"
+                    allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                    allowfullscreen>
+                </iframe>
+            </div>
+        </div>
+        {% endif %}
+
+        <div class="text-gray-800 leading-relaxed">
+            {{ post.content|safe }}
+        </div>
+
+        <!-- Navigation -->
+        <nav class="mt-16 border-t border-gray-200 pt-12">
+            <div class="flex justify-between items-center">
+                {% if previous_post %}
+                <a href="{{ previous_post.get_absolute_url }}" class="group flex items-center text-sm text-gray-500 hover:text-gray-700">
+                    <svg class="mr-3 h-5 w-5 text-gray-400 group-hover:text-gray-500" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7" />
+                    </svg>
+                    <div>
+                        <span class="block text-xs text-gray-400">Previous</span>
+                        <span class="block">{{ previous_post.title|truncatechars:40 }}</span>
+                    </div>
+                </a>
+                {% else %}
+                <div></div>
+                {% endif %}
+
+                {% if next_post %}
+                <a href="{{ next_post.get_absolute_url }}" class="group flex items-center text-right text-sm text-gray-500 hover:text-gray-700">
+                    <div>
+                        <span class="block text-xs text-gray-400">Next</span>
+                        <span class="block">{{ next_post.title|truncatechars:40 }}</span>
+                    </div>
+                    <svg class="ml-3 h-5 w-5 text-gray-400 group-hover:text-gray-500" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7" />
+                    </svg>
+                </a>
+                {% else %}
+                <div></div>
+                {% endif %}
+            </div>
+        </nav>
+    </div>
+</div>
+{% endblock %}
