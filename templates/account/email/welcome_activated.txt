@@ -1,0 +1,25 @@
+Welcome to Stream English!
+
+Hello {{ user.username }},
+
+Thank you for verifying your email address. Your account is now fully activated!
+
+You can now:
+- Visit your profile: {{ protocol }}://{{ domain }}{% url 'profiles:profile' %}
+- Browse our courses: {{ protocol }}://{{ domain }}{% url 'courses:course_list' %}
+
+If you have any questions, feel free to reach out to our support team.
+
+Best regards,
+The Stream English Team
+www.streamenglish.co.uk
+
+---
+Stream English
+Maddocks Clayfields
+Shropshire, TF4 3AR
+United Kingdom
+
+This email was sent to {{ email }}. You're receiving this email because you have an account with Stream English.
+
+To unsubscribe: {{ unsubscribe_url }}
