@@ -14,6 +14,8 @@ from django.urls import reverse
 from django.utils import timezone
 from django.utils.encoding import force_bytes, force_str
 from django.utils.http import urlsafe_base64_encode, urlsafe_base64_decode
+from .utils import send_html_email, send_welcome_activated_email
+from .utils import check_email_throttle
 from django.conf import settings
 
 from .forms import UserRegisterForm, UserUpdateForm, ProfileUpdateForm
@@ -21,8 +23,6 @@ from .forms import ContactForm
 from .forms import CustomPasswordResetForm
 from .tokens import account_activation_token
 from courses.models import Course, Lesson
-from .utils import check_email_throttle
-
 
 
 def signup_view(request):
@@ -31,7 +31,7 @@ def signup_view(request):
         if form.is_valid():
             try:
                 user = form.save(commit=False)
-                user.is_active = False  # Deactivate account till it is confirmed
+                user.is_active = True  # Activate account immediately but require email confirmation to enrol in courses
                 user.save()
                 
                 # Get or update the profile
@@ -283,8 +283,12 @@ def activate(request, uidb64, token):
                 user.is_active = True
                 user.save()
                 login(request, user)
+                
+                # Send welcome email after successful activation
+                send_welcome_activated_email(request, user)
+                
                 messages.success(request, 'Your account has been successfully activated!')
-                return redirect('pages:home')  # Ensure this is the correct redirect
+                return redirect('pages:home')
 
             messages.warning(request, 'Account already activated')
             return redirect('pages:home')

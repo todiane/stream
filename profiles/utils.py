@@ -75,6 +75,22 @@ def send_activation_email(request, user):
         to_email=user.email
     )
 
+
+def send_welcome_activated_email(request, user):
+    """
+    Send welcome email after successful account activation
+    """
+    context = get_email_context(request, user)
+    
+    send_html_email(
+        subject='Welcome to Stream English!',
+        text_template='account/email/welcome_activated.txt',
+        html_template='account/email/welcome_activated.html',
+        context=context,
+        to_email=user.email
+    )
+
+
 def send_password_reset_email(request, user, token, uid):
     """
     Send password reset email

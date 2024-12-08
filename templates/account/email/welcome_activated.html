@@ -1,0 +1,32 @@
+{% extends "account/email/base_email.html" %}
+
+{% block title %}Welcome to Stream English{% endblock %}
+
+{% block content %}
+<h1>Welcome to Stream English!</h1>
+
+<p>Hello {{ user.username }},</p>
+
+<p>Thank you for verifying your email address. Your account is now fully activated!</p>
+
+<p>You can now:</p>
+
+<ul>
+    <li>Visit your profile to track your progress:
+        <a href="{{ protocol }}://{{ domain }}{% url 'profiles:profile' %}" class="button">
+            View Your Profile
+        </a>
+    </li>
+    <li>Explore our latest lessons:
+        <a href="{{ protocol }}://{{ domain }}{% url 'courses:course_list' %}" class="button">
+            Browse Courses
+        </a>
+    </li>
+</ul>
+
+<p>If you have any questions, feel free to reach out to our support team.</p>
+
+<p>Best regards,<br>
+The Stream English Team
+www.streamenglish.co.uk</p>
+{% endblock %}
