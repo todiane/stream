@@ -11,7 +11,8 @@ class Profile(models.Model):
     enrolled_courses = models.ManyToManyField(Course, blank=True, related_name='enrolled_students')
     watched_videos = models.ManyToManyField(Lesson, blank=True, related_name='watched_by')
     last_watched_lesson = models.ForeignKey(Lesson, on_delete=models.SET_NULL, null=True, blank=True, related_name='last_watched_by')
-    email_subscribed = models.BooleanField(default=True)
+    email_subscribed = models.BooleanField(default=True)  # For marketing/notification emails
+    email_verified = models.BooleanField(default=False)   # For email verification status
     
 
     def __str__(self):
