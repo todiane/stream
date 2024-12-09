@@ -199,7 +199,7 @@ def enrol_course(request, course_slug):
     
     # Check if email verification is required
     if course.access == "email" and not request.user.profile.email_verified:
-        messages.error(request, "Email verification is required to enroll in this course.")
+        messages.error(request, "Please verify your email to enrol in this course.")
         request.session['next_url'] = request.path
         return redirect('profiles:profile')
         
