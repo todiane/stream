@@ -318,7 +318,7 @@ def resend_activation_email(request, uidb64):
     except (TypeError, ValueError, OverflowError, User.DoesNotExist):
         user = None
     
-    if user is not None and not user.is_active:
+    if user is not None and not user.profile.email_verified:
         send_activation_email(request, user)
         messages.success(request, 'Activation email has been resent. Please check your email.')
         return redirect('profiles:login')
@@ -333,7 +333,7 @@ def extend_activation_time(request, uidb64):
     except (TypeError, ValueError, OverflowError, User.DoesNotExist):
         user = None
     
-    if user is not None and not user.is_active:
+    if user is not None and not user.profile.email_verified: 
         extension_days = 7
         user.date_joined = timezone.now()
         user.save()
@@ -343,7 +343,7 @@ def extend_activation_time(request, uidb64):
         messages.success(request, f'Your activation period has been extended by {extension_days} days. A new activation email has been sent.')
         return redirect('profiles:login')
     else:
-        messages.error(request, 'Invalid activation link or user is already active.')
+        messages.error(request, 'Invalid activation link or email already verified.')
         return redirect('profiles:login')
 
 # Contact views
