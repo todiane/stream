@@ -7,23 +7,47 @@
     <link href="{% static 'css/dist/styles.css' %}" rel="stylesheet">
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     
-    
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    
+    <!-- Primary Meta Tags -->
     <title>{% block head_title %}Stream English{% endblock %}</title>
-
+    <meta name="title" content="{% block meta_title %}{{ title|default:'Stream English' }}{% endblock %}">
+    <meta name="description" content="{% block meta_description %}{{ meta_description|default:'Learn English with Stream English - Online courses and tutorials' }}{% endblock %}">
+    <meta name="keywords" content="{% block meta_keywords %}{{ meta_keywords|default:'English learning, English courses, Online English' }}{% endblock %}">
+    
+    <!-- Open Graph / Facebook -->
+    <meta property="og:type" content="{% block og_type %}website{% endblock %}">
+    <meta property="og:url" content="{{ request.build_absolute_uri }}">
+    <meta property="og:title" content="{% block og_title %}{{ title|default:'Stream English' }}{% endblock %}">
+    <meta property="og:description" content="{% block og_description %}{{ meta_description|default:'Learn English with Stream English - Online courses and tutorials' }}{% endblock %}">
+    <meta property="og:image" content="{% block og_image %}{{ image_url|default:request.scheme }}://{{ request.get_host }}{% static 'img/default-og-image.jpg' }}{% endblock %}">
+    
+    <!-- Twitter -->
+    <meta property="twitter:card" content="summary_large_image">
+    <meta property="twitter:url" content="{{ request.build_absolute_uri }}">
+    <meta property="twitter:title" content="{% block twitter_title %}{{ title|default:'Stream English' }}{% endblock %}">
+    <meta property="twitter:description" content="{% block twitter_description %}{{ meta_description|default:'Learn English with Stream English - Online courses and tutorials' }}{% endblock %}">
+    <meta property="twitter:image" content="{% block twitter_image %}{{ image_url|default:request.scheme }}://{{ request.get_host }}{% static 'img/default-og-image.jpg' }}{% endblock %}">
+    
+    <!-- Canonical URL -->
+    <link rel="canonical" href="{{ request.build_absolute_uri }}">
+    
+    <!-- Favicon -->
+    <link rel="icon" type="image/png" href="{% static 'img/favicon.png' %}">
+    
     {% block extra_head %}
     <script type="application/ld+json">
     {
         "@context": "https://schema.org",
-    "@type": "CollectionPage",
-    "headline": "News - Stream English",
-    "description": "{{ meta_description }}",
-    "publisher": {
-        "@type": "Organisation",
-        "name": "Stream English",
-        "url": "{{ request.scheme }}://{{ request.get_host }}"
-    },
+        "@type": "{% block schema_type %}CollectionPage{% endblock %}",
+        "headline": "{% block schema_headline %}{{ title|default:'Stream English' }}{% endblock %}",
+        "description": "{{ meta_description }}",
+        "publisher": {
+            "@type": "Organization",
+            "name": "Stream English",
+            "url": "{{ request.scheme }}://{{ request.get_host }}"
+        },
         "url": "{{ request.build_absolute_uri }}"
     }
     </script>
@@ -38,7 +62,47 @@
     </main>
 
     {% include 'base/footer.html' %}
+    
+    <!-- Cookie Consent Banner -->
+    <div id="cookie-banner" class="fixed bottom-0 left-0 right-0 bg-gray-900 text-white py-4 px-6 hidden">
+        <div class="max-w-7xl mx-auto flex flex-col sm:flex-row items-center justify-between gap-4">
+            <div class="text-sm">
+                We use cookies to enhance your experience. By continuing to visit this site you agree to our use of cookies. 
+                <a href="{% url 'privacy_policy' %}" class="underline hover:text-blue-300">Privacy Policy</a>
+            </div>
+            <div class="flex gap-4">
+                <button id="accept-cookies" class="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg text-sm transition-colors">
+                    Accept
+                </button>
+                <button id="decline-cookies" class="bg-gray-600 hover:bg-gray-700 text-white px-4 py-2 rounded-lg text-sm transition-colors">
+                    Decline
+                </button>
+            </div>
+        </div>
+    </div>
+
     <script src="{% static 'js/menu.js' %}"></script>
     <script src="{% static 'js/messages.js' %}"></script>
+    <script>
+        // Cookie consent handling
+        document.addEventListener('DOMContentLoaded', function() {
+            const cookieConsent = localStorage.getItem('cookieConsent');
+            const banner = document.getElementById('cookie-banner');
+            
+            if (!cookieConsent) {
+                banner.classList.remove('hidden');
+            }
+            
+            document.getElementById('accept-cookies').addEventListener('click', function() {
+                localStorage.setItem('cookieConsent', 'accepted');
+                banner.classList.add('hidden');
+            });
+            
+            document.getElementById('decline-cookies').addEventListener('click', function() {
+                localStorage.setItem('cookieConsent', 'declined');
+                banner.classList.add('hidden');
+            });
+        });
+    </script>
 </body>
 </html>
