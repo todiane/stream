@@ -30,19 +30,19 @@ SECRET_KEY = config("SECRET_KEY", default="unsafe-default-secret-key")
 # SECURITY WARNING: don't run with debug turned on in production!
 
 
-DEBUG = False
+DEBUG = True
 
 # Database configuration - comment out local database and set debug to false in production. For local use comment out production database and set debug to true.
 
-# DATABASES = {
-#     'default': {
-#         'ENGINE': 'django.db.backends.sqlite3',
-#         'NAME': BASE_DIR / 'db.sqlite3',
-#     }
-# }
+DATABASES = {
+    'default': {
+        'ENGINE': 'django.db.backends.sqlite3',
+        'NAME': BASE_DIR / 'db.sqlite3',
+    }
+}
 
 
-DATABASES = {"default": dj_database_url.config(default=os.environ.get("DATABASE_URL"))}
+# DATABASES = {"default": dj_database_url.config(default=os.environ.get("DATABASE_URL"))}
 
 
 ALLOWED_HOSTS = os.environ.get('DJANGO_ALLOWED_HOSTS', '*').split(',')
@@ -158,7 +158,6 @@ IP_RATE_LIMIT_MAX_ATTEMPTS = 20  # Maximum attempts per IP
 IP_RATE_LIMIT_TIMEOUT = 300     # Reset after 5 minutes (in seconds)
 
 
-
 # Email settings (for production)
 EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
 EMAIL_HOST = 'smtp.sendgrid.net'
@@ -168,6 +167,8 @@ EMAIL_HOST_USER = 'apikey'
 EMAIL_HOST_PASSWORD = config('SENDGRID_API_KEY')
 SENDGRID_API_KEY = config('SENDGRID_API_KEY', default=None) 
 DEFAULT_FROM_EMAIL = config('DEFAULT_FROM_EMAIL', default='streamenglish@outlook.com')
+CONTACT_EMAIL='streamenglish@outlook.com'
+
 EMAIL_TIMEOUT = 5  # seconds
 EMAIL_MAX_RETRIES = 3
 

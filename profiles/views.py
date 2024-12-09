@@ -32,12 +32,13 @@ def signup_view(request):
         if form.is_valid():
             try:
                 user = form.save(commit=False)
-                user.is_active = True  # Activate account immediately but require email confirmation to enrol in courses
+                user.is_active = True  # Allow login but not full access
                 user.save()
                 
                 # Get or update the profile
                 profile, created = Profile.objects.get_or_create(user=user)
                 profile.first_name = form.cleaned_data.get('first_name')
+                profile.email_verified = False
                 profile.save()
                 
                # Send activation email
@@ -197,7 +198,7 @@ def enrol_course(request, course_slug):
     course = get_object_or_404(Course, slug=course_slug)
     
     # Check if email verification is required
-    if course.access == "email" and not request.user.is_active:
+    if course.access == "email" and not request.user.profile.email_verified:
         messages.error(request, "Email verification is required to enroll in this course.")
         request.session['next_url'] = request.path
         return redirect('profiles:profile')
@@ -289,9 +290,9 @@ def activate(request, uidb64, token):
         user = User.objects.get(pk=uid)
 
         if user is not None and account_activation_token.check_token(user, token):
-            if not user.is_active:
-                user.is_active = True
-                user.save()
+            if not user.profile.email_verified:  
+                user.profile.email_verified = True 
+                user.profile.save()
                 login(request, user)
                 
                 # Send welcome email after successful activation
@@ -349,7 +350,7 @@ def extend_activation_time(request, uidb64):
 @login_required
 def contact_tutor(request):
     if request.method == 'POST':
-        if not request.user.is_active:
+        if not request.user.profile.email_verified:
             messages.error(request, 'Please verify your email to contact the tutor.')
             return redirect('profiles:profile')
             
