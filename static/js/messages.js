@@ -11,17 +11,6 @@ document.addEventListener('DOMContentLoaded', function () {
     });
   }, 5000);
 
-  // Add click handlers to close buttons
-  document.querySelectorAll('[role="alert"] button').forEach(button => {
-    button.addEventListener('click', function () {
-      const alert = this.closest('[role="alert"]');
-      if (alert) {
-        alert.style.opacity = '0';
-        setTimeout(() => alert.remove(), 500);
-      }
-    });
-  });
-
   // Confirmation dialog function
   window.showConfirmation = function (message, onConfirm) {
     const container = document.createElement('div');
