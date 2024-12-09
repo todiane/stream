@@ -80,7 +80,11 @@ def signup_view(request):
                 return redirect('profiles:signup')
     else:
         form = UserRegisterForm()
-    return render(request, 'profiles/signup.html', {'form': form})
+    return render(request, 'profiles/signup.html', {
+        'form': form,
+        'meta_description': 'Register for access to GCSE English lessons and support with Stream English',
+        'meta_title': 'Register - Stream English'
+    })
 
 
 def login_view(request):
@@ -148,6 +152,11 @@ def profile_view(request):
         'contact_form': ContactForm(),
     }
 
+    context.update({
+        'meta_description': 'Your Stream English profile and course progress',
+        'meta_title': 'My Profile - Stream English'
+    })
+    
     return render(request, 'profiles/profile.html', context)
 
 @login_required
@@ -365,8 +374,8 @@ def contact_tutor(request):
             send_mail(
                 subject,
                 message,
-                'noreply@streamenglish.co.uk',
-                ['streamenglish@hotmail.com'],
+                settings.DEFAULT_FROM_EMAIL,  
+                [settings.CONTACT_EMAIL],
                 fail_silently=False,
             )
             
