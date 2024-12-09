@@ -17,6 +17,7 @@ from django.utils.http import urlsafe_base64_encode, urlsafe_base64_decode
 from .utils import send_html_email, send_welcome_activated_email
 from .utils import check_email_throttle
 from django.conf import settings
+from django.views.generic.edit import FormView
 
 from .forms import UserRegisterForm, UserUpdateForm, ProfileUpdateForm
 from .forms import ContactForm
@@ -416,8 +417,15 @@ class SecurePasswordResetView(PasswordResetView):
             
         return super().form_valid(form)
 
-
 def activation_failed(request):
     # Get uidb64 from the request's GET parameters
     uidb64 = request.GET.get('uidb64')
     return render(request, 'profiles/activation_failed.html', {'uidb64': uidb64})
+
+class CustomPasswordResetView(FormView):
+    form_class = CustomPasswordResetForm
+    template_name = 'account/password/password_reset_form.html'
+    
+    def form_valid(self, form):
+        form.save(self.request)
+        return super().form_valid(form)

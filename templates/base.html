@@ -2,58 +2,13 @@
 <!DOCTYPE html>
 <html lang="en" class="h-full">
 <head>
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="{% static 'css/dist/styles.css' %}" rel="stylesheet">
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
-    
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    
-    <!-- Primary Meta Tags -->
     <title>{% block head_title %}Stream English{% endblock %}</title>
-    <meta name="title" content="{% block meta_title %}{{ title|default:'Stream English' }}{% endblock %}">
-    <meta name="description" content="{% block meta_description %}{{ meta_description|default:'Learn English with Stream English - Online courses and tutorials' }}{% endblock %}">
-    <meta name="keywords" content="{% block meta_keywords %}{{ meta_keywords|default:'GCSE English tuition, Mrs Robyn Wear, GCSE English Language lessons, GCSE English Literature lessons, Grade 9 English tuition' }}{% endblock %}">
-    
-    <!-- Open Graph / Facebook -->
-    <meta property="og:type" content="{% block og_type %}website{% endblock %}">
-    <meta property="og:url" content="{{ request.build_absolute_uri }}">
-    <meta property="og:title" content="{% block og_title %}{{ title|default:'Stream English' }}{% endblock %}">
-    <meta property="og:description" content="{% block og_description %}{{ meta_description|default:'GCSE English Language and Literature - Online courses and tuition' }}{% endblock %}">
-    <meta property="og:image" content="{% block og_image %}{{ image_url|default:request.scheme }}://{{ request.get_host }}{% static 'img/default-og-image.jpg' %}{% endblock %}">
-
-    
-    <!-- Twitter -->
-    <meta property="twitter:card" content="summary_large_image">
-    <meta property="twitter:url" content="{{ request.build_absolute_uri }}">
-    <meta property="twitter:title" content="{% block twitter_title %}{{ title|default:'Stream English' }}{% endblock %}">
-    <meta property="twitter:description" content="{% block twitter_description %}{{ meta_description|default:'Learn English with Stream English - Online courses and tutorials' }}{% endblock %}">
-    <meta property="twitter:image" content="{% block twitter_image %}{{ image_url|default:request.scheme }}://{{ request.get_host }}{% static 'img/default-og-image.jpg' %}{% endblock %}">
-
-    
-    <!-- Canonical URL -->
-    <link rel="canonical" href="{{ request.build_absolute_uri }}">
-    
-    <!-- Favicon -->
     <link rel="icon" type="image/png" href="{% static 'img/favicon.png' %}">
-    
-    {% block extra_head %}
-    <script type="application/ld+json">
-    {
-        "@context": "https://schema.org",
-        "@type": "{% block schema_type %}CollectionPage{% endblock %}",
-        "headline": "{% block schema_headline %}{{ title|default:'Stream English' }}{% endblock %}",
-        "description": "{{ meta_description }}",
-        "publisher": {
-            "@type": "Organization",
-            "name": "Stream English",
-            "url": "{{ request.scheme }}://{{ request.get_host }}"
-        },
-        "url": "{{ request.build_absolute_uri }}"
-    }
-    </script>
-    {% endblock extra_head %}
+    {% block extra_head %}{% endblock %}
 </head>
 <body class="flex flex-col min-h-screen">
     {% include 'partials/_messages.html' %}
@@ -73,12 +28,8 @@
                 <a href="{% url 'privacy_policy' %}" class="underline hover:text-blue-300">Privacy Policy</a>
             </div>
             <div class="flex gap-4">
-                <button id="accept-cookies" class="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg text-sm transition-colors">
-                    Accept
-                </button>
-                <button id="decline-cookies" class="bg-gray-600 hover:bg-gray-700 text-white px-4 py-2 rounded-lg text-sm transition-colors">
-                    Decline
-                </button>
+                <button id="accept-cookies" class="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg text-sm transition-colors">Accept</button>
+                <button id="decline-cookies" class="bg-gray-600 hover:bg-gray-700 text-white px-4 py-2 rounded-lg text-sm transition-colors">Decline</button>
             </div>
         </div>
     </div>
@@ -86,7 +37,6 @@
     <script src="{% static 'js/menu.js' %}"></script>
     <script src="{% static 'js/messages.js' %}"></script>
     <script>
-        // Cookie consent handling
         document.addEventListener('DOMContentLoaded', function() {
             const cookieConsent = localStorage.getItem('cookieConsent');
             const banner = document.getElementById('cookie-banner');

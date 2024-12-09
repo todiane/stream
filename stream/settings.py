@@ -154,8 +154,10 @@ USE_X_FORWARDED_HOST = True
 SESSION_COOKIE_AGE = 1209600  # 2 weeks in seconds
 
 # IP Rate limiting settings
-IP_RATE_LIMIT_MAX_ATTEMPTS = 5  # Maximum attempts per IP
+IP_RATE_LIMIT_MAX_ATTEMPTS = 20  # Maximum attempts per IP
 IP_RATE_LIMIT_TIMEOUT = 300     # Reset after 5 minutes (in seconds)
+
+
 
 # Email settings (for production)
 EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
