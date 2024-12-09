@@ -18,6 +18,8 @@ def home_view(request):
             'hero': hero,
             'banner': banner,
             'object_list': featured_courses,
+            'meta_description': 'GCSE English Language and Literature - online courses and tuition', 
+            'meta_title': 'Stream English - GCSE English Language and Literature tuition' 
         }
         return render(request, 'pages/home.html', context)
     except Page.DoesNotExist:
@@ -38,6 +40,8 @@ def about_view(request):
             'tuition': tuition,
             'courses_section': courses_section,
             'object_list': featured_courses,
+            'meta_description': 'About Stream English - GCSE English Language and Literature tuition', 
+            'meta_title': 'About GCSE English tuition with Robyn Wear of Stream English' 
         }
         return render(request, 'pages/about.html', context)
     except Exception as e:
