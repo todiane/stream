@@ -2,8 +2,18 @@ from django.contrib import admin
 from django.urls import include, path
 from django.conf import settings
 from django.conf.urls.static import static
+from django.contrib.sitemaps.views import sitemap
+from .sitemaps import StaticViewSitemap, CourseSitemap, LessonSitemap, NewsSitemap, PageSitemap
+from . import views  
+from django.views.generic import TemplateView
 
-from . import views
+sitemaps = {
+    'static': StaticViewSitemap,
+    'courses': CourseSitemap,
+    'lessons': LessonSitemap,
+    'news': NewsSitemap,
+    'pages': PageSitemap,
+}
 
 urlpatterns = [
     path('', include('pages.urls')),
@@ -13,8 +23,11 @@ urlpatterns = [
     path('news/', include('news.urls', namespace='news')),
     path("policy/privacy/", views.privacy_view, name="privacy_policy"),
     path("policy/terms-conditions/", views.terms_view, name="terms_conditions"),
-   path('ckeditor5/', include('django_ckeditor_5.urls')),
+    path('ckeditor5/', include('django_ckeditor_5.urls')),
+    path('sitemap.xml', sitemap, {'sitemaps': sitemaps}, name='django.contrib.sitemaps.views'),
+    path('robots.txt', TemplateView.as_view(template_name="robots.txt", content_type="text/plain")),
 ]
 
 if settings.DEBUG:
     urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
+    
