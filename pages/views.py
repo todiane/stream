@@ -4,7 +4,7 @@ from django.contrib.admin.views.decorators import staff_member_required
 from django.http import Http404
 from .models import Page, Hero
 from courses.models import Course
-from .models import HeroBanner, AboutMe, AboutTuition, AboutCourses
+from .models import HeroBanner, AboutMe, AboutCourses, AboutMeColumns
 
 
 def home_view(request):
@@ -31,14 +31,14 @@ def about_view(request):
     try:
         page = get_object_or_404(Page, template='about', is_active=True)
         about_me = AboutMe.objects.filter(is_active=True).first()
-        tuition = AboutTuition.objects.filter(is_active=True).first()
+        about_me_columns = AboutMeColumns.objects.filter(is_active=True).first() 
         courses_section = AboutCourses.objects.filter(is_active=True).first()
         featured_courses = Course.objects.filter(status='publish')[:6] if courses_section and courses_section.show_courses_section else None
         
         context = {
             'page': page,
             'about_me': about_me,
-            'tuition': tuition,
+            'about_me_columns': about_me_columns,
             'courses_section': courses_section,
             'object_list': featured_courses,
             'meta_description': 'About Stream English - GCSE English Language and Literature tuition', 

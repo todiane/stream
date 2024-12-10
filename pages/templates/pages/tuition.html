@@ -24,7 +24,7 @@
                 <div class="grid grid-cols-1 lg:grid-cols-2 gap-8 mx-auto max-w-5xl">
                     {% for feature in sorted_features|slice:":2" %}
                         <div class="{% if feature.size == 'large' %}lg:col-span-2{% endif %}">
-                            <div class="bg-white rounded-lg shadow-sm p-6 transition-all duration-300 hover:shadow-lg hover:-translate-y-1 h-full">
+                            <div class="bg-white p-6 transition-all duration-300 hover:shadow-lg hover:-translate-y-1 h-full">
                                 <div class="mb-4">
                                     <div class="flex items-center space-x-6">
                                         <i class="bi bi-{{ feature.icon }} text-[#0C8C9D] text-xl"></i>
@@ -43,7 +43,7 @@
                 <div class="grid grid-cols-1 lg:grid-cols-2 gap-8 mx-auto max-w-5xl">
                     {% for feature in sorted_features|slice:"2:4" %}
                         <div class="{% if feature.size == 'large' %}lg:col-span-2{% endif %}">
-                            <div class="bg-white rounded-lg shadow-sm p-6 transition-all duration-300 hover:shadow-lg hover:-translate-y-1 h-full">
+                            <div class="bg-white  p-6 transition-all duration-300 hover:shadow-lg hover:-translate-y-1 h-full">
                                 <div class="mb-4">
                                     <div class="flex items-center space-x-6">
                                         <i class="bi bi-{{ feature.icon }} text-[#0C8C9D] text-xl"></i>

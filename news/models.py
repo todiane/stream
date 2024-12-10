@@ -138,6 +138,23 @@ class Post(models.Model):
             return self.image.url
         return None
     
+    def get_display_image(self):
+        """Get image URL from either uploaded image, thumbnail, or YouTube video"""
+        if self.image:
+            return self.image.build_url()
+        elif self.thumbnail:
+            return self.thumbnail.build_url()
+        elif self.youtube_url:
+            # Extract video ID and return YouTube thumbnail
+            if 'youtu.be' in self.youtube_url:
+                video_id = self.youtube_url.split('/')[-1]
+            elif 'v=' in self.youtube_url:
+                video_id = self.youtube_url.split('v=')[1].split('&')[0]
+            else:
+                return None
+            return f"https://img.youtube.com/vi/{video_id}/maxresdefault.jpg"
+        return None
+
     def get_thumbnail_url(self):
         """Get the thumbnail URL - falls back to main image if no thumbnail"""
         if self.thumbnail:

@@ -11,11 +11,11 @@
     <link rel="icon" type="image/png" href="{% static 'img/favicon.png' %}">
     {% block extra_head %}{% endblock %}
 </head>
-<body class="flex flex-col min-h-screen">
+<body class="flex flex-col min-h-screen bg-slate-50">
     {% include 'partials/_messages.html' %}
     {% include 'base/navbar.html' %}
     
-    <main id="content" class="flex-grow" role="main">
+    <main class="flex-grow" role="main">
         {% block content %}{% endblock %}
     </main>
 
