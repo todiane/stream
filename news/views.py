@@ -8,8 +8,6 @@ from .models import Post, Category
 from django.utils import timezone
 
 
-
-
 def news_list(request):
     print("news_list view called")  # Debugging line
     posts = Post.objects.filter(
@@ -83,16 +81,22 @@ def post_detail(request, slug):
         publish_date__lt=post.publish_date
     ).order_by('-publish_date').first()
     
-    latest_posts = Post.objects.filter(
+    # Get related posts from same category
+    related_posts = Post.objects.filter(
         status='published',
-        publish_date__lte=timezone.now()
-    ).exclude(id=post.id)[:5]
+        publish_date__lte=timezone.now(),
+        category=post.category
+    ).exclude(id=post.id).select_related('category')[:2]
+    
+    # Debug image URLs
+    for post in related_posts:
+        print(f"Image URL for {post.title}: {post.get_display_image()}")
     
     context = {
         'post': post,
         'next_post': next_post,
         'previous_post': previous_post,
-        'latest_posts': latest_posts,
+        'related_posts': related_posts,
         'categories': Category.objects.all(),
         'title': post.meta_title or post.title,
         'meta_description': post.meta_description,

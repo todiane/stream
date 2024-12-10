@@ -3,7 +3,7 @@ from django.contrib import admin
 from django.urls import reverse
 from django.utils.html import format_html
 from simple_history.admin import SimpleHistoryAdmin
-from .models import Page, Hero, HeroBanner, AboutMe, AboutTuition, AboutCourses
+from .models import AboutMeColumns, Page, Hero, HeroBanner, AboutMe, AboutCourses
 
 
 @admin.register(Hero)
@@ -49,7 +49,7 @@ class PageAdmin(SimpleHistoryAdmin):
     readonly_fields = ['preview_link']
     fieldsets = (
         (None, {
-            'fields': ('title', 'slug', 'template', 'content')
+            'fields': ('title', 'slug', 'template', 'content', 'second_content')
         }),
         ('Publishing', {
             'fields': ('is_active', 'publish_date')
@@ -79,24 +79,23 @@ class PageAdmin(SimpleHistoryAdmin):
 @admin.register(AboutMe)
 class AboutMeAdmin(admin.ModelAdmin):
     list_display = ['title', 'is_active']
-    fields = ['title', 'subtitle', 'description', 'qualifications', 'image', 'is_active']
+    fields = ['title', 'description', 'is_active']
 
     def save_model(self, request, obj, form, change):
         if obj.is_active:
             AboutMe.objects.exclude(pk=obj.pk).update(is_active=False)
         super().save_model(request, obj, form, change)
 
-@admin.register(AboutTuition)
-class AboutTuitionAdmin(admin.ModelAdmin):
+@admin.register(AboutMeColumns)
+class AboutMeColumnsAdmin(admin.ModelAdmin):
     list_display = ['title', 'is_active']
-    fields = ['title', 'description', 'booking_title', 'booking_description', 
-              'booking_button_text', 'booking_button_url', 'is_active']
+    fields = ['title', 'description', 'second_title', 'second_description', 'is_active']
 
     def save_model(self, request, obj, form, change):
         if obj.is_active:
-            AboutTuition.objects.exclude(pk=obj.pk).update(is_active=False)
+            AboutMeColumns.objects.exclude(pk=obj.pk).update(is_active=False)
         super().save_model(request, obj, form, change)
-
+   
 @admin.register(AboutCourses)
 class AboutCoursesAdmin(admin.ModelAdmin):
     list_display = ['title', 'show_courses_section', 'is_active']

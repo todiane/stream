@@ -70,12 +70,46 @@
                 {% endif %}
             </div>
         </nav>
-        <!-- Top Section -->
-        <div class="text-center py-12 mb-12">
+        <!-- all articles in category -->
+        <div class="text-center py-12 mb-6">
             <a href="{{ post.category.get_absolute_url }}" class="inline-flex items-center py-1 px-4 mb-7 text-md text-bold bg-gray-100 text-gray-700 rounded-full dark:bg-gray-800 dark:text-white">
                 <span class="bg-blue-600 hover:text-white-800 text-white text-md px-4 py-1.5 rounded-full mr-2">All articles in category:</span>
                 {{ post.category.name }}
             </a>
+        </div>
+        <!-- related posts -->
+        <div class="mt-12 mb-24">
+            <h2 class="text-2xl font-bold mb-8">Related Posts</h2>
+            <div class="flex flex-row justify-between space-x-8">
+                {% for related in related_posts %}
+                
+                <a href="{{ related.get_absolute_url }}" class="group w-1/2">
+                        <div class="aspect-video w-full mb-4 overflow-hidden rounded-lg bg-gray-100">
+                            {% if related.get_display_image %}
+                                <img 
+                                    src="{{ related.get_display_image }}" 
+                                    alt="{{ related.title }}" 
+                                    class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-200"
+                                >
+                            {% else %}
+                                <div class="w-full h-full bg-gray-200 flex items-center justify-center">
+                                    <span class="text-gray-400">No image</span>
+                                </div>
+                            {% endif %}
+                        </div>
+                        <p class="text-lg text-gray-900 group-hover:text-blue-600 transition-colors duration-200">
+                            {{ related.title|truncatechars:60 }}
+                            
+                        </p>
+                    </a>
+                {% empty %}
+                    <div class="w-full text-center text-gray-500 py-4">
+                        No related posts found
+                    </div>
+                {% endfor %}
+            </div>
+        </div>
     </div>
 </div>
+<p>{{ related.get_image_url }}</p>
 {% endblock %}

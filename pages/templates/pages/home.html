@@ -80,7 +80,7 @@
 {% endif %}
 
 <!-- Main Content Section -->
-<section class="bg-white py-16 px-6 lg:py-20 lg:px-8">
+<section class="bg-white py-4 px-4 lg:py-20 lg:px-8">
     <div class="container mx-auto px-4 max-w-screen-xl">
         <div class="prose prose-lg mx-auto">
             <div class="text-center mb-12">
@@ -109,4 +109,16 @@
     </div>
 </section>
 {% endif %}
+{% if page.second_content %}
+<section class="bg-white py-4 px-4 lg:py-20 lg:px-8">
+    <div class="container mx-auto px-4 max-w-screen-xl">
+        <div class="prose prose-lg mx-auto">
+            <div class="text-center mb-12">
+                {{ page.second_content|safe }}
+            </div>
+        </div>
+    </div>
+</section>
+{% endif %}
+
 {% endblock content %}

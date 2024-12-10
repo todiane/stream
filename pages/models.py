@@ -70,6 +70,7 @@ class Page(SEOFields):
     is_active = models.BooleanField(default=True)
     publish_date = models.DateTimeField(default=timezone.now)
     history = HistoricalRecords()
+    second_content = CKEditor5Field(blank=True, null=True)
 
     class Meta:
         ordering = ['title']
@@ -85,40 +86,28 @@ class Page(SEOFields):
     @property
     def is_published(self):
         return self.is_active and self.publish_date <= timezone.now()
+    
 
 class AboutMe(models.Model):
     title = models.CharField(max_length=200, default="About Me")
-    subtitle = models.CharField(max_length=200, help_text="e.g., 'Helping Students achieve Grade 9'")
-    description = models.TextField(help_text="Introduction paragraph about yourself")
-    qualifications = models.TextField(help_text="List of qualifications - stored as plain text")
-    image = CloudinaryField(
-        "image",
-        null=True,
-        folder="about",
-        resource_type="image",
-        transformation={"quality": "auto:eco"},
-    )
+    description = CKEditor5Field(help_text="Introduction paragraph about yourself")
     is_active = models.BooleanField(default=True)
 
     class Meta:
         verbose_name = "About Me Section"
         verbose_name_plural = "About Me Section"
 
-    def get_image_url(self):
-        return get_cloudinary_image_object(self, 'image')
 
-class AboutTuition(models.Model):
-    title = models.CharField(max_length=200, default="Tuition Lessons")
+class AboutMeColumns(models.Model):
+    title = models.CharField(max_length=200)
     description = CKEditor5Field()
-    booking_title = models.CharField(max_length=200, default="Book Your Session")
-    booking_description = CKEditor5Field()
-    booking_button_text = models.CharField(max_length=50, default="Book HERE!")
-    booking_button_url = models.CharField(max_length=200, default="/booking-form/")
+    second_title = models.CharField(max_length=200)
+    second_description = CKEditor5Field()
     is_active = models.BooleanField(default=True)
 
     class Meta:
-        verbose_name = "Tuition Information"
-        verbose_name_plural = "Tuition Information"
+        verbose_name = "About Me Columns"
+        verbose_name_plural = "About Me Columns"   
 
 class AboutCourses(models.Model):
     title = models.CharField(max_length=200, default="Take A Look At My Latest Courses")
