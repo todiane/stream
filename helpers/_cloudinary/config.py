@@ -1,3 +1,5 @@
+# helpers/_cloudinary/config.py
+
 import cloudinary
 from django.conf import settings
 from django.core.exceptions import ImproperlyConfigured
