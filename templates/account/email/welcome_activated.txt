@@ -5,7 +5,7 @@ Hello {{ user.username }},
 Thank you for verifying your email address. Your account is now fully activated!
 
 You can now:
-- Visit your profile: {{ protocol }}://{{ domain }}{% url 'profiles:profile' %}
+- Login Here: {{ protocol }}://{{ domain }}{% url 'profiles:login' %}
 - Browse our courses: {{ protocol }}://{{ domain }}{% url 'courses:course_list' %}
 
 If you have any questions, feel free to reach out to our support team.
