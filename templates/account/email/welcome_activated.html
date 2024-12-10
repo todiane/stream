@@ -12,15 +12,13 @@
 <p>You can now:</p>
 
 <ul>
-    <li>Visit your profile to track your progress:
-        <a href="{{ protocol }}://{{ domain }}{% url 'profiles:profile' %}" class="button">
-            View Your Profile
-        </a>
-    </li>
     <li>Explore our latest lessons:
-        <a href="{{ protocol }}://{{ domain }}{% url 'courses:course_list' %}" class="button">
-            Browse Courses
-        </a>
+        <p><a href="{{ protocol }}://{{ domain }}{% url 'courses:course_list' %}" class="button">
+            Browse Lessons
+        </a></p>
+    </li>
+    <li>You can login here: 
+        <a href="{{ protocol }}://{{ domain }}{% url 'profiles:login' %}" style="color: #2563EB; text-decoration: underline; font-weight: 500;">Login</a>
     </li>
 </ul>
 
