@@ -111,6 +111,8 @@ INSTALLED_APPS = [
 ]
 
 SITE_ID = 1
+DJANGO_ADMIN_SITE_URL = 'https://streamenglish.up.railway.app'
+
 
 MIDDLEWARE = [
     "django.middleware.security.SecurityMiddleware",

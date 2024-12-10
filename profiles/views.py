@@ -49,13 +49,13 @@ def signup_view(request):
                 
                 context = {
                     'user': user,
-                    'domain': current_site.domain,
+                    'domain': 'streamenglish.up.railway.app',
                     'uid': urlsafe_base64_encode(force_bytes(user.pk)),
                     'token': account_activation_token.make_token(user),
-                    'protocol': 'https' if request.is_secure() else 'http',
+                    'protocol': 'https',
                     'expiration_days': settings.ACCOUNT_ACTIVATION_DAYS,
                     'email': user.email,
-                    'unsubscribe_url': f"{request.scheme}://{current_site.domain}{reverse('profiles:unsubscribe_email', kwargs={'uidb64': unsubscribe_uid})}"
+                     'unsubscribe_url': f"https://streamenglish.up.railway.app{reverse('profiles:unsubscribe_email', kwargs={'uidb64': unsubscribe_uid})}"
                 }
 
                 # Render both HTML and plain text versions
