@@ -20,15 +20,22 @@ class Command(BaseCommand):
             token = account_activation_token.make_token(test_user)
             uid = urlsafe_base64_encode(force_bytes(1))  # Using 1 as test user ID
             
+            # Get current site or use a default
+            try:
+                domain = Site.objects.get_current().domain
+            except Site.DoesNotExist:
+                domain = 'streamenglish.up.railway.app'
+            
             # Create context with all required variables
             context = {
                 'user': test_user,
-                'domain': Site.objects.get_current().domain,
+                'domain': domain,
                 'protocol': 'https',
                 'email': settings.CONTACT_EMAIL,
                 'unsubscribe_url': '#',
                 'uid': uid,
-                'token': token
+                'token': token,
+                'expiration_days': settings.ACCOUNT_ACTIVATION_DAYS
             }
 
             # Render both text and HTML versions
@@ -40,15 +47,20 @@ class Command(BaseCommand):
             from_email = settings.DEFAULT_FROM_EMAIL
             to_email = settings.CONTACT_EMAIL
 
-            msg = EmailMultiAlternatives(subject, text_content, from_email, [to_email])
-            msg.attach_alternative(html_content, "text/html")
-            msg.send()
+            try:
+                msg = EmailMultiAlternatives(subject, text_content, from_email, [to_email])
+                msg.attach_alternative(html_content, "text/html")
+                msg.send()
 
-            self.stdout.write(
-                self.style.SUCCESS(f'Successfully sent test email to {to_email}')
-            )
+                self.stdout.write(
+                    self.style.SUCCESS(f'Successfully sent test email to {to_email}')
+                )
+            except Exception as e:
+                self.stdout.write(
+                    self.style.ERROR(f'Failed to send email: {str(e)}')
+                )
+
         except Exception as e:
             self.stdout.write(
-                self.style.ERROR(f'Failed to send email: {str(e)}')
+                self.style.ERROR(f'Failed to setup email test: {str(e)}')
             )
-            
