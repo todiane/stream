@@ -1,3 +1,4 @@
+# profiles/views.py
 from profiles.models import Profile
 from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib import messages

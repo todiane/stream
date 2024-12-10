@@ -1,3 +1,4 @@
+# stream/views.py
 from django.shortcuts import render
 from courses import services 
 

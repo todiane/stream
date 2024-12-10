@@ -1,3 +1,5 @@
+# courses/views.py
+
 from courses.models import Course, Lesson, PublishStatus
 import helpers
 from django.http import JsonResponse, Http404

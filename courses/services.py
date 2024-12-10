@@ -1,4 +1,5 @@
-# from django.db.models import Q
+# courses/services.py
+
 from .models import Course, Lesson, PublishStatus
 
 
