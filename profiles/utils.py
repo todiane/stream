@@ -131,3 +131,19 @@ def check_email_throttle(user_id, action, max_attempts=3, timeout=300):
         )
     
     cache.set(cache_key, attempts + 1, timeout)
+
+def send_admin_notification(subject, message):
+    """
+    Send a simple notification email to admin
+    """
+    from django.core.mail import send_mail
+    from django.conf import settings
+    
+    send_mail(
+        subject,
+        message,
+        settings.DEFAULT_FROM_EMAIL,
+        ['streamenglish@outlook.com'],
+        fail_silently=False,
+    )
+    

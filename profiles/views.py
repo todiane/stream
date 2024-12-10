@@ -14,7 +14,7 @@ from django.urls import reverse
 from django.utils import timezone
 from django.utils.encoding import force_bytes, force_str
 from django.utils.http import urlsafe_base64_encode, urlsafe_base64_decode
-from .utils import send_html_email, send_welcome_activated_email
+from .utils import send_admin_notification, send_html_email, send_welcome_activated_email
 from .utils import check_email_throttle
 from django.conf import settings
 from django.views.generic.edit import FormView
@@ -297,6 +297,12 @@ def activate(request, uidb64, token):
                 
                 # Send welcome email after successful activation
                 send_welcome_activated_email(request, user)
+
+                # Send admin notification
+                send_admin_notification(
+                    'New Member Validation',
+                    f'New member {user.username} has validated their email address'
+                )
                 
                 messages.success(request, 'Your account has been successfully activated!')
                 return redirect('pages:home')
@@ -380,7 +386,17 @@ def contact_tutor(request):
                 [settings.CONTACT_EMAIL],
                 fail_silently=False,
             )
+            # Send notification to outlook
+            notification_subject = 'New Contact Form Message Received'
+            notification_message = f'A new contact form message has been received from {request.user.username}. Please check the admin area to view the full message.'
             
+            send_mail(
+                notification_subject,
+                notification_message,
+                settings.DEFAULT_FROM_EMAIL,
+                ['streamenglish@outlook.com'],
+                fail_silently=False,
+            )
             messages.success(request, 'Your message has been sent successfully.')
             return redirect('profiles:profile')
             
