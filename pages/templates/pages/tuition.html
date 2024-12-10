@@ -6,26 +6,28 @@
 <!-- pages/templates/pages/tuition.html -->
 {% block content %}
 <div class="bg-white py-12">
-    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div class="text-center mb-12">
-            <h1 class="text-4xl font-bold text-gray-900 mb-4">GCSE English Tuition</h1>
-            {% if page.content %}
-                <div class="max-w-3xl mx-auto prose prose-blue">
-                    {{ page.content|safe }}
-                </div>
-            {% endif %}
-        </div>
+    <div class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div class="container mx-auto max-w-3xl"> 
+            <div class="space-y-6 pt-2 pb-8">
+            <div class="text-center mb-12">
+                <h1 class="text-4xl font-bold text-gray-900 mb-4">GCSE English Tuition</h1>
+                {% if page.content %}
+                    <div class="max-w-3xl mx-auto prose prose-blue">
+                        {{ page.content|safe }}
+                    </div>
+                {% endif %}
+            </div>
 
         <div class="space-y-6 pt-2 pb-8">
             {% with features|dictsort:"order" as sorted_features %}
                 {# First Row #}
-                <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+                <div class="grid grid-cols-1 lg:grid-cols-2 gap-8 mx-auto max-w-5xl">
                     {% for feature in sorted_features|slice:":2" %}
                         <div class="{% if feature.size == 'large' %}lg:col-span-2{% endif %}">
                             <div class="bg-white rounded-lg shadow-sm p-6 transition-all duration-300 hover:shadow-lg hover:-translate-y-1 h-full">
                                 <div class="mb-4">
-                                    <div class="flex items-center space-x-4">
-                                        <i class="bi bi-{{ feature.icon }} text-[#0C8C9D] text-3xl"></i>
+                                    <div class="flex items-center space-x-6">
+                                        <i class="bi bi-{{ feature.icon }} text-[#0C8C9D] text-xl"></i>
                                         <h3 class="text-xl font-semibold">{{ feature.title }}</h3>
                                     </div>
                                 </div>
@@ -38,13 +40,13 @@
                 </div>
 
                 {# Second Row #}
-                <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+                <div class="grid grid-cols-1 lg:grid-cols-2 gap-8 mx-auto max-w-5xl">
                     {% for feature in sorted_features|slice:"2:4" %}
                         <div class="{% if feature.size == 'large' %}lg:col-span-2{% endif %}">
                             <div class="bg-white rounded-lg shadow-sm p-6 transition-all duration-300 hover:shadow-lg hover:-translate-y-1 h-full">
                                 <div class="mb-4">
-                                    <div class="flex items-center space-x-4">
-                                        <i class="bi bi-{{ feature.icon }} text-[#0C8C9D] text-3xl"></i>
+                                    <div class="flex items-center space-x-6">
+                                        <i class="bi bi-{{ feature.icon }} text-[#0C8C9D] text-xl"></i>
                                         <h3 class="text-xl font-semibold">{{ feature.title }}</h3>
                                     </div>
                                 </div>
@@ -59,4 +61,5 @@
         </div>
     </div>
 </div>
+
 {% endblock %}
