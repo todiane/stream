@@ -26,14 +26,23 @@ def get_email_context(request, user, token=None):
     """
     Generate common context for email templates
     """
-    current_site = get_current_site(request)
+    # Handle case where request is None (for tests)
+    protocol = 'https' if request and request.is_secure() else 'http'
+    domain = 'streamenglish.up.railway.app'  # Default domain
+    
+    if request:
+        current_site = get_current_site(request)
+        domain = current_site.domain
+
     unsubscribe_uid = urlsafe_base64_encode(force_bytes(user.pk))
+    base_url = f"{protocol}://{domain}"
+    
     context = {
         'user': user,
-        'domain': current_site.domain,
-        'protocol': 'https' if request.is_secure() else 'http',
+        'domain': domain,
+        'protocol': protocol,
         'email': user.email,
-        'unsubscribe_url': f"{request.scheme}://{current_site.domain}{reverse('profiles:unsubscribe_email', kwargs={'uidb64': unsubscribe_uid})}"
+        'unsubscribe_url': f"{base_url}{reverse('profiles:unsubscribe_email', kwargs={'uidb64': unsubscribe_uid})}"
     }
     
     if token:
