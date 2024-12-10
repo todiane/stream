@@ -59,6 +59,7 @@ class Page(SEOFields):
     TEMPLATE_CHOICES = (
         ('home', 'Homepage'),
         ('about', 'About Page'),
+        ('tuition', 'Tuition Page'),
     )
 
     title = models.CharField(max_length=200)
@@ -128,3 +129,34 @@ class AboutCourses(models.Model):
     class Meta:
         verbose_name = "Courses Section"
         verbose_name_plural = "Courses Section"
+
+
+class TuitionFeature(models.Model):
+    ICON_CHOICES = [
+        ('book', 'Book'),
+        ('pencil', 'Pencil'),
+        ('star', 'Star'),
+        ('certificate', 'Certificate'),
+        ('users', 'Users'),
+        ('lightbulb', 'Lightbulb'),
+    ]
+    
+    SIZE_CHOICES = [
+        ('small', 'Small'),
+        ('large', 'Large'),
+    ]
+    
+    icon = models.CharField(max_length=20, choices=ICON_CHOICES)
+    title = models.CharField(max_length=200)
+    description = models.TextField()
+    size = models.CharField(max_length=10, choices=SIZE_CHOICES)
+    order = models.PositiveIntegerField(default=0)
+    is_active = models.BooleanField(default=True)
+
+    class Meta:
+        ordering = ['order']
+        verbose_name = "Tuition Feature"
+        verbose_name_plural = "Tuition Features"
+
+    def __str__(self):
+        return self.title

@@ -65,3 +65,21 @@ def preview_page(request, pk):
     }
     template = f'pages/{page.template}.html'
     return render(request, template, context)
+
+from .models import TuitionFeature
+
+def tuition_view(request):
+    try:
+        page = get_object_or_404(Page, template='tuition', is_active=True)
+        features = TuitionFeature.objects.filter(is_active=True).order_by('order')
+        
+        context = {
+            'page': page,
+            'features': features,
+        }
+        return render(request, 'pages/tuition.html', context)
+    except Exception as e:
+        print(f"Error in tuition_view: {e}")
+        return render(request, 'pages/tuition.html', {
+            'page': page if 'page' in locals() else None
+        })

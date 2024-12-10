@@ -105,3 +105,13 @@ class AboutCoursesAdmin(admin.ModelAdmin):
         if obj.is_active:
             AboutCourses.objects.exclude(pk=obj.pk).update(is_active=False)
         super().save_model(request, obj, form, change)
+
+from .models import TuitionFeature
+
+@admin.register(TuitionFeature)
+class TuitionFeatureAdmin(admin.ModelAdmin):
+    list_display = ['title', 'icon', 'size', 'order', 'is_active']
+    list_filter = ['is_active', 'size']
+    search_fields = ['title', 'description']
+    ordering = ['order']
+    list_editable = ['order', 'is_active']
