@@ -13,7 +13,10 @@ stripe.api_key = settings.STRIPE_SECRET_KEY
 
 def product_list(request):
     categories = Category.objects.all()
-    products = Product.objects.filter(is_active=True)
+    products = Product.objects.filter(
+        is_active=True,
+        status='publish'  # Add this condition
+    )
     return render(request, 'shop/list.html', {
         'products': products,
         'categories': categories,
@@ -21,7 +24,12 @@ def product_list(request):
     })
 
 def product_detail(request, slug):
-    product = get_object_or_404(Product, slug=slug, is_active=True)
+    product = get_object_or_404(
+        Product,
+        slug=slug,
+        is_active=True,
+        status='publish'  # Add this condition
+    )
     return render(request, 'shop/detail.html', {
         'product': product,
         'stripe_publishable_key': settings.STRIPE_PUBLISHABLE_KEY
@@ -146,7 +154,8 @@ def category_list(request, slug):
     category = get_object_or_404(Category, slug=slug)
     products = Product.objects.filter(
         category=category,
-        status='publish'
+        status='publish',
+        is_active=True  # Add this condition
     )
     return render(request, 'shop/category.html', {
         'category': category,
