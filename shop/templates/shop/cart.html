@@ -1,0 +1,106 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="container max-w-5xl mx-auto px-4 py-8">
+    <div class="mx-auto">
+        <h1 class="text-3xl font-bold mb-8 text-gray-900 dark:text-white">Shopping Cart</h1>
+
+        {% if cart %}
+        <div class="bg-white dark:bg-gray-800 rounded-lg shadow-lg">
+            <!-- Cart Items -->
+            <div class="divide-y divide-gray-200 dark:divide-gray-700">
+                {% for item in cart %}
+                <div class="p-6 flex items-start space-x-6">
+                    <!-- Product Image Container - Fixed dimensions with centered content -->
+                    <div class="w-48 h-48 flex-shrink-0 bg-gray-50 rounded-lg overflow-hidden">
+                        <a href="/shop/product/{{ item.product.slug }}" class="block w-full h-full">
+                            <img src="{{ item.product.preview_image.url }}" 
+                                alt="{{ item.product.title |safe}}"
+                                class="w-full h-full object-cover">
+                        </a>
+                    </div>
+
+                    <!-- Product Details - Flexible width with consistent spacing -->
+                    <div class="flex-1 min-w-0 flex flex-col">
+                        <h2 class="text-xl font-semibold text-gray-900 dark:text-white">
+                            <a href="/shop/product/{{ item.product.slug }}" class="hover:text-blue-600">
+                                {{ item.product.title }}
+                            </a>
+                        </h2>
+                        <div class="mt-2 text-lg text-gray-500 dark:text-gray-400 line-clamp-3">
+                            {{ item.product.description|truncatewords:20 | safe }}
+                        </div>
+                        <div class="mt-2 text-sm text-gray-500 dark:text-gray-400">
+                            Price: £{{ item.price|floatformat:2 }}
+                        </div>
+                        
+                        <!-- Quantity Control with improved spacing -->
+                        <div class="mt-4 flex items-center">
+                            <form method="post" action="{% url 'shop:cart_update' item.product.id %}" 
+                                  class="flex items-center">
+                                {% csrf_token %}
+                                <input type="number" 
+                                       name="quantity" 
+                                       value="{{ item.quantity }}" 
+                                       min="1" 
+                                       max="99"
+                                       class="w-20 px-3 py-2 text-center border border-gray-300 rounded-md focus:ring-blue-500 focus:border-blue-500">
+                                <button type="submit" 
+                                        class="ml-4 px-4 py-2 text-blue-600 hover:text-blue-800 font-medium">
+                                    Update
+                                </button>
+                            </form>
+                        </div>
+                    </div>
+
+                    <!-- Price and Remove - Fixed width with consistent alignment -->
+                    <div class="w-32 flex-shrink-0 flex flex-col items-end">
+                        <div class="text-lg font-semibold text-gray-900 dark:text-white">
+                            £{{ item.total_price|floatformat:2 }}
+                        </div>
+                        <form method="post" action="{% url 'shop:cart_remove' item.product.id %}" class="mt-2">
+                            {% csrf_token %}
+                            <button type="submit" 
+                                    class="text-red-600 hover:text-red-800 text-sm font-medium">
+                                Remove
+                            </button>
+                        </form>
+                    </div>
+                </div>
+                {% endfor %}
+            </div>
+
+            <!-- Cart Summary -->
+            <div class="bg-gray-50 dark:bg-gray-700 px-6 py-4 rounded-b-lg">
+                <div class="flex justify-between items-center">
+                    <p class="text-gray-600 dark:text-gray-300">
+                        Total Items: {{ cart|length }}
+                    </p>
+                    <p class="text-2xl font-bold text-gray-900 dark:text-white">
+                        Total: £{{ cart.get_total_price|floatformat:2 }}
+                    </p>
+                </div>
+                <div class="mt-4 flex justify-between">
+                    <a href="{% url 'shop:product_list' %}" 
+                       class="px-6 py-2 border border-gray-300 rounded-lg text-gray-700 hover:bg-gray-50">
+                        Continue Shopping
+                    </a>
+                    <a href="{% url 'shop:checkout' %}" 
+                       class="px-6 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700">
+                        Proceed to Checkout
+                    </a>
+                </div>
+            </div>
+        </div>
+        {% else %}
+        <div class="text-center py-12">
+            <p class="text-gray-600 dark:text-gray-300 text-lg">Your cart is empty.</p>
+            <a href="{% url 'shop:product_list' %}" 
+               class="mt-4 inline-block px-6 py-2 border border-gray-300 rounded-lg text-gray-700 hover:bg-gray-50">
+                Continue Shopping
+            </a>
+        </div>
+        {% endif %}
+    </div>
+</div>
+{% endblock %}

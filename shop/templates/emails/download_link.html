@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <style>
+        body { font-family: Arial, sans-serif; line-height: 1.6; color: #333; }
+        .container { max-width: 600px; margin: 0 auto; padding: 20px; }
+        .header { text-align: center; padding: 20px 0; }
+        .content { margin: 20px 0; }
+        .download-info { background: #f5f5f5; padding: 15px; margin: 20px 0; border-radius: 5px; }
+        .footer { text-align: center; margin-top: 30px; font-size: 0.9em; color: #666; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>Your Download Link</h1>
+        </div>
+
+        <div class="content">
+            <p>Dear {{ user.get_full_name|default:user.username }},</p>
+            <p>Thank you for purchasing {{ product.name }}. You can download your product using the link below:</p>
+        </div>
+
+        <div class="download-info">
+            <p><strong>Product:</strong> {{ product.name }}</p>
+            <p><strong>Downloads Remaining:</strong> {{ downloads_remaining }}</p>
+            <p><a href="{{ site_url }}{{ download_url }}">Click here to download</a></p>
+        </div>
+
+        <div class="content">
+            <p><strong>Please Note:</strong></p>
+            <ul>
+                <li>This download link is for your use only</li>
+                <li>You have {{ downloads_remaining }} downloads remaining</li>
+                <li>The download link will expire after {{ max_downloads }} downloads</li>
+            </ul>
+        </div>
+
+        <div class="footer">
+            <p>If you have any issues, please contact our support team.</p>
+            <p>Thank you for shopping with us!</p>
+        </div>
+    </div>
+</body>
+</html>
