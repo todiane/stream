@@ -1,0 +1,99 @@
+{% extends "base.html" %}
+
+{% block extra_head %}
+<script src="https://js.stripe.com/v3/"></script>
+{% endblock %}
+
+{% block content %}
+<div class="container mx-auto px-4 py-8">
+    <div class="max-w-4xl mx-auto">
+        <h1 class="text-3xl font-bold mb-8 text-gray-900 dark:text-white">Checkout</h1>
+
+        <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+            <!-- Order Summary -->
+            <div class="lg:col-span-2">
+                <div class="bg-white dark:bg-gray-800 rounded-lg shadow overflow-hidden">
+                    <div class="p-6">
+                        <h2 class="text-xl font-bold mb-4 text-gray-900 dark:text-white">Order Summary</h2>
+                        <div class="divide-y divide-gray-200 dark:divide-gray-700">
+                            {% for item in cart %}
+                            <div class="py-4 flex justify-between">
+                                <div class="flex-1">
+                                    <h3 class="text-gray-900 dark:text-white">{{ item.product.title }}</h3>
+                                    <p class="text-sm text-gray-500 dark:text-gray-400">
+                                        Quantity: {{ item.quantity }}
+                                    </p>
+                                </div>
+                                <div class="text-right">
+                                    <p class="text-gray-900 dark:text-white">£{{ item.total_price }}</p>
+                                </div>
+                            </div>
+                            {% endfor %}
+                        </div>
+                        <div class="mt-6 pt-6 border-t border-gray-200 dark:border-gray-700">
+                            <div class="flex justify-between text-lg font-bold">
+                                <span class="text-gray-900 dark:text-white">Total</span>
+                                <span class="text-gray-900 dark:text-white">£{{ cart.get_total_price }}</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Payment Form -->
+            <div class="lg:col-span-1">
+                <div class="bg-white dark:bg-gray-800 rounded-lg shadow p-6">
+                    <h2 class="text-xl font-bold mb-4 text-gray-900 dark:text-white">Payment Details</h2>
+                    <form id="payment-form" class="space-y-4">
+                        {% csrf_token %}
+                        <div id="card-element" class="p-4 border border-gray-300 rounded-md"></div>
+                        <div id="card-errors" class="text-red-600 text-sm" role="alert"></div>
+                        <button type="submit" 
+                                class="w-full px-6 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 focus:outline-none focus:ring-4 focus:ring-blue-300 disabled:opacity-50"
+                                id="submit-button">
+                            Pay £{{ cart.get_total_price }}
+                        </button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    const stripe = Stripe('{{ stripe_publishable_key }}');
+    const elements = stripe.elements();
+    const card = elements.create('card');
+    card.mount('#card-element');
+
+    const form = document.getElementById('payment-form');
+    const submitButton = document.getElementById('submit-button');
+    const errorElement = document.getElementById('card-errors');
+
+    card.addEventListener('change', function(event) {
+        if (event.error) {
+            errorElement.textContent = event.error.message;
+        } else {
+            errorElement.textContent = '';
+        }
+    });
+
+    form.addEventListener('submit', function(event) {
+        event.preventDefault();
+        submitButton.disabled = true;
+
+        stripe.confirmCardPayment('{{ client_secret }}', {
+            payment_method: {
+                card: card,
+            }
+        }).then(function(result) {
+            if (result.error) {
+                errorElement.textContent = result.error.message;
+                submitButton.disabled = false;
+            } else {
+                window.location.href = "{% url 'shop:payment_success' %}";
+            }
+        });
+    });
+</script>
+{% endblock %}

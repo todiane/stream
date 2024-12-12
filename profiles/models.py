@@ -3,6 +3,7 @@ from django.contrib.auth.models import User
 from django.db.models.signals import post_save
 from django.dispatch import receiver
 from courses.models import Course, Lesson
+from shop.models import Product
 
 class Profile(models.Model):
     user = models.OneToOneField(User, on_delete=models.CASCADE)
@@ -13,7 +14,7 @@ class Profile(models.Model):
     last_watched_lesson = models.ForeignKey(Lesson, on_delete=models.SET_NULL, null=True, blank=True, related_name='last_watched_by')
     email_subscribed = models.BooleanField(default=True) # For marketing/notification emails
     email_verified = models.BooleanField(default=False)  # For email verification status
-    
+    purchased_products = models.ManyToManyField('shop.Product', blank=True, related_name='purchasers')
 
     def __str__(self):
         return f"{self.user.username}'s profile"

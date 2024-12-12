@@ -108,6 +108,7 @@ INSTALLED_APPS = [
     "profiles",
     "pages",
     "news",
+    "shop",
 ]
 
 SITE_ID = 1
@@ -139,6 +140,7 @@ TEMPLATES = [
                 "django.template.context_processors.request",
                 "django.contrib.auth.context_processors.auth",
                 "django.contrib.messages.context_processors.messages",
+                'shop.context_processors.cart',
             ],
         },
     },
@@ -244,3 +246,15 @@ CKEDITOR_5_CONFIGS = {
 }
 
 CKEDITOR_5_FILE_STORAGE = 'cloudinary_storage.storage.MediaCloudinaryStorage'
+
+# Stripe Settings
+STRIPE_PUBLISHABLE_KEY = config('STRIPE_PUBLIC_KEY', default='')
+STRIPE_SECRET_KEY = config('STRIPE_SECRET_KEY', default='')
+STRIPE_WEBHOOK_SECRET = config('STRIPE_WEBHOOK_SECRET', default='')
+STRIPE_CURRENCY = 'gbp'
+
+# Shop Email
+SHOP_EMAIL = 'streamenglish@outlook.com'
+
+CART_SESSION_ID = 'cart'
+MAX_DOWNLOAD_LIMIT = 3

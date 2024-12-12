@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <style>
+        body { font-family: Arial, sans-serif; line-height: 1.6; color: #333; }
+        .container { max-width: 600px; margin: 0 auto; padding: 20px; }
+        .header { text-align: center; padding: 20px 0; }
+        .order-details { margin: 20px 0; }
+        .product-list { margin: 20px 0; }
+        .product-item { padding: 10px 0; border-bottom: 1px solid #eee; }
+        .total { font-weight: bold; margin-top: 20px; }
+        .footer { text-align: center; margin-top: 30px; font-size: 0.9em; color: #666; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>Order Confirmation</h1>
+            <p>Thank you for your purchase!</p>
+        </div>
+
+        <div class="order-details">
+            <p><strong>Order Number:</strong> #{{ order.id }}</p>
+            <p><strong>Order Date:</strong> {{ order.created|date:"F j, Y" }}</p>
+        </div>
+
+        <div class="product-list">
+            <h2>Order Items:</h2>
+            {% for item in items %}
+            <div class="product-item">
+                <p><strong>{{ item.product.name }}</strong></p>
+                <p>Quantity: {{ item.quantity }}</p>
+                <p>Price: £{{ item.price }}</p>
+                {% if item.product.file %}
+                <p>You can download this product from your purchases page.</p>
+                {% endif %}
+            </div>
+            {% endfor %}
+        </div>
+
+        <div class="total">
+            <p>Total Amount: £{{ total }}</p>
+        </div>
+
+        <div class="footer">
+            <p><a href="{{ site_url }}{% url 'shop:purchases' %}">View your purchases</a></p>
+            <p>If you have any questions, please contact our support team.</p>
+        </div>
+    </div>
+</body>
+</html>
