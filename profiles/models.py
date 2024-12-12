@@ -23,11 +23,13 @@ class Profile(models.Model):
         return self.watched_videos.count()
 
     def get_courses_completion_percentage(self):
-        total_courses = self.enrolled_courses.count()
-        if total_courses == 0:
+        enrolled_courses = self.enrolled_courses.all()
+        if not enrolled_courses:
             return 0
-        completed_courses = sum(1 for course in self.enrolled_courses.all() if self.is_course_completed(course))
-        return (completed_courses / total_courses) * 100
+        
+        total_progress = sum(self.get_course_completion_percentage(course) 
+                            for course in enrolled_courses)
+        return total_progress / enrolled_courses.count()
 
     def is_course_completed(self, course):
         total_lessons = course.lesson_set.count()

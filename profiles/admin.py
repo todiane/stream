@@ -1,10 +1,30 @@
 # profiles/admin.py
 from django.contrib import admin
-from profiles.models import ContactSubmission
+from profiles.models import ContactSubmission, Profile
 
 admin.site.site_header = "Stream English Administration"
 admin.site.site_title = "Stream English Admin Portal"
 admin.site.index_title = "Welcome to Stream English Admin Portal"
+
+
+@admin.register(Profile)
+class ProfileAdmin(admin.ModelAdmin):
+    list_display = ['user', 'first_name', 'email_verified']
+    search_fields = ['user__username', 'user__email', 'first_name']
+    filter_horizontal = ['enrolled_courses', 'watched_videos']
+    raw_id_fields = ['user', 'last_watched_lesson']
+    fieldsets = (
+        (None, {
+            'fields': ('user', 'first_name', 'bio')
+        }),
+        ('Course Information', {
+            'fields': ('enrolled_courses', 'watched_videos', 'last_watched_lesson')
+        }),
+        ('Settings', {
+            'fields': ('email_verified', 'email_subscribed'),
+            'classes': ('collapse',),
+        })
+    )
 
 @admin.register(ContactSubmission)
 class ContactSubmissionAdmin(admin.ModelAdmin):
