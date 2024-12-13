@@ -1,5 +1,3 @@
-# news/views.py
-
 from django.shortcuts import render, get_object_or_404
 from django.core.paginator import Paginator
 
@@ -7,47 +5,37 @@ from stream import settings
 from .models import Post, Category
 from django.utils import timezone
 
-
 def news_list(request):
-    print("news_list view called")  # Debugging line
     posts = Post.objects.filter(
         status='published',
         publish_date__lte=timezone.now()
     ).select_related('category')
-    
+
     paginator = Paginator(posts, 12)
     page = request.GET.get('page')
     posts = paginator.get_page(page)
-    
-    print(f"Number of posts: {posts.paginator.count}")  # Debugging line
-    
+
     context = {
         'posts': posts,
         'categories': Category.objects.all(),
         'title': 'News',
         'meta_description': 'Latest news and updates from Stream English',
-        'debug': settings.DEBUG,  # Add this line
+        'debug': settings.DEBUG, 
     }
     return render(request, 'news/list.html', context)
 
 def category_list(request, slug):
-    print(f"\nCategory view called with slug: {slug}")  # Debug print
-    
     category = get_object_or_404(Category, slug=slug)
     posts = Post.objects.filter(
         category=category,
         status='published',
         publish_date__lte=timezone.now()
     ).order_by('-publish_date')  # Add explicit ordering
-    
-    print(f"Posts queryset count: {posts.count()}")  # Debug print
-    for post in posts:
-        print(f"- {post.title} (Status: {post.status}, Date: {post.publish_date})")  # Debug print
-    
+
     paginator = Paginator(posts, 12)
     page = request.GET.get('page')
     posts = paginator.get_page(page)
-    
+
     context = {
         'category': category,
         'posts': posts,
@@ -55,11 +43,8 @@ def category_list(request, slug):
         'title': f'{category.name} - News',
         'meta_description': f'Latest news and updates about {category.name} from Stream English',
     }
-    
-    print(f"Posts in context: {[p.title for p in context['posts']]}")  # Debug print
-    
-    return render(request, 'news/category.html', context)
 
+    return render(request, 'news/category.html', context)
 
 def post_detail(request, slug):
     post = get_object_or_404(Post, 
@@ -67,7 +52,7 @@ def post_detail(request, slug):
         status='published',
         publish_date__lte=timezone.now()
     )
-    
+
     # Get next and previous posts
     next_post = Post.objects.filter(
         status='published',
@@ -80,18 +65,14 @@ def post_detail(request, slug):
         publish_date__lte=timezone.now(),
         publish_date__lt=post.publish_date
     ).order_by('-publish_date').first()
-    
+
     # Get related posts from same category
     related_posts = Post.objects.filter(
         status='published',
         publish_date__lte=timezone.now(),
         category=post.category
     ).exclude(id=post.id).select_related('category')[:2]
-    
-    # Debug image URLs
-    for post in related_posts:
-        print(f"Image URL for {post.title}: {post.get_display_image()}")
-    
+
     context = {
         'post': post,
         'next_post': next_post,

@@ -289,35 +289,31 @@ def activate(request, uidb64, token):
     try:
         uid = force_str(urlsafe_base64_decode(uidb64))
         user = User.objects.get(pk=uid)
+    except (TypeError, ValueError, OverflowError, User.DoesNotExist):
+        user = None
 
-        if user is not None and account_activation_token.check_token(user, token):
-            if not user.profile.email_verified:  
-                user.profile.email_verified = True 
-                user.profile.save()
-                login(request, user)
-                
-                # Send welcome email after successful activation
-                send_welcome_activated_email(request, user)
+    if user is not None and account_activation_token.check_token(user, token):
+        if not user.profile.email_verified:  
+            user.profile.email_verified = True 
+            user.profile.save()
+            login(request, user)
+            
+            # Send welcome email after successful activation
+            send_welcome_activated_email(request, user)
 
-                # Send admin notification
-                send_admin_notification(
+            print("About to send admin notification") # Debug print
+            # Send admin notification
+            notification_sent = send_admin_notification(
                     'New Member Validation',
-                    f'New member {user.username} has validated their email address'
+                    f'New member {user.username} has validated their email address at {timezone.now()}'
                 )
+            print(f"Admin notification sent: {notification_sent}") # Debug print
                 
-                messages.success(request, 'Your account has been successfully activated!')
-                return redirect('pages:home')
-
-            messages.warning(request, 'Account already activated')
+            messages.success(request, 'Your account has been successfully activated!')
             return redirect('pages:home')
-        else:
-            messages.error(request, 'Invalid activation link')
-            return redirect('profiles:activation_failed')
 
-    except (TypeError, ValueError, OverflowError, User.DoesNotExist) as e:
-        messages.error(request, 'Invalid activation link')
-        return redirect('profiles:activation_failed')
-    
+
+# Resend activation email
 def resend_activation_email(request, uidb64):
     try:
         uid = force_str(urlsafe_base64_decode(uidb64))
@@ -380,30 +376,25 @@ def contact_tutor(request):
                 message += f'Email: {submission.parent_email}\n'
                 message += f'Phone: {submission.parent_phone}\n'
             
-            send_mail(
-                subject,
-                message,
-                settings.DEFAULT_FROM_EMAIL,  
-                [settings.CONTACT_EMAIL],
-                fail_silently=False,
-            )
-            # Send notification to outlook
-            notification_subject = 'New Contact Form Message Received'
-            notification_message = f'A new contact form message has been received from {request.user.username}. Please check the admin area to view the full message.'
+            try:
+                send_mail(
+                    subject,
+                    message,
+                    settings.DEFAULT_FROM_EMAIL,
+                    [settings.CONTACT_EMAIL],
+                    fail_silently=False,
+                )
+
+                print(f"Contact form sent to admin at {settings.CONTACT_EMAIL}")  # Debug print
+                messages.success(request, 'Your message has been sent successfully!')
+            except Exception as e:
+                print(f"Error sending contact form: {str(e)}")  # Debug print
+                messages.error(request, 'There was an error sending your message. Please try again later.')
             
-            send_mail(
-                notification_subject,
-                notification_message,
-                settings.DEFAULT_FROM_EMAIL,
-                ['streamenglish@outlook.com'],
-                fail_silently=False,
-            )
-            messages.success(request, 'Your message has been sent successfully.')
             return redirect('profiles:profile')
             
         messages.error(request, 'Please correct the errors below.')
     return redirect('profiles:profile')
-
 
 def unsubscribe_email(request, uidb64):
     try:

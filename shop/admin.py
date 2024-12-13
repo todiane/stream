@@ -61,14 +61,52 @@ class ProductAdmin(admin.ModelAdmin):
             return f"£{obj.sale_price:.2f}"
         return "-"
 
-@admin.register(Order)
-class OrderAdmin(admin.ModelAdmin):
-    list_display = ['order_id', 'user', 'email', 'paid', 'created']
-    list_filter = ['paid', 'created']
-    search_fields = ['order_id', 'user__username', 'email']
-
 class OrderItemInline(admin.TabularInline):
     model = OrderItem
     raw_id_fields = ['product']
-    readonly_fields = ['price_paid_pence', 'downloads_remaining']
     extra = 0
+
+@admin.register(Order)
+class OrderAdmin(admin.ModelAdmin):
+    list_display = ['order_id', 'user', 'email', 'paid', 'created', 'get_customer_name']
+    list_filter = ['paid', 'created', 'status']
+    search_fields = ['order_id', 'user__username', 'email', 
+                    'guest_details__first_name', 'guest_details__last_name']
+    inlines = [OrderItemInline]
+    readonly_fields = ['order_id', 'payment_intent_id', 'guest_details_display']
+
+    def get_customer_name(self, obj):
+        if obj.user:
+            return f"{obj.user.profile.first_name}"
+        elif hasattr(obj, 'guest_details'):
+            return f"{obj.guest_details.first_name} {obj.guest_details.last_name} (Guest)"
+        return "No name provided"
+    get_customer_name.short_description = "Customer"
+
+    def guest_details_display(self, obj):
+        if hasattr(obj, 'guest_details'):
+            return format_html(
+                '<strong>Name:</strong> {} {}<br>'
+                '<strong>Email:</strong> {}<br>'
+                '<strong>Phone:</strong> {}',
+                obj.guest_details.first_name,
+                obj.guest_details.last_name,
+                obj.guest_details.email,
+                obj.guest_details.phone or 'Not provided'
+            )
+        return "No guest details"
+    guest_details_display.short_description = "Guest Details"
+
+    fieldsets = (
+        (None, {
+            'fields': ('order_id', 'user', 'email', 'status', 'paid')
+        }),
+        ('Guest Information', {
+            'fields': ('guest_details_display',),
+            'classes': ('collapse',)
+        }),
+        ('Payment Information', {
+            'fields': ('payment_intent_id',),
+            'classes': ('collapse',)
+        }),
+    )

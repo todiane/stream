@@ -1,7 +1,6 @@
 # profiles/urls.py
-from django.urls import path, reverse_lazy
+from django.urls import include, path, reverse_lazy
 from django.contrib.auth import views as auth_views
-
 from profiles.forms import CustomPasswordResetForm
 from . import views
 
@@ -13,6 +12,7 @@ urlpatterns = [
     path('logout/', views.logout_view, name='logout'),
     path('profile/', views.profile_view, name='profile'),
     path('contact-tutor/', views.contact_tutor, name='contact_tutor'),
+    path('purchases/', include('shop.urls'), name='purchases'),
     path('enrol/<slug:course_slug>/', views.enrol_course, name='enrol_course'),
     path('resume/<slug:course_slug>/', views.resume_course, name='resume_course'),
     path('mark-video-watched/<int:lesson_id>/', views.mark_video_watched, name='mark_video_watched'),
