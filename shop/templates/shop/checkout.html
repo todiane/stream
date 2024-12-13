@@ -1,69 +1,106 @@
 {% extends "base.html" %}
 
-{% block extra_head %}
-<script src="https://js.stripe.com/v3/"></script>
-{% endblock %}
+
 
 {% block content %}
 <div class="container mx-auto px-4 py-8">
-    <div class="max-w-4xl mx-auto">
-        <h1 class="text-3xl font-bold mb-8 text-gray-900 dark:text-white">Checkout</h1>
+    <div class="max-w-3xl mx-auto">
+        <h1 class="text-3xl font-bold mb-8 text-gray-900">Checkout</h1>
 
-        <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
-            <!-- Order Summary -->
-            <div class="lg:col-span-2">
-                <div class="bg-white dark:bg-gray-800 rounded-lg shadow overflow-hidden">
-                    <div class="p-6">
-                        <h2 class="text-xl font-bold mb-4 text-gray-900 dark:text-white">Order Summary</h2>
-                        <div class="divide-y divide-gray-200 dark:divide-gray-700">
-                            {% for item in cart %}
-                            <div class="py-4 flex justify-between">
-                                <div class="flex-1">
-                                    <h3 class="text-gray-900 dark:text-white">{{ item.product.title }}</h3>
-                                    <p class="text-sm text-gray-500 dark:text-gray-400">
-                                        Quantity: {{ item.quantity }}
-                                    </p>
-                                </div>
-                                <div class="text-right">
-                                    <p class="text-gray-900 dark:text-white">£{{ item.total_price }}</p>
-                                </div>
-                            </div>
-                            {% endfor %}
+        <!-- Order Summary -->
+        <div class="bg-white rounded-lg shadow overflow-hidden mb-8">
+            <div class="p-6">
+                <h2 class="text-xl font-bold mb-4">Order Summary</h2>
+                <div class="divide-y divide-gray-200">
+                    {% for item in cart %}
+                    <div class="py-4 flex justify-between">
+                        <div class="flex-1">
+                            <h3 class="text-gray-900">{{ item.product.title }}</h3>
+                            <p class="text-sm text-gray-500">
+                                Quantity: {{ item.quantity }}
+                            </p>
                         </div>
-                        <div class="mt-6 pt-6 border-t border-gray-200 dark:border-gray-700">
-                            <div class="flex justify-between text-lg font-bold">
-                                <span class="text-gray-900 dark:text-white">Total</span>
-                                <span class="text-gray-900 dark:text-white">£{{ cart.get_total_price }}</span>
-                            </div>
+                        <div class="text-right">
+                            <p class="text-gray-900">£{{ item.total_price|floatformat:2 }}</p>
                         </div>
+                    </div>
+                    {% endfor %}
+                </div>
+                <div class="mt-6 pt-6 border-t border-gray-200">
+                    <div class="flex justify-between text-lg font-bold">
+                        <span>Total</span>
+                        <span>£{{ cart.get_total_price|floatformat:2 }}</span>
                     </div>
                 </div>
             </div>
+        </div>
 
-            <!-- Payment Form -->
-            <div class="lg:col-span-1">
-                <div class="bg-white dark:bg-gray-800 rounded-lg shadow p-6">
-                    <h2 class="text-xl font-bold mb-4 text-gray-900 dark:text-white">Payment Details</h2>
-                    <form id="payment-form" class="space-y-4">
-                        {% csrf_token %}
-                        <div id="card-element" class="p-4 border border-gray-300 rounded-md"></div>
-                        <div id="card-errors" class="text-red-600 text-sm" role="alert"></div>
-                        <button type="submit" 
-                                class="w-full px-6 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 focus:outline-none focus:ring-4 focus:ring-blue-300 disabled:opacity-50"
-                                id="submit-button">
-                            Pay £{{ cart.get_total_price }}
-                        </button>
-                    </form>
-                </div>
+        {% if is_guest %}
+        <!-- Guest Details Form -->
+        <div class="bg-white rounded-lg shadow p-6 mb-8">
+            <h2 class="text-xl font-bold mb-4">Contact Details</h2>
+            <div class="mb-4 p-4 bg-yellow-50 border border-yellow-200 rounded-md">
+                <p class="text-yellow-700 text-sm">
+                    Note: Your purchase details will not be saved unless you create an account.
+                    You will receive download links via email.
+                </p>
             </div>
+            <form id="guest-details-form" method="post" class="space-y-4">
+                {% csrf_token %}
+                {{ guest_form.as_p }}
+            </form>
+        </div>
+        {% endif %}
+
+        <!-- Payment Form -->
+        <div class="bg-white rounded-lg shadow p-6">
+            <h2 class="text-xl font-bold mb-4">Payment Details</h2>
+            <form id="payment-form" class="space-y-4">
+                {% csrf_token %}
+                <div class="form-row">
+                    <div id="card-element" class="p-4 border border-gray-300 rounded-md mb-4">
+                        <!-- Stripe Elements will create input elements here -->
+                    </div>
+                    <div class="mb-4">
+                        <label for="postal-code" class="block text-sm font-medium text-gray-700">Postcode</label>
+                        <input type="text" id="postal-code" class="mt-1 p-2 w-full border border-gray-300 rounded-md" placeholder="Enter your postcode">
+                    </div>
+                    <div id="card-errors" class="text-red-600 text-sm mb-4" role="alert"></div>
+                </div>
+                <button type="submit" 
+                        class="w-full px-6 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 focus:outline-none focus:ring-4 focus:ring-blue-300 disabled:opacity-50"
+                        id="submit-button">
+                    Pay £{{ cart.get_total_price|floatformat:2 }}
+                </button>
+            </form>
         </div>
     </div>
 </div>
-
 <script>
+    // Debug line to verify initialization
+    console.log('Stripe Key:', '{{ stripe_publishable_key }}');
+
     const stripe = Stripe('{{ stripe_publishable_key }}');
     const elements = stripe.elements();
-    const card = elements.create('card');
+
+    const style = {
+        base: {
+            fontSize: '16px',
+            color: '#32325d',
+            '::placeholder': {
+                color: '#aab7c4'
+            }
+        },
+        invalid: {
+            color: '#dc3545',
+            iconColor: '#dc3545'
+        }
+    };
+
+    const card = elements.create('card', {
+        style: style,
+        hidePostalCode: true
+    });
     card.mount('#card-element');
 
     const form = document.getElementById('payment-form');
@@ -78,22 +115,35 @@
         }
     });
 
-    form.addEventListener('submit', function(event) {
+    form.addEventListener('submit', async function(event) {
         event.preventDefault();
         submitButton.disabled = true;
+        errorElement.textContent = '';
 
-        stripe.confirmCardPayment('{{ client_secret }}', {
-            payment_method: {
-                card: card,
+        try {
+            const { paymentIntent, error } = await stripe.confirmCardPayment('{{ client_secret }}', {
+                payment_method: {
+                    card: card,
+                    billing_details: {
+                        name: document.getElementById('guest-details-form')?.querySelector('[name="first_name"]')?.value || '',
+                        email: document.getElementById('guest-details-form')?.querySelector('[name="email"]')?.value || ''
+                    }
+                }
+            });
+
+            if (error) {
+                throw error;
             }
-        }).then(function(result) {
-            if (result.error) {
-                errorElement.textContent = result.error.message;
-                submitButton.disabled = false;
-            } else {
-                window.location.href = "{% url 'shop:payment_success' %}";
+
+            if (paymentIntent.status === 'succeeded') {
+                window.location.href = "{% url 'shop:payment_success' %}?payment_intent=" + paymentIntent.id;
             }
-        });
+
+        } catch (error) {
+            console.error('Payment error:', error);
+            errorElement.textContent = error.message;
+            submitButton.disabled = false;
+        }
     });
 </script>
 {% endblock %}

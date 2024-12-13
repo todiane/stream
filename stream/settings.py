@@ -30,7 +30,7 @@ SECRET_KEY = config("SECRET_KEY", default="unsafe-default-secret-key")
 # SECURITY WARNING: don't run with debug turned on in production!
 
 
-DEBUG = False
+DEBUG = True
 
 # Database configuration - comment out local database and set debug to false in production. For local use comment out production database and set debug to true.
 
@@ -112,6 +112,14 @@ INSTALLED_APPS = [
 ]
 
 SITE_ID = 1
+
+# Site URLs
+if DEBUG:
+    SITE_URL = 'http://127.0.0.1:8000'  # Development URL
+else:
+    SITE_URL = 'https://streamenglish.up.railway.app'  # Production URL
+
+# Keep your existing DJANGO_ADMIN_SITE_URL
 DJANGO_ADMIN_SITE_URL = 'https://streamenglish.up.railway.app'
 
 
@@ -174,6 +182,7 @@ EMAIL_HOST_PASSWORD = config('SENDGRID_API_KEY')
 SENDGRID_API_KEY = config('SENDGRID_API_KEY', default=None) 
 DEFAULT_FROM_EMAIL = config('DEFAULT_FROM_EMAIL', default='streamenglish@outlook.com')
 CONTACT_EMAIL='streamenglish@outlook.com'
+
 
 EMAIL_TIMEOUT = 5  # seconds
 EMAIL_MAX_RETRIES = 3
@@ -257,4 +266,15 @@ STRIPE_CURRENCY = 'gbp'
 SHOP_EMAIL = 'streamenglish@outlook.com'
 
 CART_SESSION_ID = 'cart'
-MAX_DOWNLOAD_LIMIT = 3
+
+# Shop Settings
+SHOP_SETTINGS = {
+    'GUEST_DOWNLOAD_EXPIRY_DAYS': 30,
+    'MEMBER_DOWNLOAD_EXPIRY_DAYS': 365,
+    'MAX_DOWNLOAD_ATTEMPTS': 3,
+}
+
+# Success URLs
+LOGIN_REDIRECT_URL = '/profiles/profile/'
+SHOP_SUCCESS_URL = '/shop/success/'
+SHOP_CANCEL_URL = '/shop/cancel/'

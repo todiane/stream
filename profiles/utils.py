@@ -141,18 +141,40 @@ def check_email_throttle(user_id, action, max_attempts=3, timeout=300):
     
     cache.set(cache_key, attempts + 1, timeout)
 
+    
 def send_admin_notification(subject, message):
     """
     Send a simple notification email to admin
     """
     from django.core.mail import send_mail
     from django.conf import settings
+    import logging
+
+    logger = logging.getLogger(__name__)
     
-    send_mail(
-        subject,
-        message,
-        settings.DEFAULT_FROM_EMAIL,
-        ['streamenglish@outlook.com'],
-        fail_silently=False,
-    )
-    
+    try:
+        print(f"Attempting to send admin notification to {settings.CONTACT_EMAIL}")  # Debug print
+        # Try sending with settings.CONTACT_EMAIL
+        result = send_mail(
+            subject,
+            message,
+            settings.DEFAULT_FROM_EMAIL,
+            [settings.CONTACT_EMAIL],
+            fail_silently=False,
+        )
+        
+        # If successful, try sending to hardcoded email as backup
+        if result:
+            send_mail(
+                subject,
+                message,
+                settings.DEFAULT_FROM_EMAIL,
+                ['streamenglish@outlook.com'],
+                fail_silently=True,
+            )
+            
+        print(f"Admin notification sent successfully: {subject} (Result: {result})")
+        return True
+    except Exception as e:
+        print(f"Failed to send admin notification: {str(e)}")
+        return False

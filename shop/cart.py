@@ -1,7 +1,16 @@
 from decimal import Decimal
 from django.conf import settings
 from .models import Product
+from django.core.serializers.json import DjangoJSONEncoder
+import json
 
+
+class DecimalEncoder(DjangoJSONEncoder):
+    def default(self, obj):
+        if isinstance(obj, Decimal):
+            return str(obj)
+        return super().default(obj)
+    
 class Cart:
     def __init__(self, request):
         self.session = request.session
@@ -51,9 +60,12 @@ class Cart:
         return sum(Decimal(item['price']) * item['quantity'] 
                   for item in self.cart.values())
 
-    def clear(self):
-        del self.session[settings.CART_SESSION_ID]
-        self.save()
 
     def save(self):
+        self.session.modified = True
+
+
+    def clear(self):
+        """Remove all items from cart and delete it from session"""
+        del self.session[settings.CART_SESSION_ID]
         self.session.modified = True
