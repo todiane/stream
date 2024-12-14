@@ -11,21 +11,21 @@ environ.Env.read_env()
 
 # Add this after your BASE_DIR definition
 
-LOGGING = {
-    "version": 1,
-    "disable_existing_loggers": False,
-    "handlers": {
-        "console": {
-            "class": "logging.StreamHandler",
-        },
-    },
-    "loggers": {
-        "django": {
-            "handlers": ["console"],
-            "level": "DEBUG",
-        },
-    },
-}
+# LOGGING = {
+#     "version": 1,
+#     "disable_existing_loggers": False,
+#     "handlers": {
+#         "console": {
+#             "class": "logging.StreamHandler",
+#         },
+#     },
+#     "loggers": {
+#         "django": {
+#             "handlers": ["console"],
+#             "level": "DEBUG",
+#         },
+#     },
+# }
 
 # Security
 SECRET_KEY = config("SECRET_KEY", default="unsafe-default-secret-key")
@@ -34,18 +34,18 @@ SECRET_KEY = config("SECRET_KEY", default="unsafe-default-secret-key")
 # SECURITY WARNING: don't run with debug turned on in production!
 
 
-DEBUG = True
+DEBUG = False
 
 # Database configuration - comment out local database and set debug to false in production. For local use comment out production database and set debug to true.
 
-DATABASES = {
-    "default": {
-        "ENGINE": "django.db.backends.sqlite3",
-        "NAME": BASE_DIR / "db.sqlite3",
-    }
-}
+# DATABASES = {
+#     "default": {
+#         "ENGINE": "django.db.backends.sqlite3",
+#         "NAME": BASE_DIR / "db.sqlite3",
+#     }
+# }
 
-# DATABASES = {"default": env.db("DATABASE_URL")}
+DATABASES = {"default": env.db("DATABASE_URL")}
 
 ALLOWED_HOSTS = os.environ.get("DJANGO_ALLOWED_HOSTS", "*").split(",")
 
