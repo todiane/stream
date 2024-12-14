@@ -6,6 +6,7 @@ DirectoryIndex index.wsgi
 
 # Set WSGI handler
 SetHandler wsgi-script
+AddHandler wsgi-script .wsgi
 
 # Set Python path
 SetEnv PYTHONPATH /home/virtual/vps-cbced9/a/a588fe7474/stream
