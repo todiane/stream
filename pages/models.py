@@ -4,35 +4,39 @@ from django.urls import reverse
 from django.utils import timezone
 from django_ckeditor_5.fields import CKEditor5Field
 from simple_history.models import HistoricalRecords
-from cloudinary.models import CloudinaryField
-from helpers._cloudinary import get_cloudinary_image_object, cloudinary_init
+
 
 class SEOFields(models.Model):
-    meta_title = models.CharField(max_length=60, blank=True, help_text="SEO Title (60 characters max)")
-    meta_description = models.CharField(max_length=160, blank=True, help_text="SEO Description (160 characters max)")
-    meta_keywords = models.CharField(max_length=255, blank=True, help_text="Comma-separated keywords")
+    meta_title = models.CharField(
+        max_length=60, blank=True, help_text="SEO Title (60 characters max)"
+    )
+    meta_description = models.CharField(
+        max_length=160, blank=True, help_text="SEO Description (160 characters max)"
+    )
+    meta_keywords = models.CharField(
+        max_length=255, blank=True, help_text="Comma-separated keywords"
+    )
 
     class Meta:
         abstract = True
+
 
 class Hero(models.Model):
     title = models.CharField(max_length=200)
     subtitle = models.CharField(max_length=200, blank=True)
     description = models.TextField(blank=True)
     video_url = models.URLField(
-        blank=True, 
-        help_text="YouTube video URL (e.g., https://www.youtube.com/watch?v=xxxxx)"
+        blank=True,
+        help_text="YouTube video URL (e.g., https://www.youtube.com/watch?v=xxxxx)",
     )
     cta_text = models.CharField(
-        max_length=50, 
-        blank=True, 
+        max_length=50,
+        blank=True,
         verbose_name="Call to Action Text",
-        default="Learn more"
+        default="Learn more",
     )
     cta_link = models.CharField(
-        max_length=200, 
-        blank=True, 
-        verbose_name="Call to Action Link"
+        max_length=200, blank=True, verbose_name="Call to Action Link"
     )
     is_active = models.BooleanField(default=True)
 
@@ -54,13 +58,13 @@ class HeroBanner(models.Model):
 
     def __str__(self):
         return self.text
-    
+
 
 class Page(SEOFields):
     TEMPLATE_CHOICES = (
-        ('home', 'Homepage'),
-        ('about', 'About Page'),
-        ('tuition', 'Tuition Page'),
+        ("home", "Homepage"),
+        ("about", "About Page"),
+        ("tuition", "Tuition Page"),
     )
 
     title = models.CharField(max_length=200)
@@ -73,20 +77,20 @@ class Page(SEOFields):
     second_content = CKEditor5Field(blank=True, null=True)
 
     class Meta:
-        ordering = ['title']
+        ordering = ["title"]
 
     def __str__(self):
         return self.title
 
     def get_absolute_url(self):
-        if self.template == 'home':
-            return reverse('pages:home')
-        return reverse('pages:page_detail', kwargs={'slug': self.slug})
+        if self.template == "home":
+            return reverse("pages:home")
+        return reverse("pages:page_detail", kwargs={"slug": self.slug})
 
     @property
     def is_published(self):
         return self.is_active and self.publish_date <= timezone.now()
-    
+
 
 class AboutMe(models.Model):
     title = models.CharField(max_length=200, default="About Me")
@@ -107,7 +111,8 @@ class AboutMeColumns(models.Model):
 
     class Meta:
         verbose_name = "About Me Columns"
-        verbose_name_plural = "About Me Columns"   
+        verbose_name_plural = "About Me Columns"
+
 
 class AboutCourses(models.Model):
     title = models.CharField(max_length=200, default="Take A Look At My Latest Courses")
@@ -123,19 +128,19 @@ class AboutCourses(models.Model):
 
 class TuitionFeature(models.Model):
     ICON_CHOICES = [
-        ('book', 'Book'),
-        ('pencil', 'Pencil'),
-        ('star', 'Star'),
-        ('certificate', 'Certificate'),
-        ('users', 'Users'),
-        ('lightbulb', 'Lightbulb'),
+        ("book", "Book"),
+        ("pencil", "Pencil"),
+        ("star", "Star"),
+        ("certificate", "Certificate"),
+        ("users", "Users"),
+        ("lightbulb", "Lightbulb"),
     ]
-    
+
     SIZE_CHOICES = [
-        ('small', 'Small'),
-        ('large', 'Large'),
+        ("small", "Small"),
+        ("large", "Large"),
     ]
-    
+
     icon = models.CharField(max_length=20, choices=ICON_CHOICES)
     title = models.CharField(max_length=200)
     description = models.TextField()
@@ -144,7 +149,7 @@ class TuitionFeature(models.Model):
     is_active = models.BooleanField(default=True)
 
     class Meta:
-        ordering = ['order']
+        ordering = ["order"]
         verbose_name = "Tuition Feature"
         verbose_name_plural = "Tuition Features"
 

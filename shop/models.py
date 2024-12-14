@@ -3,8 +3,9 @@ from django.urls import reverse
 from django.utils.text import slugify
 from django.conf import settings
 from django_ckeditor_5.fields import CKEditor5Field
-from cloudinary.models import CloudinaryField
+from stream.storage import secure_storage, public_storage
 import uuid
+
 
 def generate_public_id(instance, *args, **kwargs):
     title = instance.title
@@ -15,31 +16,30 @@ def generate_public_id(instance, *args, **kwargs):
     unique_id_short = unique_id[:5]
     return f"{slug}-{unique_id_short}"
 
+
 class Category(models.Model):
     name = models.CharField(max_length=100)
     slug = models.SlugField(unique=True)
     description = models.TextField(blank=True)
 
     class Meta:
-        verbose_name_plural = 'categories'
-        ordering = ['name']
+        verbose_name_plural = "categories"
+        ordering = ["name"]
 
     def __str__(self):
         return self.name
 
     def get_absolute_url(self):
-        return reverse('shop:category', kwargs={'slug': self.slug})
+        return reverse("shop:category", kwargs={"slug": self.slug})
+
 
 class Product(models.Model):
     STATUS_CHOICES = [
-        ('publish', 'Published'),
-        ('soon', 'Coming Soon'),
-        ('draft', 'Draft')
+        ("publish", "Published"),
+        ("soon", "Coming Soon"),
+        ("draft", "Draft"),
     ]
-    PRODUCT_TYPES = [
-        ('download', 'Digital Download'),
-        ('tuition', 'Tuition Hours')
-    ]
+    PRODUCT_TYPES = [("download", "Digital Download"), ("tuition", "Tuition Hours")]
 
     # Basic Fields
     public_id = models.CharField(max_length=130, blank=True, null=True, db_index=True)
@@ -47,43 +47,30 @@ class Product(models.Model):
     slug = models.SlugField(unique=True)
     category = models.ForeignKey(Category, on_delete=models.PROTECT)
     description = CKEditor5Field()
-    product_type = models.CharField(max_length=20, choices=PRODUCT_TYPES, default='download')
-    status = models.CharField(max_length=10, choices=STATUS_CHOICES, default='draft')
+    product_type = models.CharField(
+        max_length=20, choices=PRODUCT_TYPES, default="download"
+    )
+    status = models.CharField(max_length=10, choices=STATUS_CHOICES, default="draft")
     is_active = models.BooleanField(default=True)
 
     # Pricing
     price_pence = models.PositiveIntegerField(help_text="Price in pence")
-    sale_price_pence = models.PositiveIntegerField(null=True, blank=True, help_text="Sale price in pence")
-    price_per_hour = models.PositiveIntegerField(null=True, blank=True, help_text="Tuition price per hour in pence")
+    sale_price_pence = models.PositiveIntegerField(
+        null=True, blank=True, help_text="Sale price in pence"
+    )
+    price_per_hour = models.PositiveIntegerField(
+        null=True, blank=True, help_text="Tuition price per hour in pence"
+    )
 
     # Media
-    files = CloudinaryField(
-        "file",
-        null=True,
-        blank=True,
-        folder="shop",
-        resource_type="auto",
+    files = models.FileField(
+        upload_to="products/files/", null=True, blank=True, storage=secure_storage
     )
-    preview_file = CloudinaryField(
-        "preview",
-        null=True,
-        blank=True,
-        folder="shop/previews",
-        resource_type="auto",
+    preview_file = models.FileField(
+        upload_to="products/previews/", null=True, blank=True, storage=public_storage
     )
-    preview_image = CloudinaryField(
-        "image",
-        null=True,
-        blank=True,
-        folder="shop",
-        resource_type="image",
-        transformation={
-            "quality": "auto:eco",
-            "width": 400,
-            "height": 192,
-            "crop": "fill",
-            "gravity": "center"
-            },
+    preview_image = models.ImageField(
+        upload_to="products/images/", null=True, blank=True, storage=public_storage
     )
 
     # Settings
@@ -96,7 +83,7 @@ class Product(models.Model):
     updated = models.DateTimeField(auto_now=True)
 
     class Meta:
-        ordering = ['-created']
+        ordering = ["-created"]
 
     def __str__(self):
         return self.title
@@ -109,8 +96,8 @@ class Product(models.Model):
         super().save(*args, **kwargs)
 
     def get_absolute_url(self):
-        return reverse('shop:product_detail', kwargs={'slug': self.slug})
-    
+        return reverse("shop:product_detail", kwargs={"slug": self.slug})
+
     def get_download_url(self):
         if self.files:
             return self.files.url
@@ -146,37 +133,41 @@ class GuestDetails(models.Model):
     email = models.EmailField()
     phone = models.CharField(max_length=20, blank=True, null=True)
     created_at = models.DateTimeField(auto_now_add=True)
-    order = models.OneToOneField('Order', on_delete=models.CASCADE, related_name='guest_details')
+    order = models.OneToOneField(
+        "Order", on_delete=models.CASCADE, related_name="guest_details"
+    )
 
     class Meta:
-        verbose_name_plural = 'Guest Details'
+        verbose_name_plural = "Guest Details"
 
     def __str__(self):
         return f"{self.first_name} {self.last_name} - {self.email}"
-    
+
 
 class Order(models.Model):
     STATUS_CHOICES = [
-        ('pending', 'Pending'),
-        ('completed', 'Completed'),
-        ('failed', 'Failed'),
-        ('cancelled', 'Cancelled')
+        ("pending", "Pending"),
+        ("completed", "Completed"),
+        ("failed", "Failed"),
+        ("cancelled", "Cancelled"),
     ]
-    
+
     order_id = models.CharField(max_length=100, unique=True, editable=False)
-    user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.SET_NULL, null=True, blank=True)
+    user = models.ForeignKey(
+        settings.AUTH_USER_MODEL, on_delete=models.SET_NULL, null=True, blank=True
+    )
     email = models.EmailField()
     created = models.DateTimeField(auto_now_add=True)
     updated = models.DateTimeField(auto_now=True)
     paid = models.BooleanField(default=False)
-    status = models.CharField(max_length=20, choices=STATUS_CHOICES, default='pending')
+    status = models.CharField(max_length=20, choices=STATUS_CHOICES, default="pending")
     payment_intent_id = models.CharField(max_length=250, blank=True)
-    
+
     class Meta:
-        ordering = ['-created']
-        
+        ordering = ["-created"]
+
     def __str__(self):
-        return f'Order {self.order_id}'
+        return f"Order {self.order_id}"
 
     def save(self, *args, **kwargs):
         if not self.order_id:
@@ -185,15 +176,17 @@ class Order(models.Model):
 
     def get_total_cost(self):
         return sum(item.get_cost() for item in self.items.all())
-    
+
     @property
     def total_price(self):
         return self.get_total_cost()
-    
+
 
 class OrderItem(models.Model):
-    order = models.ForeignKey(Order, related_name='items', on_delete=models.CASCADE)
-    product = models.ForeignKey(Product, related_name='order_items', on_delete=models.CASCADE)
+    order = models.ForeignKey(Order, related_name="items", on_delete=models.CASCADE)
+    product = models.ForeignKey(
+        Product, related_name="order_items", on_delete=models.CASCADE
+    )
     price_paid_pence = models.PositiveIntegerField()
     quantity = models.PositiveIntegerField(default=1)
     downloads_remaining = models.PositiveIntegerField(default=5)

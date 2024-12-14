@@ -23,3 +23,9 @@ RewriteRule ^(.*)$ index.wsgi/$1 [QSA,L]
 Header set X-Content-Type-Options "nosniff"
 Header set X-Frame-Options "SAMEORIGIN"
 Header set X-XSS-Protection "1; mode=block"
+
+# Deny access to secure downloads directory
+<Directory "/path/to/media/secure_downloads">
+    Order deny,allow
+    Deny from all
+</Directory>
