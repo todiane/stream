@@ -1,0 +1,28 @@
+{% extends "account/email/base_email.html" %}
+
+{% block title %}Your Download is Ready{% endblock %}
+
+{% block content %}
+<p>Hello {% if order_item.order.user %}{{ order_item.order.user.profile.first_name }}{% else %}{{ order_item.order.guest_details.first_name }}{% endif %},</p>
+
+<p>Your download for {{ order_item.product.title }} is ready.</p>
+
+<div style="background: #f8f9fa; padding: 20px; border-radius: 5px; margin-bottom: 20px;">
+    <h3>Download Information</h3>
+    <p>Product: {{ order_item.product.title }}</p>
+    <p>Downloads remaining: {{ downloads_remaining }}</p>
+    <a href="{{ download_url }}" class="button">Download Now</a>
+</div>
+
+{% if not order_item.order.user %}
+<div style="color: #856404; background-color: #fff3cd; padding: 15px; border-radius: 5px; margin: 20px 0;">
+    <strong>Important:</strong> As a guest user, you have limited time to download your purchase. 
+    Create an account to access your downloads anytime.
+</div>
+{% endif %}
+
+<p>If you have any issues downloading your purchase, please contact us. Thank you for shopping with us!</p>
+
+<p>Best regards,<br>
+Stream English</p>
+{% endblock %}

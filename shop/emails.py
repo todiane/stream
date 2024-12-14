@@ -24,7 +24,7 @@ def send_order_confirmation_email(order):
     }
 
     # Render HTML content
-    html_content = render_to_string('emails/order_confirmation.html', context)
+    html_content = render_to_string('account/email/order_confirmation.html', context)
     text_content = strip_tags(html_content)
 
     # Send email
@@ -44,13 +44,13 @@ def send_download_link_email(order_item):
         'product': order_item.product,
         'download_url': order_item.product.get_download_url(),
         'site_url': settings.SITE_URL,
-        'downloads_remaining': settings.MAX_DOWNLOAD_LIMIT - order_item.download_count
+        'downloads_remaining': settings.SHOP_SETTINGS['MAX_DOWNLOAD_ATTEMPTS'] - order_item.download_count
     }
 
-    html_content = render_to_string('emails/download_link.html', context)
+    html_content = render_to_string('account/email/download_link.html', context)
     text_content = strip_tags(html_content)
 
-    subject = f'Download Link - {order_item.product.name}'
+    subject = f'Download Link - {order_item.product.title}'
     from_email = settings.DEFAULT_FROM_EMAIL
     to_email = order_item.order.user.email
 

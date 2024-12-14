@@ -1,0 +1,25 @@
+{% extends "account/email/base_email.html" %}
+
+{% block title %}Order Confirmation #{{ order_id }}{% endblock %}
+
+{% block content %}
+<p>Hello {% if user_name %}{{ user_name }}{% else %}{{ email }}{% endif %},</p>
+
+<p>Thank you for your order! Your order has been confirmed and processed successfully.</p>
+
+<h3>Order Details:</h3>
+<ul>
+{% for item in items %}
+    <li>{{ item.name }} - Quantity: {{ item.quantity }} - Price: £{{ item.price|floatformat:2 }} - Total: £{{ item.total|floatformat:2 }}</li>
+{% endfor %}
+</ul>
+
+<p><strong>Total: £{{ total|floatformat:2 }}</strong></p>
+
+<p>Your download links will be sent in a separate email.</p>
+
+<p>If you have any questions, please don't hesitate to contact us.</p>
+
+<p>Best regards,<br>
+Stream English</p>
+{% endblock %}
