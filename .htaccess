@@ -1,0 +1,6 @@
+DirectoryIndex none
+RewriteEngine On
+RewriteBase /
+RewriteCond %{REQUEST_FILENAME} !-f
+RewriteCond %{REQUEST_FILENAME} !-d
+RewriteRule ^(.*)$ /index.wsgi [QSA,L]
