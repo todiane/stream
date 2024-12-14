@@ -1,10 +1,10 @@
-cloudinary==1.37.0
 django==4.2.10
 django-storages==1.14.2
 django-environ==0.11.2
 django-crispy-forms==2.1
 django-ckeditor-5==0.2.10
 django-js-asset==2.1.0
+django-simple-history==3.3.0
 django-widget-tweaks==1.5.0
 gunicorn==21.2.0
 mysqlclient==2.2.1

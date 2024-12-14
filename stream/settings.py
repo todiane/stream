@@ -45,12 +45,9 @@ DATABASES = {
     }
 }
 
-
 # DATABASES = {"default": env.db("DATABASE_URL")}
 
-
 ALLOWED_HOSTS = os.environ.get("DJANGO_ALLOWED_HOSTS", "*").split(",")
-
 
 CSRF_TRUSTED_ORIGINS = [
     "https://streamenglish-co-uk.stackstaging.com",
@@ -58,39 +55,6 @@ CSRF_TRUSTED_ORIGINS = [
     "http://localhost:8000",
     "http://127.0.0.1:8000",
 ]
-
-# Static and media files
-STATIC_URL = "/static/"
-STATIC_ROOT = os.path.join(BASE_DIR, "staticfiles")
-STATICFILES_DIRS = [os.path.join(BASE_DIR, "static")]
-MEDIA_URL = "/media/"
-MEDIA_ROOT = os.path.join(BASE_DIR, "media")
-
-# Update Cloudinary storage settings
-CLOUDINARY_STORAGE = {
-    "CLOUD_NAME": os.environ.get("CLOUDINARY_CLOUD_NAME", "your_default_cloud_name"),
-    "API_KEY": os.environ.get("CLOUDINARY_API_KEY", ""),
-    "API_SECRET": os.environ.get("CLOUDINARY_API_SECRET", ""),
-    "SECURE": True,
-    "MEDIA_TAG": "media",
-    "INVALID_VIDEO_ERROR_MESSAGE": "Please upload a valid video file.",
-    "INVALID_IMAGE_ERROR_MESSAGE": "Please upload a valid image file.",
-    "STATIC_TAG": "static",
-}
-
-# Check if all required Cloudinary credentials are available
-if all(
-    [
-        os.environ.get("CLOUDINARY_CLOUD_NAME"),
-        os.environ.get("CLOUDINARY_API_KEY"),
-        os.environ.get("CLOUDINARY_API_SECRET"),
-    ]
-):
-    DEFAULT_FILE_STORAGE = "cloudinary_storage.storage.MediaCloudinaryStorage"
-    STATICFILES_STORAGE = "cloudinary_storage.storage.StaticHashedCloudinaryStorage"
-else:
-    DEFAULT_FILE_STORAGE = "django.core.files.storage.FileSystemStorage"
-    STATICFILES_STORAGE = "django.contrib.staticfiles.storage.StaticFilesStorage"
 
 # Application definition
 INSTALLED_APPS = [
@@ -102,8 +66,6 @@ INSTALLED_APPS = [
     "django.contrib.staticfiles",
     "django.contrib.sites",
     "whitenoise.runserver_nostatic",
-    "cloudinary_storage",
-    "cloudinary",
     "django_ckeditor_5",
     "widget_tweaks",
     "django.contrib.sitemaps",
@@ -159,6 +121,31 @@ TEMPLATES = [
 ]
 
 WSGI_APPLICATION = "stream.wsgi.application"
+
+# Update media and static settings
+MEDIA_URL = "/media/"
+MEDIA_ROOT = os.path.join(BASE_DIR, "media")
+
+# Ensure these directories exist
+MEDIA_SECURE = os.path.join(MEDIA_ROOT, "secure_downloads")
+MEDIA_PUBLIC = os.path.join(MEDIA_ROOT, "public")
+
+# Static files configuration
+STATIC_URL = "/static/"
+STATIC_ROOT = os.path.join(BASE_DIR, "staticfiles")
+STATICFILES_DIRS = [os.path.join(BASE_DIR, "static")]
+
+DEFAULT_FILE_STORAGE = "django.core.files.storage.FileSystemStorage"
+STATICFILES_STORAGE = "django.contrib.staticfiles.storage.StaticFilesStorage"
+
+# Add secure storage settings
+SECURE_DOWNLOADS_URL = (
+    "/downloads/"  # This will be handled by a view, not direct access
+)
+DEFAULT_FILE_STORAGE = "django.core.files.storage.FileSystemStorage"
+
+# Cache settings for static files
+STATICFILES_STORAGE = "django.contrib.staticfiles.storage.ManifestStaticFilesStorage"
 
 
 # Security Settings
@@ -297,7 +284,8 @@ CKEDITOR_5_CONFIGS = {
     },
 }
 
-CKEDITOR_5_FILE_STORAGE = "cloudinary_storage.storage.MediaCloudinaryStorage"
+CKEDITOR_5_FILE_STORAGE = "django.core.files.storage.FileSystemStorage"
+
 
 # Stripe Settings
 STRIPE_PUBLISHABLE_KEY = config("STRIPE_PUBLIC_KEY", default="")
