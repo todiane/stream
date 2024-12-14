@@ -105,7 +105,6 @@ INSTALLED_APPS = [
     "cloudinary_storage",
     "cloudinary",
     "django_ckeditor_5",
-    "simple_history",
     "widget_tweaks",
     "django.contrib.sitemaps",
     # Internal apps

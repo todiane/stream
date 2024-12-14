@@ -1,6 +1,31 @@
-DirectoryIndex none
+# Enable mod_rewrite
 RewriteEngine On
-RewriteBase /
+
+# Set the default handler and index file
+DirectoryIndex index.wsgi
+
+# Set WSGI handler
+SetHandler wsgi-script
+
+# Set Python path
+SetEnv PYTHONPATH /home/virtual/vps-cbced9/a/a588fe7474/stream
+
+# Handle requests for static files
+RewriteCond %{REQUEST_URI} ^/static/
+RewriteCond %{REQUEST_FILENAME} -f
+RewriteRule ^ - [L]
+
+# Handle requests for media files
+RewriteCond %{REQUEST_URI} ^/media/
+RewriteCond %{REQUEST_FILENAME} -f
+RewriteRule ^ - [L]
+
+# Forward all other requests to Django WSGI application
 RewriteCond %{REQUEST_FILENAME} !-f
 RewriteCond %{REQUEST_FILENAME} !-d
-RewriteRule ^(.*)$ /index.wsgi [QSA,L]
+RewriteRule ^(.*)$ index.wsgi/$1 [QSA,L]
+
+# Security headers
+Header set X-Content-Type-Options "nosniff"
+Header set X-Frame-Options "SAMEORIGIN"
+Header set X-XSS-Protection "1; mode=block"
