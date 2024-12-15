@@ -54,8 +54,12 @@ DATABASES = {
         "HOST": env("DATABASE_HOST", default="localhost"),
         "PORT": env("DATABASE_PORT", default="3306"),
         "OPTIONS": {
-            "charset": "utf8mb4",
+            "sql_mode": "STRICT_TRANS_TABLES",
             "use_unicode": True,
+            "charset": "utf8mb4",
+            "autocommit": True,
+            "use_pure": True,
+            "raise_on_warnings": True,
         },
     }
 }
