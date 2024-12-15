@@ -1,8 +1,11 @@
 # Enable mod_rewrite
 RewriteEngine On
 
-# Set the default handler and index file
-DirectoryIndex index.wsgi
+# Set the default handler and index files
+DirectoryIndex index.html index.wsgi
+
+# Handle root URL - try index.html first
+RewriteRule ^$ index.html [L]
 
 # Handle requests for static files
 RewriteCond %{REQUEST_URI} ^/static/
