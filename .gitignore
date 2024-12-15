@@ -302,3 +302,5 @@ __pycache__/
 *.pyc
 
 staticfiles/
+test_logging.py
+db_test.py

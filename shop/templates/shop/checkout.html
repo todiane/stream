@@ -77,8 +77,6 @@
     </div>
 </div>
 <script>
-    // Debug line to verify initialization
-    console.log('Stripe Key:', '{{ stripe_publishable_key }}');
 
     const stripe = Stripe('{{ stripe_publishable_key }}');
     const elements = stripe.elements();
