@@ -17,6 +17,9 @@ RewriteCond %{REQUEST_URI} ^/media/
 RewriteCond %{REQUEST_FILENAME} -f
 RewriteRule ^ - [L]
 
+# Handle favicon requests
+RewriteRule ^favicon\.ico$ - [L,R=404]
+
 # Forward all other requests to Django WSGI application
 RewriteCond %{REQUEST_FILENAME} !-f
 RewriteCond %{REQUEST_FILENAME} !-d
