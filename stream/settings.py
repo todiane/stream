@@ -14,18 +14,47 @@ environ.Env.read_env()
 LOGGING = {
     "version": 1,
     "disable_existing_loggers": False,
+    "formatters": {
+        "verbose": {
+            "format": "%(levelname)s %(asctime)s %(module)s %(process)d %(thread)d %(message)s"
+        },
+    },
     "handlers": {
+        "file": {
+            "level": "DEBUG",
+            "class": "logging.FileHandler",
+            "filename": "/home/virtual/vps-cbced9/a/a588fe7474/stream/django-debug.log",
+            "formatter": "verbose",
+        },
         "console": {
+            "level": "DEBUG",
             "class": "logging.StreamHandler",
+            "formatter": "verbose",
         },
     },
     "loggers": {
-        "django": {
-            "handlers": ["console"],
+        "": {  # Root logger
+            "handlers": ["file", "console"],
             "level": "DEBUG",
+        },
+        "django": {
+            "handlers": ["file", "console"],
+            "level": "DEBUG",
+            "propagate": True,
+        },
+        "django.request": {  # Log all HTTP requests
+            "handlers": ["file", "console"],
+            "level": "DEBUG",
+            "propagate": True,
+        },
+        "django.server": {  # Log server errors
+            "handlers": ["file", "console"],
+            "level": "DEBUG",
+            "propagate": True,
         },
     },
 }
+
 
 # Security
 SECRET_KEY = config("SECRET_KEY", default="unsafe-default-secret-key")
@@ -34,7 +63,7 @@ SECRET_KEY = config("SECRET_KEY", default="unsafe-default-secret-key")
 # SECURITY WARNING: don't run with debug turned on in production!
 
 
-DEBUG = False
+DEBUG = True
 
 # Database configuration - comment out local database and set debug to false in production. For local use comment out production database and set debug to true.
 
