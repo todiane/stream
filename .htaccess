@@ -1,37 +1,23 @@
-# Enable mod_rewrite
 RewriteEngine On
 
-# Set the default handler and index files
-DirectoryIndex index.html index.wsgi
-
-# Handle root URL - try index.html first
-RewriteRule ^$ index.html [L]
-
-# Handle requests for static files
+# Serve static and media files directly
 RewriteCond %{REQUEST_URI} ^/static/
 RewriteCond %{REQUEST_FILENAME} -f
 RewriteRule ^ - [L]
 
-# Handle requests for media files
 RewriteCond %{REQUEST_URI} ^/media/
 RewriteCond %{REQUEST_FILENAME} -f
 RewriteRule ^ - [L]
 
-# Handle favicon requests
-RewriteRule ^favicon\.ico$ - [L,R=404]
-
-# Forward all other requests to Django WSGI application
+# Forward everything else to Django
 RewriteCond %{REQUEST_FILENAME} !-f
-RewriteCond %{REQUEST_FILENAME} !-d
 RewriteRule ^(.*)$ index.wsgi/$1 [QSA,L]
 
 # Security headers
 Header set X-Content-Type-Options "nosniff"
 Header set X-Frame-Options "SAMEORIGIN"
 Header set X-XSS-Protection "1; mode=block"
+Header set Strict-Transport-Security "max-age=31536000; includeSubDomains"
 
-# Deny access to secure downloads directory
-<Directory "/path/to/media/secure_downloads">
-    Order deny,allow
-    Deny from all
-</Directory>
+# Handle favicon requests
+RewriteRule ^favicon\.ico$ - [L,R=404]

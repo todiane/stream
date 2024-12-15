@@ -9,60 +9,72 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 env = environ.Env()
 environ.Env.read_env()
 
-# Add this after your BASE_DIR definition
+# Enhanced logging configuration
 
 LOGGING = {
     "version": 1,
     "disable_existing_loggers": False,
     "formatters": {
         "verbose": {
-            "format": "%(levelname)s %(asctime)s %(module)s %(process)d %(thread)d %(message)s"
+            "format": "{levelname} {asctime} {module} {process:d} {thread:d} {message}",
+            "style": "{",
+        },
+        "simple": {
+            "format": "{levelname} {message}",
+            "style": "{",
+        },
+    },
+    "filters": {
+        "require_debug_false": {
+            "()": "django.utils.log.RequireDebugFalse",
+        },
+        "require_debug_true": {
+            "()": "django.utils.log.RequireDebugTrue",
         },
     },
     "handlers": {
+        "console": {
+            "level": "INFO",
+            "class": "logging.StreamHandler",
+            "formatter": "simple",
+        },
         "file": {
-            "level": "DEBUG",
+            "level": "ERROR",
             "class": "logging.FileHandler",
-            "filename": "/home/virtual/vps-cbced9/a/a588fe7474/stream/django-debug.log",
+            "filename": BASE_DIR / "logs" / "django.log",
             "formatter": "verbose",
         },
-        "console": {
-            "level": "DEBUG",
-            "class": "logging.StreamHandler",
+        "mail_admins": {
+            "level": "ERROR",
+            "filters": ["require_debug_false"],
+            "class": "django.utils.log.AdminEmailHandler",
             "formatter": "verbose",
         },
     },
     "loggers": {
-        "": {  # Root logger
-            "handlers": ["file", "console"],
-            "level": "DEBUG",
-        },
         "django": {
-            "handlers": ["file", "console"],
-            "level": "DEBUG",
+            "handlers": ["console", "file"],
+            "level": "INFO",
             "propagate": True,
         },
-        "django.request": {  # Log all HTTP requests
-            "handlers": ["file", "console"],
-            "level": "DEBUG",
-            "propagate": True,
+        "django.request": {
+            "handlers": ["file", "mail_admins"],
+            "level": "ERROR",
+            "propagate": False,
         },
-        "django.server": {  # Log server errors
-            "handlers": ["file", "console"],
-            "level": "DEBUG",
+        "stream": {  # Add your project-specific logger
+            "handlers": ["console", "file", "mail_admins"],
+            "level": "ERROR",
             "propagate": True,
         },
     },
 }
-
 
 # Security
 SECRET_KEY = config("SECRET_KEY", default="unsafe-default-secret-key")
 
 
 # SECURITY WARNING: don't run with debug turned on in production!
-
-
 DEBUG = True
 
 # Database configuration - comment out local database and set debug to false in production. For local use comment out production database and set debug to true.
@@ -74,24 +86,22 @@ DEBUG = True
 #     }
 # }
 
+
 DATABASES = {
     "default": {
-        "ENGINE": "mysql.connector.django",
+        "ENGINE": "django.db.backends.mysql",  # Using mysqlclient
         "NAME": env("DATABASE_NAME"),
         "USER": env("DATABASE_USER"),
         "PASSWORD": env("DATABASE_PASSWORD"),
-        "HOST": env("DATABASE_HOST", default="localhost"),
-        "PORT": env("DATABASE_PORT", default="3306"),
+        "HOST": env("DATABASE_HOST"),
+        "PORT": env("DATABASE_PORT"),
         "OPTIONS": {
-            "sql_mode": "STRICT_TRANS_TABLES",
-            "use_unicode": True,
+            "init_command": "SET sql_mode='STRICT_TRANS_TABLES'",
             "charset": "utf8mb4",
-            "autocommit": True,
-            "use_pure": True,
-            "raise_on_warnings": True,
         },
     }
 }
+
 
 ALLOWED_HOSTS = os.environ.get("DJANGO_ALLOWED_HOSTS", "*").split(",")
 
@@ -146,6 +156,7 @@ MIDDLEWARE = [
     "django.contrib.messages.middleware.MessageMiddleware",
     "django.middleware.clickjacking.XFrameOptionsMiddleware",
     "profiles.middleware.IPRateLimitMiddleware",
+    "middleware.error_handling.ErrorHandlingMiddleware",
 ]
 
 ROOT_URLCONF = "stream.urls"
@@ -352,3 +363,16 @@ SHOP_SETTINGS = {
 LOGIN_REDIRECT_URL = "/profiles/profile/"
 SHOP_SUCCESS_URL = "/shop/success/"
 SHOP_CANCEL_URL = "/shop/cancel/"
+
+
+# Admin notification settings
+ADMINS = [
+    ("Admin", "streamenglish@outlook.com"),
+]
+
+# Make sure you have a logs directory
+import os
+
+logs_dir = BASE_DIR / "logs"
+if not os.path.exists(logs_dir):
+    os.makedirs(logs_dir)

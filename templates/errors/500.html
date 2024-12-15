@@ -1,0 +1,20 @@
+{% extends "base.html" %}
+{% block title %}Server Error{% endblock %}
+
+{% block content %}
+<div class="container mx-auto px-4 py-8">
+    <div class="bg-white shadow rounded-lg p-6">
+        <h1 class="text-2xl font-bold text-gray-900 mb-4">500 - Server Error</h1>
+        <p class="text-gray-600 mb-4">Something went wrong on our end. Our team has been notified.</p>
+        <p class="text-gray-600">Error ID: {{ request.id }}</p>
+        {% if debug %}
+            <div class="mt-4 p-4 bg-gray-100 rounded">
+                <h2 class="text-lg font-semibold mb-2">Debug Information:</h2>
+                <pre class="whitespace-pre-wrap">{{ error_details }}</pre>
+            </div>
+        {% endif %}
+    </div>
+</div>
+{% endblock %}
+
+<!-- Save as /home/virtual/vps-cbced9/a/a588fe7474/stream/templates/errors/500.html -->
