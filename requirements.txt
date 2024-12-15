@@ -7,7 +7,7 @@ django-js-asset==2.1.0
 django-simple-history==3.3.0
 django-widget-tweaks==1.5.0
 gunicorn==21.2.0
-mysqlclient==2.2.1
+mysql-connector-python==8.0.32
 Pillow==10.1.0
 python-dotenv==1.0.0
 python-decouple==3.8

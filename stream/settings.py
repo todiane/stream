@@ -1,20 +1,34 @@
 from pathlib import Path
-from decouple import config
 import environ
 import os
 import sys
 from .logging_config import LOGGING
 
 
+# Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
 
-env = environ.Env()
-environ.Env.read_env()
+# Initialize environ settings
+env = environ.Env(
+    DEBUG=(bool, False),
+    COLLECT_STATIC=(bool, False),
+    SECRET_KEY=(str, "your-default-secret-key-here"),
+    CONTACT_EMAIL=(str, "streamenglish@outlook.com"),
+    DEFAULT_FROM_EMAIL=(str, "streamenglish@outlook.com"),
+)
+
+# Take environment variables from .env file
+environ.Env.read_env(os.path.join(BASE_DIR, ".env"))
+
+# Debug print statements
+print("BASE_DIR:", BASE_DIR)
+print("Env file location:", os.path.join(BASE_DIR, ".env"))
+print("DATABASE_NAME from env:", env("DATABASE_NAME", default=None))
 
 COLLECT_STATIC = "collectstatic" in sys.argv
 
-# Security
-SECRET_KEY = config("SECRET_KEY", default="unsafe-default-secret-key")
+# SECURITY WARNING: keep the secret key used in production secret!
+SECRET_KEY = env("SECRET_KEY")
 
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = False
@@ -30,18 +44,23 @@ if COLLECT_STATIC:
 else:
     DATABASES = {
         "default": {
-            "ENGINE": "django.db.backends.mysql",
+            "ENGINE": "mysql.connector.django",
             "NAME": env("DATABASE_NAME"),
             "USER": env("DATABASE_USER"),
             "PASSWORD": env("DATABASE_PASSWORD"),
             "HOST": env("DATABASE_HOST"),
             "PORT": env("DATABASE_PORT"),
             "OPTIONS": {
-                "init_command": "SET sql_mode='STRICT_TRANS_TABLES'",
+                "sql_mode": "STRICT_TRANS_TABLES",
                 "charset": "utf8mb4",
+                "use_unicode": True,
+                "use_pure": True,
+                "autocommit": True,
+                "raise_on_warnings": True,
             },
         }
     }
+
 
 ALLOWED_HOSTS = os.environ.get("DJANGO_ALLOWED_HOSTS", "*").split(",")
 
@@ -157,16 +176,16 @@ IP_RATE_LIMIT_MAX_ATTEMPTS = 20  # Maximum attempts per IP
 IP_RATE_LIMIT_TIMEOUT = 300  # Reset after 5 minutes (in seconds)
 
 
-# Email settings (for production)
+# Email settings
 EMAIL_BACKEND = "django.core.mail.backends.smtp.EmailBackend"
 EMAIL_HOST = "smtp.sendgrid.net"
 EMAIL_PORT = 587
 EMAIL_USE_TLS = True
 EMAIL_HOST_USER = "apikey"
-EMAIL_HOST_PASSWORD = config("SENDGRID_API_KEY")
-SENDGRID_API_KEY = config("SENDGRID_API_KEY", default=None)
-DEFAULT_FROM_EMAIL = config("DEFAULT_FROM_EMAIL", default="streamenglish@outlook.com")
-CONTACT_EMAIL = "streamenglish@outlook.com"
+EMAIL_HOST_PASSWORD = env("SENDGRID_API_KEY", default="")
+SENDGRID_API_KEY = env("SENDGRID_API_KEY", default=None)
+DEFAULT_FROM_EMAIL = env("DEFAULT_FROM_EMAIL")
+CONTACT_EMAIL = env("CONTACT_EMAIL")
 
 
 EMAIL_TIMEOUT = 5  # seconds
@@ -280,12 +299,10 @@ CKEDITOR_5_CONFIGS = {
 
 CKEDITOR_5_FILE_STORAGE = "django.core.files.storage.FileSystemStorage"
 
-
-# Stripe Settings
-STRIPE_PUBLISHABLE_KEY = config("STRIPE_PUBLIC_KEY", default="")
-STRIPE_SECRET_KEY = config("STRIPE_SECRET_KEY", default="")
-STRIPE_WEBHOOK_SECRET = config("STRIPE_WEBHOOK_SECRET", default="")
-STRIPE_CURRENCY = "gbp"
+# Stripe settings
+STRIPE_PUBLISHABLE_KEY = env("STRIPE_PUBLIC_KEY", default="")
+STRIPE_SECRET_KEY = env("STRIPE_SECRET_KEY", default="")
+STRIPE_WEBHOOK_SECRET = env("STRIPE_WEBHOOK_SECRET", default="")
 
 # Shop Email
 SHOP_EMAIL = "streamenglish@outlook.com"
