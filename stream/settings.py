@@ -31,36 +31,27 @@ COLLECT_STATIC = "collectstatic" in sys.argv
 SECRET_KEY = env("SECRET_KEY")
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = False
+DEBUG = True
 
 # Database configuration
-if COLLECT_STATIC:
-    DATABASES = {
-        "default": {
-            "ENGINE": "django.db.backends.sqlite3",
-            "NAME": BASE_DIR / "db.sqlite3",
-        }
+DATABASES = {
+    "default": {
+        "ENGINE": "mysql.connector.django",
+        "NAME": env("DATABASE_NAME"),
+        "USER": env("DATABASE_USER"),
+        "PASSWORD": env("DATABASE_PASSWORD"),
+        "HOST": env("DATABASE_HOST"),
+        "PORT": env("DATABASE_PORT"),
+        "OPTIONS": {
+            "sql_mode": "STRICT_TRANS_TABLES",
+            "charset": "utf8mb4",
+            "use_unicode": True,
+            "use_pure": True,
+            "autocommit": True,
+            "raise_on_warnings": True,
+        },
     }
-else:
-    DATABASES = {
-        "default": {
-            "ENGINE": "mysql.connector.django",
-            "NAME": env("DATABASE_NAME"),
-            "USER": env("DATABASE_USER"),
-            "PASSWORD": env("DATABASE_PASSWORD"),
-            "HOST": env("DATABASE_HOST"),
-            "PORT": env("DATABASE_PORT"),
-            "OPTIONS": {
-                "sql_mode": "STRICT_TRANS_TABLES",
-                "charset": "utf8mb4",
-                "use_unicode": True,
-                "use_pure": True,
-                "autocommit": True,
-                "raise_on_warnings": True,
-            },
-        }
-    }
-
+}
 
 ALLOWED_HOSTS = os.environ.get("DJANGO_ALLOWED_HOSTS", "*").split(",")
 
@@ -82,6 +73,7 @@ INSTALLED_APPS = [
     "django.contrib.sites",
     "whitenoise.runserver_nostatic",
     "django_ckeditor_5",
+    "simple_history",
     "widget_tweaks",
     "django.contrib.sitemaps",
     # Internal apps
@@ -116,6 +108,7 @@ MIDDLEWARE = [
     "django.middleware.clickjacking.XFrameOptionsMiddleware",
     "profiles.middleware.IPRateLimitMiddleware",
     "middleware.error_handling.ErrorHandlingMiddleware",
+    "simple_history.middleware.HistoryRequestMiddleware",
 ]
 
 ROOT_URLCONF = "stream.urls"

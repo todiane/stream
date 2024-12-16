@@ -1,0 +1,17 @@
+# Path: /etc/systemd/system/stream_english.service
+
+[Unit]
+Description=Stream English Gunicorn Daemon
+After=network.target
+
+[Service]
+User=www-data
+Group=www-data
+WorkingDirectory=/home/virtual/vps-cbced9/a/a588fe7474/stream
+Environment="PATH=/home/virtual/vps-cbced9/a/a588fe7474/stream/venv/bin"
+ExecStart=/home/virtual/vps-cbced9/a/a588fe7474/stream/venv/bin/gunicorn \
+    --config /home/virtual/vps-cbced9/a/a588fe7474/stream/gunicorn.conf.py \
+    stream.wsgi:application
+
+[Install]
+WantedBy=multi-user.target
