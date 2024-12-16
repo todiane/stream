@@ -8,22 +8,15 @@ from .logging_config import LOGGING
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
 
-# Initialize environ settings
-env = environ.Env(
-    DEBUG=(bool, False),
-    COLLECT_STATIC=(bool, False),
-    SECRET_KEY=(str, "your-default-secret-key-here"),
-    CONTACT_EMAIL=(str, "streamenglish@outlook.com"),
-    DEFAULT_FROM_EMAIL=(str, "streamenglish@outlook.com"),
+env = environ.Env()
+BASE_DIR = Path(__file__).resolve().parent.parent
+
+# Choose environment file
+ENV_FILE = (
+    ".env.local" if os.path.exists(os.path.join(BASE_DIR, ".env.local")) else ".env"
 )
-
-# Take environment variables from .env file
-environ.Env.read_env(os.path.join(BASE_DIR, ".env"))
-
-# Debug print statements
-print("BASE_DIR:", BASE_DIR)
-print("Env file location:", os.path.join(BASE_DIR, ".env"))
-print("DATABASE_NAME from env:", env("DATABASE_NAME", default=None))
+print(f"Using environment file: {os.path.join(BASE_DIR, ENV_FILE)}")
+environ.Env.read_env(os.path.join(BASE_DIR, ENV_FILE))
 
 COLLECT_STATIC = "collectstatic" in sys.argv
 
@@ -31,7 +24,7 @@ COLLECT_STATIC = "collectstatic" in sys.argv
 SECRET_KEY = env("SECRET_KEY")
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = True
+DEBUG = False
 
 # Database configuration
 DATABASES = {
@@ -43,15 +36,13 @@ DATABASES = {
         "HOST": env("DATABASE_HOST"),
         "PORT": env("DATABASE_PORT"),
         "OPTIONS": {
-            "sql_mode": "STRICT_TRANS_TABLES",
-            "charset": "utf8mb4",
+            "charset": "latin1",
             "use_unicode": True,
-            "use_pure": True,
-            "autocommit": True,
-            "raise_on_warnings": True,
+            "init_command": "SET character_set_client=latin1, character_set_connection=latin1",
         },
-    }
+    },
 }
+
 
 ALLOWED_HOSTS = os.environ.get("DJANGO_ALLOWED_HOSTS", "*").split(",")
 
