@@ -3,40 +3,45 @@
 {% block content %}
 
 <section class="bg-white dark:bg-gray-900 flex-grow">
-  <div class="max-w-screen-xl mx-auto px-4 py-8">
-      <div class="mx-auto max-w-screen-sm text-center mb-8">
-          <h2 class="mb-4 text-3xl lg:text-4xl tracking-tight font-extrabold text-gray-900 dark:text-white">
-              Lessons
-          </h2>
-          <p class="text-gray-700 dark:text-gray-300">
-              GCSE English Language and Literature tuition with a real English teacher and 
-              Examiner. I mainly focus on the UK GCSEs and IGCSEs, but lots of the content is 
-              covered all over the world. My goal is to help you reach the very highest grades 
-              in your English qualifications.
-          </p>
-      </div>
+    <div class="max-w-screen-xl mx-auto px-4 py-8">
+        <div class="mx-auto max-w-screen-sm text-center mb-8">
+            <h2 class="mb-4 text-3xl lg:text-4xl tracking-tight font-extrabold text-gray-900 dark:text-white">
+                Lessons
+            </h2>
+            <p class="text-gray-700 dark:text-gray-300">
+                GCSE English Language and Literature tuition with a real English teacher and 
+                Examiner. I mainly focus on the UK GCSEs and IGCSEs, but lots of the content is 
+                covered all over the world. My goal is to help you reach the very highest grades 
+                in your English qualifications.
+            </p>
+        </div>
 
-    <!-- Search Bar -->
-    <div class="flex justify-center mb-12">
-      <input
-          type="text"
-          id="search-bar"
-          placeholder="Search lessons..."
-          class="w-1/2 max-w-md px-4 py-2 text-center text-md border rounded-md text-gray-700 placeholder:text-gray-600 focus:outline-none focus:ring-2 focus:ring-blue-500"
-          oninput="this.setCustomValidity('')"
-          oninvalid="this.setCustomValidity('Please enter a search term')"
-      />
+        <!-- Search Bar -->
+        <div class="flex justify-center mb-12">
+            <input
+                type="text"
+                id="search-bar"
+                placeholder="Search lessons..."
+                class="w-1/2 max-w-md px-4 py-2 text-center text-md border rounded-md text-gray-700 placeholder:text-gray-600 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                oninput="this.setCustomValidity('')"
+                oninvalid="this.setCustomValidity('Please enter a search term')"
+            />
+        </div>
+
+        <!-- Course List -->
+        {% if message %}
+            <div class="text-center py-8">
+                <p class="text-lg text-gray-600">{{ message }}</p>
+            </div>
+        {% else %}
+            <div id="course-list" class="flex justify-center py-4 px-4">
+                {% include 'courses/snippets/list-display.html' with queryset=object_list %}
+            </div>
+        {% endif %}
     </div>
-
-      <!-- Course List -->
-      <div id="course-list" class="flex justify-center py-4 px-4">
-          {% include 'courses/snippets/list-display.html' with queryset=object_list %}
-      </div>
-  </div>
 </section>
 
 <!-- JavaScript for Live Search -->
-
 <script src="{% static 'js/course-search.js' %}"></script>
 
 {% endblock content %}
