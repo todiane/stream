@@ -24,7 +24,7 @@ COLLECT_STATIC = "collectstatic" in sys.argv
 SECRET_KEY = env("SECRET_KEY")
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = False
+DEBUG = True
 
 # Database configuration
 DATABASES = {
