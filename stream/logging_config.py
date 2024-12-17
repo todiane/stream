@@ -13,7 +13,7 @@ LOGGING = {
     "disable_existing_loggers": False,
     "formatters": {
         "verbose": {
-            "format": "[{asctime}] {levelname} {module} {message}",
+            "format": "[{asctime}] {levelname} {module} {process} {thread} {message}\n{exc_info}",
             "style": "{",
         },
     },
@@ -43,6 +43,11 @@ LOGGING = {
             "handlers": ["file", "console"],
             "level": "ERROR",
             "propagate": False,
+        },
+        "stream": {
+            "handlers": ["file", "console"],
+            "level": "ERROR",
+            "propagate": True,
         },
     },
 }
