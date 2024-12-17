@@ -21,7 +21,11 @@ def course_list_view(request):
         return JsonResponse({"results": data})
 
     queryset = services.get_publish_courses()
-    context = {"object_list": queryset}
+    # Add a check for empty queryset
+    if not queryset.exists():
+        context = {"object_list": [], "message": "No courses are currently available."}
+    else:
+        context = {"object_list": queryset}
     return render(request, "courses/list.html", context)
 
 
