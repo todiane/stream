@@ -5,16 +5,17 @@ from django.utils.text import slugify
 from django.conf import settings
 from stream.storage import secure_storage, public_storage
 
+# Define choices as module-level constants
+PUBLISH_STATUS_CHOICES = [
+    ("publish", "Published"),
+    ("soon", "Coming Soon"),
+    ("draft", "Draft"),
+]
+
 
 class AccessRequirement(models.TextChoices):
     ANYONE = "any", "Anyone"
     EMAIL_REQUIRED = "email", "Email required"
-
-
-class PublishStatus(models.TextChoices):
-    PUBLISHED = "publish", "Published"
-    COMING_SOON = "soon", "Coming Soon"
-    DRAFT = "draft", "Draft"
 
 
 class Category(models.Model):
@@ -60,7 +61,7 @@ class Course(models.Model):
         default=AccessRequirement.EMAIL_REQUIRED,
     )
     status = models.CharField(
-        max_length=10, choices=PublishStatus.choices, default=PublishStatus.DRAFT
+        max_length=10, choices=PUBLISH_STATUS_CHOICES, default="draft"
     )
     timestamp = models.DateTimeField(auto_now_add=True)
     updated = models.DateTimeField(auto_now=True)
@@ -90,11 +91,11 @@ class Course(models.Model):
 
     @property
     def is_published(self):
-        return self.status == PublishStatus.PUBLISHED
+        return self.status == "publish"
 
     @property
     def is_coming_soon(self):
-        return self.status == PublishStatus.COMING_SOON
+        return self.status == "soon"
 
 
 class Lesson(models.Model):
@@ -121,7 +122,7 @@ class Lesson(models.Model):
         help_text="If user does not have access to course, can they see this?",
     )
     status = models.CharField(
-        max_length=10, choices=PublishStatus.choices, default=PublishStatus.PUBLISHED
+        max_length=10, choices=PUBLISH_STATUS_CHOICES, default="publish"
     )
     timestamp = models.DateTimeField(auto_now_add=True)
     updated = models.DateTimeField(auto_now=True)
@@ -160,7 +161,7 @@ class Lesson(models.Model):
 
     @property
     def is_coming_soon(self):
-        return self.status == PublishStatus.COMING_SOON
+        return self.status == "soon"
 
     @property
     def has_video(self):
