@@ -31,7 +31,7 @@ urlpatterns = [
     path("shop/", include("shop.urls", namespace="shop")),
     path("policy/privacy/", views.privacy_view, name="privacy_policy"),
     path("policy/terms-conditions/", views.terms_view, name="terms_conditions"),
-    path("ckeditor5/", include("django_ckeditor_5.urls")),
+    path("ckeditor/", include("ckeditor_uploader.urls")),
     path(
         "sitemap.xml",
         sitemap,

@@ -2,8 +2,8 @@ import uuid
 from django.db import models
 from django.urls import reverse
 from django.utils.text import slugify
-from django.conf import settings
 from stream.storage import secure_storage, public_storage
+from ckeditor_uploader.fields import RichTextUploadingField
 
 # Define choices as module-level constants
 PUBLISH_STATUS_CHOICES = [
@@ -46,7 +46,7 @@ def generate_public_id(instance, *args, **kwargs):
 class Course(models.Model):
     title = models.CharField(max_length=120)
     slug = models.SlugField(unique=True, null=True, blank=True)
-    description = models.TextField(blank=True, null=True)
+    description = RichTextUploadingField(blank=True, null=True)
     category = models.ForeignKey(
         Category,
         on_delete=models.CASCADE,
@@ -103,7 +103,7 @@ class Lesson(models.Model):
     public_id = models.CharField(max_length=130, blank=True, null=True, db_index=True)
     title = models.CharField(max_length=120)
     slug = models.SlugField(max_length=150, blank=True)
-    description = models.TextField(blank=True, null=True)
+    description = RichTextUploadingField(blank=True, null=True)
     thumbnail = models.ImageField(
         upload_to="lessons/thumbnails/", null=True, blank=True, storage=public_storage
     )

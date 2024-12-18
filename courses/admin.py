@@ -2,7 +2,6 @@
 from django.contrib import admin
 from django.utils.html import format_html
 from .models import Course, Lesson, Category
-import django_ckeditor_5.widgets
 
 
 @admin.register(Category)
@@ -61,13 +60,6 @@ class CourseAdmin(admin.ModelAdmin):
     readonly_fields = ["public_id", "display_image"]
     prepopulated_fields = {"slug": ("title",)}
     search_fields = ["title", "description", "category__name", "slug"]
-
-    def formfield_for_dbfield(self, db_field, **kwargs):
-        if db_field.name == "description":
-            kwargs["widget"] = django_ckeditor_5.widgets.CKEditor5Widget(
-                config_name="default", attrs={"class": "django_ckeditor_5"}
-            )
-        return super().formfield_for_dbfield(db_field, **kwargs)
 
     def display_image(self, obj):
         if obj.image:
