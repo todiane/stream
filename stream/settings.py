@@ -64,7 +64,6 @@ INSTALLED_APPS = [
     "django.contrib.messages",
     "django.contrib.staticfiles",
     "django.contrib.sites",
-    "whitenoise.runserver_nostatic",
     "django_ckeditor_5",
     "simple_history",
     "widget_tweaks",
@@ -124,9 +123,15 @@ TEMPLATES = [
 
 WSGI_APPLICATION = "stream.wsgi.application"
 
-# Update media and static settings
+# media and static settings
 MEDIA_URL = "/media/"
 MEDIA_ROOT = os.path.join(BASE_DIR, "media")
+PUBLIC_MEDIA_ROOT = os.path.join(MEDIA_ROOT, "public")
+SECURE_MEDIA_ROOT = os.path.join(MEDIA_ROOT, "secure_downloads")
+
+# Create directories if they don't exist
+for directory in [MEDIA_ROOT, PUBLIC_MEDIA_ROOT, SECURE_MEDIA_ROOT]:
+    os.makedirs(directory, exist_ok=True)
 
 # Ensure these directories exist
 MEDIA_SECURE = os.path.join(MEDIA_ROOT, "secure_downloads")
@@ -144,8 +149,18 @@ SECURE_DOWNLOADS_URL = (
 
 DEFAULT_FILE_STORAGE = "django.core.files.storage.FileSystemStorage"
 
-STATICFILES_STORAGE = "django.contrib.staticfiles.storage.ManifestStaticFilesStorage"
+# WhiteNoise configuration
+STATICFILES_STORAGE = "whitenoise.storage.CompressedManifestStaticFilesStorage"
+WHITENOISE_USE_FINDERS = True
+WHITENOISE_MANIFEST_STRICT = False
 
+
+if DEBUG:
+    INSTALLED_APPS += ["whitenoise.runserver_nostatic"]
+    MIDDLEWARE.insert(1, "whitenoise.middleware.WhiteNoiseMiddleware")
+    WHITENOISE_USE_FINDERS = True
+    WHITENOISE_AUTOREFRESH = True
+    WHITENOISE_MANIFEST_STRICT = False
 
 # Security Settings
 # SECURE_SSL_REDIRECT = True
