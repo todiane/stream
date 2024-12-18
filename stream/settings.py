@@ -7,26 +7,18 @@ from .logging_config import LOGGING
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
-
-env = environ.Env()
-BASE_DIR = Path(__file__).resolve().parent.parent
 env = environ.Env()
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = False
+DEBUG = True
 
-# Choose environment file based on DEBUG setting
-if DEBUG:
-    # Local development will use .env.local
-    env_file = os.path.join(BASE_DIR, ".env.local")
-    if os.path.exists(env_file):
-        print(f"Loading local environment from: {env_file}")
-        environ.Env.read_env(env_file)
-else:
-    # Production will use .env
-    env_file = os.path.join(BASE_DIR, ".env")
-    print(f"Loading production environment from: {env_file}")
-    environ.Env.read_env(env_file)
+# Load environment variables from .env file
+# Choose environment file
+ENV_FILE = (
+    ".env.local" if os.path.exists(os.path.join(BASE_DIR, ".env.local")) else ".env"
+)
+print(f"Using environment file: {os.path.join(BASE_DIR, ENV_FILE)}")
+environ.Env.read_env(os.path.join(BASE_DIR, ENV_FILE))
 
 
 COLLECT_STATIC = "collectstatic" in sys.argv
