@@ -24,22 +24,23 @@ environ.Env.read_env(os.path.join(BASE_DIR, ENV_FILE))
 COLLECT_STATIC = "collectstatic" in sys.argv
 
 # SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = env("SECRET_KEY")
+SECRET_KEY = env("SECRET_KEY", default="your-secret-key-here")
 
 
 # Database configuration
 DATABASES = {
     "default": {
         "ENGINE": "mysql.connector.django",
-        "NAME": env("DATABASE_NAME"),
-        "USER": env("DATABASE_USER"),
-        "PASSWORD": env("DATABASE_PASSWORD"),
-        "HOST": env("DATABASE_HOST"),
-        "PORT": env("DATABASE_PORT"),
+        "NAME": env("DATABASE_NAME", default="str3a3eng24-3530303000b6"),
+        "USER": env("DATABASE_USER", default="str3a3eng24-3530303000b6"),
+        "PASSWORD": env("DATABASE_PASSWORD", default=""),
+        "HOST": env("DATABASE_HOST", default="127.0.0.1"),
+        "PORT": env("DATABASE_PORT", default="3306"),
         "OPTIONS": {
             "charset": "latin1",
             "use_unicode": True,
-            "init_command": "SET character_set_client=latin1, character_set_connection=latin1",
+            "connect_timeout": 10,
+            "autocommit": True,
         },
     },
 }
