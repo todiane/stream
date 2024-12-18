@@ -2,7 +2,7 @@
 from django.db import models
 from django.urls import reverse
 from django.utils import timezone
-from django_ckeditor_5.fields import CKEditor5Field
+from ckeditor_uploader.fields import RichTextUploadingField
 from simple_history.models import HistoricalRecords
 
 
@@ -69,12 +69,12 @@ class Page(SEOFields):
 
     title = models.CharField(max_length=200)
     slug = models.SlugField(unique=True)
-    content = CKEditor5Field()
+    content = RichTextUploadingField()
     template = models.CharField(max_length=20, choices=TEMPLATE_CHOICES)
     is_active = models.BooleanField(default=True)
     publish_date = models.DateTimeField(default=timezone.now)
     history = HistoricalRecords()
-    second_content = CKEditor5Field(blank=True, null=True)
+    second_content = RichTextUploadingField(blank=True, null=True)
 
     class Meta:
         ordering = ["title"]
@@ -94,7 +94,9 @@ class Page(SEOFields):
 
 class AboutMe(models.Model):
     title = models.CharField(max_length=200, default="About Me")
-    description = CKEditor5Field(help_text="Introduction paragraph about yourself")
+    description = RichTextUploadingField(
+        help_text="Introduction paragraph about yourself"
+    )
     is_active = models.BooleanField(default=True)
 
     class Meta:
@@ -104,9 +106,9 @@ class AboutMe(models.Model):
 
 class AboutMeColumns(models.Model):
     title = models.CharField(max_length=200)
-    description = CKEditor5Field()
+    description = RichTextUploadingField()
     second_title = models.CharField(max_length=200)
-    second_description = CKEditor5Field()
+    second_description = RichTextUploadingField()
     is_active = models.BooleanField(default=True)
 
     class Meta:
@@ -116,7 +118,7 @@ class AboutMeColumns(models.Model):
 
 class AboutCourses(models.Model):
     title = models.CharField(max_length=200, default="Take A Look At My Latest Courses")
-    description = CKEditor5Field()
+    description = RichTextUploadingField()
     show_courses_section = models.BooleanField(default=True)
     button_text = models.CharField(max_length=50, default="View All Courses")
     is_active = models.BooleanField(default=True)

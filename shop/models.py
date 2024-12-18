@@ -2,9 +2,9 @@ from django.db import models
 from django.urls import reverse
 from django.utils.text import slugify
 from django.conf import settings
-from django_ckeditor_5.fields import CKEditor5Field
 from stream.storage import secure_storage, public_storage
 import uuid
+from ckeditor_uploader.fields import RichTextUploadingField
 
 
 def generate_public_id(instance, *args, **kwargs):
@@ -46,7 +46,7 @@ class Product(models.Model):
     title = models.CharField(max_length=200)
     slug = models.SlugField(unique=True)
     category = models.ForeignKey(Category, on_delete=models.PROTECT)
-    description = CKEditor5Field()
+    description = RichTextUploadingField()
     product_type = models.CharField(
         max_length=20, choices=PRODUCT_TYPES, default="download"
     )

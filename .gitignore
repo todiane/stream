@@ -306,3 +306,5 @@ test_logging.py
 db_test.py
 test_db.py 
 tests.py 
+venv2
+static

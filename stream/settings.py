@@ -30,7 +30,7 @@ SECRET_KEY = env("SECRET_KEY", default="your-secret-key-here")
 # Database configuration
 DATABASES = {
     "default": {
-        "ENGINE": "mysql.connector.django",
+        "ENGINE": "django.db.backends.mysql",
         "NAME": env("DATABASE_NAME", default="str3a3eng24-3530303000b6"),
         "USER": env("DATABASE_USER", default="str3a3eng24-3530303000b6"),
         "PASSWORD": env("DATABASE_PASSWORD", default=""),
@@ -64,7 +64,8 @@ INSTALLED_APPS = [
     "django.contrib.messages",
     "django.contrib.staticfiles",
     "django.contrib.sites",
-    "django_ckeditor_5",
+    "ckeditor",
+    "ckeditor_uploader",
     "simple_history",
     "widget_tweaks",
     "django.contrib.sitemaps",
@@ -230,76 +231,6 @@ LOGIN_REDIRECT_URL = "/profiles/profile/"
 LOGIN_URL = "/profiles/login/"
 ACCOUNT_LOGOUT_REDIRECT_URL = "/profiles/login/"
 
-
-# CKEditor configuration settings
-CKEDITOR_5_UPLOAD_PATH = "uploads/"
-
-CKEDITOR_5_CONFIGS = {
-    "default": {
-        "toolbar": [
-            "heading",
-            "|",
-            "bold",
-            "italic",
-            "link",
-            "bulletedList",
-            "numberedList",
-            "blockQuote",
-            "imageUpload",
-            "blockQuote",
-            "codeBlock",
-            "|",
-            "link",
-            "imageUpload",
-            "insertTable",
-            "mediaEmbed",
-            "|",
-            "alignment",
-            "|",
-            "findAndReplace",
-            "|",
-            "undo",
-            "redo",
-            "|",
-        ],
-        "height": "300px",
-        "width": "100%",
-        "removePlugins": ["Title"],
-        "contentsCss": [
-            "/static/css/dist/styles.css",  # Your Tailwind CSS
-        ],
-        "heading": {
-            "options": [
-                {
-                    "model": "paragraph",
-                    "title": "Paragraph",
-                    "class": "font-normal text-gray-600 text-base",
-                },
-                {
-                    "model": "heading1",
-                    "view": "h1",
-                    "title": "Heading 1",
-                    "class": "text-4xl font-extrabold tracking-tight text-gray-900 mb-4",
-                },
-                {
-                    "model": "heading2",
-                    "view": "h2",
-                    "title": "Heading 2",
-                    "class": "text-3xl font-bold text-gray-900 mb-4",
-                },
-                {
-                    "model": "heading3",
-                    "view": "h3",
-                    "title": "Heading 3",
-                    "class": "text-2xl font-semibold text-gray-900 mb-3",
-                },
-            ]
-        },
-    },
-}
-
-CKEDITOR_5_FILE_STORAGE = "django.core.files.storage.FileSystemStorage"
-
 # Stripe settings
 STRIPE_PUBLISHABLE_KEY = env("STRIPE_PUBLIC_KEY", default="")
 STRIPE_SECRET_KEY = env("STRIPE_SECRET_KEY", default="")
@@ -327,3 +258,31 @@ SHOP_CANCEL_URL = "/shop/cancel/"
 ADMINS = [
     ("Admin", "streamenglish@outlook.com"),
 ]
+
+CKEDITOR_UPLOAD_PATH = "uploads/"
+CKEDITOR_IMAGE_BACKEND = "pillow"
+CKEDITOR_CONFIGS = {
+    "default": {
+        "toolbar": "full",
+        "height": 300,
+        "width": "100%",
+        "removePlugins": "stylesheetparser",
+        "extraPlugins": ",".join(
+            [
+                "uploadimage",
+                "image2",  # Enhanced image plugin
+                "autolink",
+                "autoembed",
+                "embedsemantic",
+                "autogrow",
+                "widget",
+                "lineutils",
+                "clipboard",
+                "dialog",
+                "dialogui",
+                "elementspath",
+            ]
+        ),
+        "uploadUrl": "/ckeditor/upload/",
+    },
+}

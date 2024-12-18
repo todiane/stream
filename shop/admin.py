@@ -1,6 +1,5 @@
 from django.contrib import admin
 from django.utils.html import format_html
-from django_ckeditor_5.widgets import CKEditor5Widget
 from .models import Category, Product, Order, OrderItem
 
 
@@ -63,13 +62,6 @@ class ProductAdmin(admin.ModelAdmin):
             },
         ),
     )
-
-    def formfield_for_dbfield(self, db_field, **kwargs):
-        if db_field.name == "description":
-            kwargs["widget"] = CKEditor5Widget(
-                config_name="default", attrs={"class": "django_ckeditor_5"}
-            )
-        return super().formfield_for_dbfield(db_field, **kwargs)
 
     def display_preview(self, obj):
         html = []
