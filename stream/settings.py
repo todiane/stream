@@ -30,7 +30,7 @@ SECRET_KEY = env("SECRET_KEY", default="your-secret-key-here")
 # Database configuration
 DATABASES = {
     "default": {
-        "ENGINE": "django.db.backends.mysql",
+        "ENGINE": "mysql.connector.django",
         "NAME": env("DATABASE_NAME", default="str3a3eng24-3530303000b6"),
         "USER": env("DATABASE_USER", default="str3a3eng24-3530303000b6"),
         "PASSWORD": env("DATABASE_PASSWORD", default=""),

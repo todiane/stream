@@ -22,6 +22,7 @@ LOGGING = {
             "class": "logging.FileHandler",
             "filename": os.path.join(BASE_DIR, "logs", "django.log"),
             "formatter": "verbose",
+            "level": "DEBUG",
         },
         "console": {
             "class": "logging.StreamHandler",
@@ -31,22 +32,22 @@ LOGGING = {
     "loggers": {
         "django": {
             "handlers": ["file", "console"],
-            "level": "ERROR",
+            "level": "DEBUG",
             "propagate": True,
         },
         "django.request": {
             "handlers": ["file", "console"],
-            "level": "ERROR",
+            "level": "DEBUG",
             "propagate": False,
         },
         "django.db.backends": {
             "handlers": ["file", "console"],
-            "level": "ERROR",
+            "level": "DEBUG",
             "propagate": False,
         },
         "stream": {
             "handlers": ["file", "console"],
-            "level": "ERROR",
+            "level": "DEBUG",
             "propagate": True,
         },
     },
