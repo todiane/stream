@@ -1,6 +1,5 @@
 # courses/views.py
 
-from courses.models import Course, Lesson, PublishStatus
 from django.http import JsonResponse
 from django.shortcuts import get_object_or_404, render, redirect
 from django.contrib import messages
@@ -8,20 +7,18 @@ from django.contrib.auth.decorators import login_required
 from django.core.mail import send_mail
 from django.conf import settings
 from django.db.models import Q
+from .models import Course, Lesson
 from . import services
 
 
 def course_list_view(request):
     if request.headers.get("X-Requested-With") == "XMLHttpRequest":
         query = request.GET.get("query", "")
-        courses = Course.objects.filter(
-            Q(title__icontains=query), status=PublishStatus.PUBLISHED
-        )
+        courses = Course.objects.filter(Q(title__icontains=query), status="publish")
         data = [{"title": course.title, "path": course.path} for course in courses]
         return JsonResponse({"results": data})
 
     queryset = services.get_publish_courses()
-    # Add a check for empty queryset
     if not queryset.exists():
         context = {"object_list": [], "message": "No courses are currently available."}
     else:
@@ -47,8 +44,8 @@ def lesson_detail_view(request, course_slug=None, lesson_slug=None, *args, **kwa
     lesson_obj = get_object_or_404(
         Lesson,
         course__slug=course_slug,
-        course__status=PublishStatus.PUBLISHED,
-        status__in=[PublishStatus.PUBLISHED, PublishStatus.COMING_SOON],
+        course__status="publish",
+        status__in=["publish", "soon"],
         slug=lesson_slug,
     )
 
@@ -97,9 +94,7 @@ def lesson_detail_view(request, course_slug=None, lesson_slug=None, *args, **kwa
 
 
 def course_detail_view(request, course_slug=None, *args, **kwargs):
-    course_obj = get_object_or_404(
-        Course, status=PublishStatus.PUBLISHED, slug=course_slug
-    )
+    course_obj = get_object_or_404(Course, status="publish", slug=course_slug)
     lessons_queryset = services.get_course_lessons(course_obj)
     context = {
         "object": course_obj,

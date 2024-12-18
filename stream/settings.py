@@ -10,26 +10,35 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 
 env = environ.Env()
 BASE_DIR = Path(__file__).resolve().parent.parent
+env = environ.Env()
 
-# Choose environment file
-ENV_FILE = (
-    ".env.local" if os.path.exists(os.path.join(BASE_DIR, ".env.local")) else ".env"
-)
-print(f"Using environment file: {os.path.join(BASE_DIR, ENV_FILE)}")
-environ.Env.read_env(os.path.join(BASE_DIR, ENV_FILE))
+# SECURITY WARNING: don't run with debug turned on in production!
+DEBUG = False
+
+# Choose environment file based on DEBUG setting
+if DEBUG:
+    # Local development will use .env.local
+    env_file = os.path.join(BASE_DIR, ".env.local")
+    if os.path.exists(env_file):
+        print(f"Loading local environment from: {env_file}")
+        environ.Env.read_env(env_file)
+else:
+    # Production will use .env
+    env_file = os.path.join(BASE_DIR, ".env")
+    print(f"Loading production environment from: {env_file}")
+    environ.Env.read_env(env_file)
+
 
 COLLECT_STATIC = "collectstatic" in sys.argv
 
 # SECURITY WARNING: keep the secret key used in production secret!
 SECRET_KEY = env("SECRET_KEY")
 
-# SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = True
 
 # Database configuration
 DATABASES = {
     "default": {
-        "ENGINE": "mysql.connector.django",
+        "ENGINE": "django.db.backends.mysql",
         "NAME": env("DATABASE_NAME"),
         "USER": env("DATABASE_USER"),
         "PASSWORD": env("DATABASE_PASSWORD"),
