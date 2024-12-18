@@ -9,5 +9,8 @@ echo "@tailwind base;
 @tailwind utilities;" > static/css/src/styles.css
 
 # Install dependencies and build CSS
-yarn install
-yarn build:tailwind
+npm install
+npm run build:tailwind
+
+# Run collectstatic
+python3 manage.py collectstatic --noinput
