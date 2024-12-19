@@ -125,18 +125,15 @@ TEMPLATES = [
 WSGI_APPLICATION = "stream.wsgi.application"
 
 # media and static settings
-MEDIA_URL = "/media/"
 MEDIA_ROOT = os.path.join(BASE_DIR, "media")
 PUBLIC_MEDIA_ROOT = os.path.join(MEDIA_ROOT, "public")
 SECURE_MEDIA_ROOT = os.path.join(MEDIA_ROOT, "secure_downloads")
+MEDIA_PREFIX = "public/"
 
 # Create directories if they don't exist
 for directory in [MEDIA_ROOT, PUBLIC_MEDIA_ROOT, SECURE_MEDIA_ROOT]:
     os.makedirs(directory, exist_ok=True)
 
-# Ensure these directories exist
-MEDIA_SECURE = os.path.join(MEDIA_ROOT, "secure_downloads")
-MEDIA_PUBLIC = os.path.join(MEDIA_ROOT, "public")
 
 # Static files configuration
 STATIC_URL = "/static/"
@@ -286,3 +283,10 @@ CKEDITOR_CONFIGS = {
         "uploadUrl": "/ckeditor/upload/",
     },
 }
+
+if DEBUG:
+    LOGGING["loggers"]["django.request"] = {
+        "handlers": ["console"],
+        "level": "DEBUG",
+        "propagate": True,
+    }

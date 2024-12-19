@@ -89,6 +89,24 @@ class Course(models.Model):
     def get_display_name(self):
         return f"{self.title} - Course"
 
+    def get_display_image(self):
+        """Get full-size image URL"""
+        try:
+            return self.image.url if self.image else None
+        except Exception:
+            return None
+
+    def get_image_url(self):
+        """Get full-size image URL"""
+        try:
+            return self.image.url if self.image else None
+        except Exception:
+            return None
+
+    def get_thumbnail_url(self):
+        """Use main image as thumbnail"""
+        return self.get_image_url()
+
     @property
     def is_published(self):
         return self.status == "publish"
@@ -151,6 +169,20 @@ class Lesson(models.Model):
             "courses:lesson_detail",
             kwargs={"course_slug": self.course.slug, "lesson_slug": self.slug},
         )
+
+    def get_video_url(self):
+        """Get video URL if it exists"""
+        try:
+            return self.video.url if self.video else None
+        except Exception:
+            return None
+
+    def get_thumbnail_url(self):
+        """Get thumbnail URL with error handling"""
+        try:
+            return self.thumbnail.url if self.thumbnail else None
+        except Exception:
+            return None
 
     @property
     def requires_email(self):
