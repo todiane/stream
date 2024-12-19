@@ -38,7 +38,7 @@ class PostAdmin(admin.ModelAdmin):
         (
             "Media",
             {
-                "fields": ("image", "video", "youtube_url", "display_media"),
+                "fields": ("image", "youtube_url", "thumbnail", "display_media"),
                 "classes": ("collapse",),
             },
         ),
@@ -74,16 +74,6 @@ class PostAdmin(admin.ModelAdmin):
                 f"<strong>Image:</strong><br/>"
                 f'<img src="{obj.image.url}" width="200" />'
                 f"</div>"
-            )
-
-        if obj.video:
-            html.append(
-                f'<div class="mb-4">'
-                f"<strong>Video:</strong><br/>"
-                f'<video width="200" controls>'
-                f'<source src="{obj.video.url}">'
-                f"Your browser does not support the video tag."
-                f"</video></div>"
             )
 
         if obj.youtube_url:

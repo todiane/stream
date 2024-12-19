@@ -18,33 +18,56 @@ class LessonInline(admin.StackedInline):
     readonly_fields = [
         "public_id",
         "updated",
-        "display_image",
+        "display_thumbnail",
         "display_video",
     ]
     extra = 0
 
-    def display_image(self, obj):
-        if obj.image:
-            return format_html(f'<img src="{obj.image.url}" width="200" />')
-        return "-"
+    def display_thumbnail(self, obj):
+        thumbnail_url = obj.get_thumbnail_url()
+        if thumbnail_url:
+            return format_html(
+                '<img src="{}" width="200" class="admin-thumbnail" style="border-radius: 5px; box-shadow: 0 2px 5px rgba(0,0,0,0.1);" />',
+                thumbnail_url,
+            )
+        return "No thumbnail uploaded"
 
     def display_video(self, obj):
-        if obj.video:
+        video_url = obj.get_video_url()
+        if video_url:
             return format_html(
-                f'<video width="550" controls><source src="{obj.video.url}"></video>'
+                '<video width="550" controls class="admin-video" style="border-radius: 5px; box-shadow: 0 2px 5px rgba(0,0,0,0.1);"><source src="{}"></video>',
+                video_url,
             )
-        return "-"
+        elif obj.youtube_url:
+            embed_url = obj.get_youtube_embed_url()
+            return format_html(
+                '<div class="admin-youtube" style="margin: 10px 0;">'
+                '<iframe width="550" height="315" src="{}" frameborder="0" '
+                'allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" '
+                "allowfullscreen></iframe><br>"
+                '<a href="{}" target="_blank" class="youtube-link">View on YouTube</a>'
+                "</div>",
+                embed_url,
+                obj.youtube_url,
+            )
+        return "No video available"
 
-    def display_thumbnail(self, obj):
-        if obj.thumbnail:
-            return format_html(f'<img src="{obj.thumbnail.url}" width="50" />')
-        return "-"
+    display_thumbnail.short_description = "Thumbnail Preview"
+    display_video.short_description = "Video Preview"
 
 
 @admin.register(Course)
 class CourseAdmin(admin.ModelAdmin):
     inlines = [LessonInline]
-    list_display = ["title", "category", "status", "access", "public_id"]
+    list_display = [
+        "title",
+        "category",
+        "status",
+        "access",
+        "public_id",
+        "display_thumbnail",
+    ]
     list_filter = ["status", "access", "category", "category__exam_board"]
     fields = [
         "public_id",
@@ -62,8 +85,25 @@ class CourseAdmin(admin.ModelAdmin):
     search_fields = ["title", "description", "category__name", "slug"]
 
     def display_image(self, obj):
-        if obj.image:
-            return format_html(f'<img src="{obj.image.url}" width="200" />')
+        image_url = obj.get_image_url()
+        if image_url:
+            return format_html(
+                '<img src="{}" width="200" class="admin-image" style="border-radius: 5px; box-shadow: 0 2px 5px rgba(0,0,0,0.1);" />',
+                image_url,
+            )
+        return "No image uploaded"
+
+    def display_thumbnail(self, obj):
+        image_url = obj.get_thumbnail_url()
+        if image_url:
+            return format_html(
+                '<img src="{}" width="50" class="admin-thumbnail" style="border-radius: 3px;" />',
+                image_url,
+            )
         return "-"
 
     display_image.short_description = "Current Image"
+    display_thumbnail.short_description = "Thumbnail"
+
+    class Media:
+        css = {"all": ["admin/css/custom_admin.css"]}
