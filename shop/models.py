@@ -210,3 +210,10 @@ class OrderItem(models.Model):
 
     def get_cost(self):
         return self.price_paid_pence * self.quantity
+
+    def get_price_in_pounds(self):
+        return self.price_paid_pence / 100
+
+    @property
+    def price(self):
+        return self.get_price_in_pounds()
