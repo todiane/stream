@@ -4,7 +4,7 @@ from django.utils.text import slugify
 from django.conf import settings
 from stream.storage import secure_storage, public_storage
 import uuid
-from ckeditor_uploader.fields import RichTextUploadingField
+from ckeditor_uploader.fields import RichTextUploadingField  # type: ignore
 
 
 def generate_public_id(instance, *args, **kwargs):
@@ -97,6 +97,19 @@ class Product(models.Model):
 
     def get_absolute_url(self):
         return reverse("shop:product_detail", kwargs={"slug": self.slug})
+
+    def get_image_url(self):
+        """Get the URL for the main image"""
+        try:
+            if self.preview_image:
+                return self.preview_image.url.replace("/media/public/", "/media/")
+            return None
+        except Exception:
+            return None
+
+    def get_thumbnail_url(self):
+        """Get thumbnail URL - falls back to main image if no thumbnail"""
+        return self.get_image_url()
 
     def get_download_url(self):
         if self.files:

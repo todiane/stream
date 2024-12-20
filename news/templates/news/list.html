@@ -9,10 +9,10 @@
         <article class="bg-white rounded-lg shadow-lg overflow-hidden">
             <a href="{{ post.get_absolute_url }}" class="block">
                 <div class="w-full h-48 overflow-hidden">
-                    {% if post.image %}
-                        <img src="{{ post.image.url }}" 
-                             alt="{{ post.title }}" 
-                             class="w-full h-full object-cover">
+                    {% if post.get_image_url %}
+                        <img src="{{ post.get_image_url }}" 
+                            alt="{{ post.title }}" 
+                            class="w-full h-full object-cover">
                     {% elif post.youtube_url %}
                         <img src="https://img.youtube.com/vi/{{ post.get_youtube_video_id }}/maxresdefault.jpg" 
                              alt="{{ post.title }}"

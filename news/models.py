@@ -3,7 +3,7 @@ from django.urls import reverse
 from django.utils.text import slugify
 from stream.storage import secure_storage, public_storage
 from django.utils import timezone
-from ckeditor_uploader.fields import RichTextUploadingField
+from ckeditor_uploader.fields import RichTextUploadingField  # type: ignore
 
 
 class Category(models.Model):
@@ -77,6 +77,22 @@ class Post(models.Model):
         if self.resource:
             return self.resource.url
         return None
+
+    def get_image_url(self):
+        """Get the URL for the main image"""
+        try:
+            if self.image:
+                return self.preview_image.url.replace("/media/public/", "/media/")
+            return None
+        except Exception:
+            return None
+
+    def get_thumbnail_url(self):
+        """Get the thumbnail URL - falls back to main image if no thumbnail"""
+        try:
+            return self.thumbnail.url if self.thumbnail else self.get_image_url()
+        except Exception:
+            return None
 
     # Advertisement fields
     ad_type = models.CharField(max_length=10, choices=AD_TYPE_CHOICES, default="none")

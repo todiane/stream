@@ -21,68 +21,39 @@ class ProductAdmin(admin.ModelAdmin):
         "product_type",
         "purchase_count",
         "featured",
+        "display_thumbnail",
     ]
     list_filter = ["status", "category", "product_type", "featured", "created"]
     search_fields = ["title", "description", "public_id"]
     prepopulated_fields = {"slug": ("title",)}
     readonly_fields = ["public_id", "purchase_count", "display_preview"]
 
-    fieldsets = (
-        (
-            None,
-            {
-                "fields": (
-                    "public_id",
-                    "title",
-                    "slug",
-                    "category",
-                    "description",
-                    "product_type",
-                    "status",
-                    "featured",
-                )
-            },
-        ),
-        (
-            "Pricing",
-            {
-                "fields": ("price_pence", "sale_price_pence", "price_per_hour"),
-            },
-        ),
-        (
-            "Files",
-            {
-                "fields": ("files", "preview_file", "preview_image", "display_preview"),
-            },
-        ),
-        (
-            "Settings",
-            {
-                "fields": ("download_limit", "purchase_count"),
-            },
-        ),
-    )
+    def display_thumbnail(self, obj):
+        image_url = obj.get_image_url()
+        if image_url:
+            return format_html(
+                '<img src="{}" width="50" class="admin-thumbnail" style="border-radius: 3px;" />',
+                image_url,
+            )
+        return "-"
+
+    display_thumbnail.short_description = "Thumbnail"
 
     def display_preview(self, obj):
         html = []
-        if obj.preview_image:
-            # For local image files
-            url = obj.preview_image.url
+        image_url = obj.get_image_url()
+        if image_url:
             html.append(
                 f'<div class="mb-4"><strong>Preview Image:</strong><br/>'
-                f'<img src="{url}" width="200" /></div>'
+                f'<img src="{image_url}" width="200" style="border-radius: 5px; '
+                f'box-shadow: 0 2px 5px rgba(0,0,0,0.1);" /></div>'
             )
         return format_html("".join(html)) if html else "-"
 
     display_preview.short_description = "Preview"
 
-    def price(self, obj):
-        return f"£{obj.price:.2f}"
-
-    def sale_price(self, obj):
-        if obj.sale_price_pence:
-            return f"£{obj.sale_price:.2f}"
-        return "-"
+    class Media:
+        css = {"all": ["admin/css/custom_admin.css"]}
 
 
 class OrderItemInline(admin.TabularInline):

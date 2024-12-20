@@ -33,8 +33,10 @@
     <div class="grid gap-8 sm:grid-cols-2 lg:grid-cols-3">
         {% for product in products %}
         <div class="bg-white shadow rounded-lg overflow-hidden hover:shadow-lg transition-shadow duration-300">
-            {% if product.preview_image %}
-            <img src="{{ product.preview_image.url }}" alt="{{ product.title }}" class="w-full h-56 object-cover">
+            {% if product.get_image_url %}
+            <img src="{{ product.get_image_url }}" 
+            alt="{{ product.title }}" 
+            class="w-full h-56 object-cover">
             {% else %}
             <div class="w-full h-56 flex items-center justify-center text-gray-500">
                 No Image Available

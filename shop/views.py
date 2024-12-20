@@ -37,10 +37,19 @@ def product_list(request):
 
 def product_detail(request, slug):
     product = get_object_or_404(Product, slug=slug, is_active=True, status="publish")
+    # Get related products from same category
+    related_products = Product.objects.filter(
+        category=product.category, status="publish", is_active=True
+    ).exclude(id=product.id)[:3]
+
     return render(
         request,
         "shop/detail.html",
-        {"product": product, "stripe_publishable_key": settings.STRIPE_PUBLISHABLE_KEY},
+        {
+            "product": product,
+            "related_products": related_products,
+            "stripe_publishable_key": settings.STRIPE_PUBLISHABLE_KEY,
+        },
     )
 
 

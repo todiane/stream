@@ -1,5 +1,4 @@
 # news/admin.py
-
 from django.contrib import admin
 from django.utils.html import format_html
 from .models import Category, Post
@@ -65,42 +64,36 @@ class PostAdmin(admin.ModelAdmin):
         ),
     )
 
+    def display_thumbnail(self, obj):
+        image_url = obj.get_thumbnail_url()
+        if image_url:
+            return format_html('<img src="{}" width="50" />', image_url)
+        return "-"
+
+    display_thumbnail.short_description = "Thumbnail"
+
     def display_media(self, obj):
         html = []
+        image_url = obj.get_image_url()
+        youtube_url = obj.get_youtube_embed_url()
 
-        if obj.image:
+        if image_url:
             html.append(
                 f'<div class="mb-4">'
                 f"<strong>Image:</strong><br/>"
-                f'<img src="{obj.image.url}" width="200" />'
+                f'<img src="{image_url}" width="200" />'
                 f"</div>"
             )
 
-        if obj.youtube_url:
+        if youtube_url:
             html.append(
                 f'<div class="mb-4">'
-                f"<strong>YouTube URL:</strong><br/>"
-                f"{obj.youtube_url}"
+                f"<strong>YouTube Video:</strong><br/>"
+                f'<iframe width="400" height="225" src="{youtube_url}" '
+                f'frameborder="0" allowfullscreen></iframe>'
                 f"</div>"
-            )
-
-        if obj.resource and obj.resource_type != "none":
-            html.append(
-                f'<div class="mb-4">'
-                f"<strong>Resource:</strong><br/>"
-                f"Type: {obj.get_resource_type_display()}<br/>"
-                f"Title: {obj.resource_title}<br/>"
-                f'<a href="{obj.get_resource_url()}" target="_blank">'
-                f"Download Resource</a></div>"
             )
 
         return format_html("".join(html)) if html else "-"
 
     display_media.short_description = "Media Preview"
-
-    def display_thumbnail(self, obj):
-        if obj.thumbnail:
-            return format_html(f'<img src="{obj.thumbnail.url}" width="50" />')
-        return "-"
-
-    display_thumbnail.short_description = "Thumbnail"
