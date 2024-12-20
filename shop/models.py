@@ -188,7 +188,7 @@ class Order(models.Model):
         super().save(*args, **kwargs)
 
     def get_total_cost(self):
-        return sum(item.get_cost() for item in self.items.all())
+        return sum(item.get_cost() for item in self.items.all()) / 100
 
     @property
     def total_price(self):

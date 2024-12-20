@@ -52,9 +52,6 @@ class ProductAdmin(admin.ModelAdmin):
 
     display_preview.short_description = "Preview"
 
-    class Media:
-        css = {"all": ["admin/css/custom_admin.css"]}
-
 
 class OrderItemInline(admin.TabularInline):
     model = OrderItem
