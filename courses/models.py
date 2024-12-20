@@ -4,6 +4,8 @@ from django.urls import reverse
 from django.utils.text import slugify
 from stream.storage import secure_storage, public_storage
 from ckeditor_uploader.fields import RichTextUploadingField  # type: ignore
+from django.core.exceptions import ValidationError
+from .utils import sanitize_text
 
 # Define choices as module-level constants
 PUBLISH_STATUS_CHOICES = [
@@ -23,14 +25,43 @@ class Category(models.Model):
     slug = models.SlugField(unique=True)
     description = models.TextField(blank=True)
     exam_board = models.CharField(
-        max_length=20, choices=[("AQA", "AQA"), ("EDEXCEL", "Edexcel")]
+        max_length=20,
+        choices=[("AQA", "AQA"), ("EDEXCEL", "Edexcel"), ("BOTH", "Both Exam Boards")],
     )
 
     class Meta:
         verbose_name_plural = "categories"
 
+    def clean(self):
+        # Sanitize the name and description before validation
+        if self.name:
+            sanitized_name = sanitize_text(self.name)
+            if sanitized_name != self.name:
+                self.name = sanitized_name
+
+        if self.description:
+            sanitized_description = sanitize_text(self.description)
+            if sanitized_description != self.description:
+                self.description = sanitized_description
+
+    def save(self, *args, **kwargs):
+        self.full_clean()
+        super().save(*args, **kwargs)
+
     def __str__(self):
         return f"{self.name} ({self.exam_board})"
+
+    def clean(self):
+        # Sanitize the name and description before validation
+        if self.name:
+            sanitized_name = sanitize_text(self.name)
+            if sanitized_name != self.name:
+                raise ValidationError(
+                    {
+                        "name": f'Special characters have been removed or replaced in the name: "{self.name}" → "{sanitized_name}"'
+                    }
+                )
+            self.name = sanitized_name
 
 
 def generate_public_id(instance, *args, **kwargs):
