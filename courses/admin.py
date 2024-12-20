@@ -69,17 +69,27 @@ class CourseAdmin(admin.ModelAdmin):
         "display_thumbnail",
     ]
     list_filter = ["status", "access", "category", "category__exam_board"]
-    fields = [
-        "public_id",
-        "title",
-        "slug",
-        "description",
-        "category",
-        "status",
-        "image",
-        "access",
-        "display_image",
-    ]
+    search_fields = ["title", "description", "category__name", "slug"]
+    prepopulated_fields = {"slug": ("title",)}
+    readonly_fields = ["public_id", "display_image"]
+
+    fieldsets = (
+        (
+            None,
+            {
+                "fields": (
+                    "public_id",
+                    "title",
+                    "slug",
+                    "description",
+                    "category",
+                    "status",
+                    "access",
+                )
+            },
+        ),
+        ("Media", {"fields": ("image", "display_image"), "classes": ("collapse",)}),
+    )
     readonly_fields = ["public_id", "display_image"]
     prepopulated_fields = {"slug": ("title",)}
     search_fields = ["title", "description", "category__name", "slug"]
@@ -104,6 +114,3 @@ class CourseAdmin(admin.ModelAdmin):
 
     display_image.short_description = "Current Image"
     display_thumbnail.short_description = "Thumbnail"
-
-    class Media:
-        css = {"all": ["admin/css/custom_admin.css"]}

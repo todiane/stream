@@ -2,7 +2,7 @@ asgiref==3.8.1
 certifi==2024.12.14
 charset-normalizer==3.4.0
 Django==4.2.10
-django-ckeditor==6.7.1
+django-ckeditor==6.7.0
 django-crispy-forms==2.1
 django-environ==0.11.2
 django-js-asset==2.1.0

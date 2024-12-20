@@ -3,7 +3,7 @@ from django.db import models
 from django.urls import reverse
 from django.utils.text import slugify
 from stream.storage import secure_storage, public_storage
-from ckeditor_uploader.fields import RichTextUploadingField
+from ckeditor_uploader.fields import RichTextUploadingField  # type: ignore
 
 # Define choices as module-level constants
 PUBLISH_STATUS_CHOICES = [
