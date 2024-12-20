@@ -164,6 +164,7 @@ ACCOUNT_LOGOUT_REDIRECT_URL = "/profiles/login/"
 STRIPE_PUBLISHABLE_KEY = env("STRIPE_PUBLIC_KEY", default="")
 STRIPE_SECRET_KEY = env("STRIPE_SECRET_KEY", default="")
 STRIPE_WEBHOOK_SECRET = env("STRIPE_WEBHOOK_SECRET", default="")
+STRIPE_CURRENCY = "gbp"
 
 # Shop Email
 SHOP_EMAIL = "streamenglish@outlook.com"

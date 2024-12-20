@@ -69,7 +69,7 @@
                                     {% endfor %}
                                     <div class="flex items-center justify-between pt-2">
                                         <span class="text-sm font-medium text-gray-900">Total:</span>
-                                        <span class="text-sm font-medium text-gray-900">£{{ cart.get_total_price }}</span>
+                                        <span class="text-sm font-medium text-gray-900">£{{ cart.get_total_price|floatformat:2 }}</span>
                                     </div>
                                     <div class="mt-4">
                                         <a href="{% url 'shop:cart_detail' %}" class="block w-full bg-blue-600 text-white text-center px-4 py-2 rounded-md hover:bg-blue-700 transition-colors">

@@ -109,10 +109,16 @@ def checkout(request):
             guest_form = GuestDetailsForm()
 
     try:
+        # Calculate total price
+        total_price = cart.get_total_price()
+        if total_price <= 0:
+            messages.error(request, "Invalid cart total")
+            return redirect("shop:cart_detail")
+
         # Create base payment intent data
         payment_intent_data = {
-            "amount": int(cart.get_total_price() * 100),
-            "currency": settings.STRIPE_CURRENCY,
+            "amount": int(total_price * 100),  # Convert to pence
+            "currency": "gbp",  # Hardcoded GBP
             "payment_method_types": ["card"],
             "metadata": {
                 "user_id": (
@@ -146,7 +152,12 @@ def checkout(request):
         return render(request, "shop/checkout.html", context)
 
     except stripe.error.StripeError as e:
+        print(f"Stripe error: {str(e)}")  # Debug logging
         messages.error(request, f"Payment processing error: {str(e)}")
+        return redirect("shop:cart_detail")
+    except Exception as e:
+        print(f"Checkout error: {str(e)}")  # Debug logging
+        messages.error(request, "An error occurred during checkout. Please try again.")
         return redirect("shop:cart_detail")
 
 
