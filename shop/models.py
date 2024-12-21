@@ -4,6 +4,7 @@ from django.utils.text import slugify
 from django.conf import settings
 from stream.storage import secure_storage, public_storage
 import uuid
+from stream.utils import custom_slugify
 from ckeditor_uploader.fields import RichTextUploadingField  # type: ignore
 
 
@@ -90,7 +91,7 @@ class Product(models.Model):
 
     def save(self, *args, **kwargs):
         if not self.slug:
-            self.slug = slugify(self.title)
+            self.slug = custom_slugify(self.title)
         if not self.public_id:
             self.public_id = generate_public_id(self)
         super().save(*args, **kwargs)

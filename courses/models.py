@@ -6,6 +6,7 @@ from stream.storage import secure_storage, public_storage
 from ckeditor_uploader.fields import RichTextUploadingField  # type: ignore
 from django.core.exceptions import ValidationError
 from .utils import sanitize_text
+from stream.utils import custom_slugify
 
 # Define choices as module-level constants
 PUBLISH_STATUS_CHOICES = [
@@ -103,11 +104,9 @@ class Course(models.Model):
 
     def save(self, *args, **kwargs):
         if not self.slug:
-            self.slug = slugify(self.title)
-
+            self.slug = custom_slugify(self.title)
         if not self.public_id:
             self.public_id = generate_public_id(self)
-
         super().save(*args, **kwargs)
 
     def get_absolute_url(self):
@@ -182,7 +181,7 @@ class Lesson(models.Model):
 
     def save(self, *args, **kwargs):
         if not self.slug:
-            base_slug = slugify(self.title)
+            base_slug = custom_slugify(self.title)
             slug = base_slug
             n = 1
             while Lesson.objects.filter(course=self.course, slug=slug).exists():
