@@ -105,7 +105,7 @@
                                     <a href="{{ related.get_absolute_url }}">{{ related.title }}</a>
                                 </h3>
                                 <p class="mb-3 text-gray-600 dark:text-gray-400">
-                                    {{ related.description|truncatewords:15|default:"No description available" }}
+                                    {{ related.description|safe|truncatewords:15|default:"No description available" }}
                                 </p>
                                 <div class="flex justify-between items-center">
                                     <span class="text-xl font-bold text-gray-900 dark:text-white">

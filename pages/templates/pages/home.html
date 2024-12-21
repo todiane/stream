@@ -121,4 +121,43 @@
 </section>
 {% endif %}
 
+{% if featured_products %}
+<section class="section bg-slate-50 dark:bg-gray-800 py-12 mb-20">
+    <div class="container mx-auto px-4">
+        <h2 class="text-3xl font-extrabold text-center mb-8 text-gray-900 dark:text-white">
+            Tuition Packages
+        </h2>
+
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+            {% for product in featured_products %}
+            <div class="bg-white rounded-lg shadow-lg overflow-hidden dark:bg-gray-700">
+                {% if product.preview_image %}
+                <img class="w-full h-48 object-cover" src="{{ product.preview_image.url }}" alt="{{ product.title }}">
+                {% endif %}
+                <div class="p-6">
+                    <h3 class="text-xl font-bold mb-2 text-gray-900 dark:text-white">{{ product.title }}</h3>
+                    <p class="text-gray-700 dark:text-gray-300 mb-4">
+                        £{{ product.current_price|floatformat:2 }}
+                    </p>
+                    <a href="{% url 'shop:product_detail' product.slug %}" 
+                       class="inline-flex items-center text-blue-600 hover:text-blue-700">
+                        View Details
+                        <svg class="w-5 h-5 ml-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/>
+                        </svg>
+                    </a>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+        <div class="text-center mt-8">
+            <a href="{% url 'shop:product_list' %}" 
+               class="inline-flex items-center px-5 py-3 text-base font-medium text-white bg-blue-600 rounded-lg hover:bg-blue-700">
+                Other Resources
+            </a>
+        </div>
+    </div>
+    <div class="w-full bg-white py-20 block"></div>
+{% endif %}
+
 {% endblock content %}
