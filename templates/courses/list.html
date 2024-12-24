@@ -29,9 +29,9 @@
         </div>
 
         <!-- Course List -->
-        {% if message %}
+        {% if not object_list %}
             <div class="text-center py-8">
-                <p class="text-lg text-gray-600">{{ message }}</p>
+                <p class="text-lg text-gray-600">No courses are currently available.</p>
             </div>
         {% else %}
             <div id="course-list" class="flex justify-center py-4 px-4">

@@ -18,19 +18,23 @@ python3.9 manage.py migrate --noinput
 pkill -f "gunicorn" || true
 rm -f gunicorn.pid
 
-# Start Gunicorn bound to localhost:8000
-nohup gunicorn stream.wsgi:application \
+# Gunicorn configuration
+GUNICORN_CMD="gunicorn stream.wsgi:application \
     --bind 127.0.0.1:8000 \
-    --workers 2 \
-    --timeout 60 \
+    --workers 1 \
+    --threads 2 \
+    --timeout 120 \
     --access-logfile logs/gunicorn-access.log \
     --error-logfile logs/gunicorn-error.log \
     --log-level info \
-    --max-requests 1000 \
+    --max-requests 500 \
     --max-requests-jitter 50 \
     --capture-output \
     --pid gunicorn.pid \
-    --daemon >> logs/nohup.out 2>&1
+    --daemon"
+
+# Start Gunicorn
+nohup $GUNICORN_CMD >> logs/nohup.out 2>&1
 
 # Wait for gunicorn to start
 sleep 5
@@ -53,19 +57,8 @@ while true; do
         pkill -f "gunicorn" || true
         rm -f gunicorn.pid
         
-        # Restart
-        gunicorn stream.wsgi:application \
-            --bind 127.0.0.1:8000 \
-            --workers 2 \
-            --timeout 60 \
-            --access-logfile logs/gunicorn-access.log \
-            --error-logfile logs/gunicorn-error.log \
-            --log-level info \
-            --max-requests 1000 \
-            --max-requests-jitter 50 \
-            --capture-output \
-            --pid gunicorn.pid \
-            --daemon
+        # Restart using same configuration
+        $GUNICORN_CMD
     fi
     sleep 60
 done
