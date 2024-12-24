@@ -8,6 +8,7 @@ from django.conf import settings
 from django.core.exceptions import PermissionDenied
 from django.http import HttpResponse, HttpResponseBadRequest, FileResponse, Http404
 from django.views.decorators.http import require_POST, require_http_methods
+from django.core.paginator import Paginator
 from django.views.decorators.csrf import csrf_exempt
 import stripe
 import os
@@ -24,12 +25,19 @@ stripe.api_key = settings.STRIPE_SECRET_KEY
 def product_list(request):
     categories = Category.objects.all()
     products = Product.objects.filter(is_active=True, status="publish")
+
+    # Add pagination
+    paginator = Paginator(products, 12)  # Show 12 products per page
+    page = request.GET.get("page")
+    products = paginator.get_page(page)
+
     return render(
         request,
         "shop/list.html",
         {
             "products": products,
             "categories": categories,
+            "current_category": None,  # Add this
             "stripe_publishable_key": settings.STRIPE_PUBLISHABLE_KEY,
         },
     )
@@ -282,8 +290,22 @@ def category_list(request, slug):
     products = Product.objects.filter(
         category=category, status="publish", is_active=True
     )
+    categories = Category.objects.all()
+
+    # Add pagination
+    paginator = Paginator(products, 12)  # Show 12 products per page
+    page = request.GET.get("page")
+    products = paginator.get_page(page)
+
     return render(
-        request, "shop/category.html", {"category": category, "products": products}
+        request,
+        "shop/list.html",  # Changed from category.html to reuse list template
+        {
+            "products": products,
+            "categories": categories,
+            "current_category": category,  # Add this
+            "stripe_publishable_key": settings.STRIPE_PUBLISHABLE_KEY,
+        },
     )
 
 
