@@ -134,8 +134,9 @@ class TuitionFeature(models.Model):
         ("pencil", "Pencil"),
         ("star", "Star"),
         ("certificate", "Certificate"),
-        ("users", "Users"),
         ("lightbulb", "Lightbulb"),
+        ("laptop", "Laptop"),
+        ("people-fill", "People"),
     ]
 
     SIZE_CHOICES = [
