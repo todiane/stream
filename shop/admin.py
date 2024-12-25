@@ -1,5 +1,8 @@
 from django.contrib import admin
 from django.utils.html import format_html
+from django.core.exceptions import ValidationError
+from django.core.validators import URLValidator
+import requests
 from .models import Category, Product, Order, OrderItem
 
 
@@ -28,6 +31,63 @@ class ProductAdmin(admin.ModelAdmin):
     prepopulated_fields = {"slug": ("title",)}
     readonly_fields = ["public_id", "purchase_count", "display_preview"]
 
+    fieldsets = (
+        (
+            None,
+            {
+                "fields": (
+                    "public_id",
+                    "title",
+                    "slug",
+                    "category",
+                    "description",
+                    "product_type",
+                    "status",
+                    "is_active",
+                )
+            },
+        ),
+        (
+            "Pricing",
+            {
+                "fields": (
+                    "price_pence",
+                    "sale_price_pence",
+                    "price_per_hour",
+                )
+            },
+        ),
+        (
+            "Media",
+            {
+                "fields": (
+                    "preview_image",
+                    "external_image_url",
+                    "files",
+                    "preview_file",
+                ),
+            },
+        ),
+        (
+            "Settings",
+            {
+                "fields": (
+                    "download_limit",
+                    "featured",
+                    "purchase_count",
+                )
+            },
+        ),
+    )
+
+    def price(self, obj):
+        return f"£{obj.price:.2f}"
+
+    def sale_price(self, obj):
+        if obj.sale_price_pence:
+            return f"£{obj.sale_price:.2f}"
+        return "-"
+
     def display_thumbnail(self, obj):
         image_url = obj.get_image_url()
         if image_url:
@@ -51,6 +111,40 @@ class ProductAdmin(admin.ModelAdmin):
         return format_html("".join(html)) if html else "-"
 
     display_preview.short_description = "Preview"
+
+    def clean_external_image_url(self, url):
+        if not url:
+            return url
+
+        # Validate URL format
+        validator = URLValidator()
+        try:
+            validator(url)
+        except ValidationError:
+            raise ValidationError("Invalid URL format")
+
+        # Check if URL exists and is an image
+        try:
+            response = requests.head(url, allow_redirects=True)
+            content_type = response.headers.get("content-type", "").lower()
+
+            if not content_type.startswith("image/"):
+                raise ValidationError("URL must point to an image file")
+
+            if not any(content_type.endswith(ext) for ext in ["/jpeg", "/jpg", "/png"]):
+                raise ValidationError("Only JPG and PNG images are allowed")
+
+        except requests.RequestException:
+            raise ValidationError("Could not validate image URL")
+
+        return url
+
+    def save_model(self, request, obj, form, change):
+        if "external_image_url" in form.changed_data:
+            obj.external_image_url = self.clean_external_image_url(
+                obj.external_image_url
+            )
+        super().save_model(request, obj, form, change)
 
 
 class OrderItemInline(admin.TabularInline):

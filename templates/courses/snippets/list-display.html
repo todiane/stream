@@ -7,11 +7,11 @@
         </div>
         {% endif %}
   
-        {% if object.image %}
+        {% if object.get_image_url %}
         <div class="flex justify-center">
             <a href="{{ object.get_absolute_url }}" class="block">
                 <img 
-                    src="{{ object.get_image_url|safe }}" 
+                    src="{{ object.get_image_url }}" 
                     alt="{{ object.title }}"
                     class="rounded-t-lg w-full object-cover h-auto transition-transform duration-300 custom-ease transform hover:scale-110"
                     style="max-width: 382px;"

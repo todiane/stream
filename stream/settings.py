@@ -70,29 +70,6 @@ INSTALLED_APPS = [
     "shop",
 ]
 
-SITE_ID = 1
-
-SITE_URL = "https://streamenglish-co-uk.stackstaging.com"
-
-# Update admin site URL
-DJANGO_ADMIN_SITE_URL = "https://streamenglish-co-uk.stackstaging.com"
-
-MIDDLEWARE = [
-    "django.middleware.security.SecurityMiddleware",
-    "whitenoise.middleware.WhiteNoiseMiddleware",
-    "django.middleware.common.BrokenLinkEmailsMiddleware",
-    "django.contrib.sessions.middleware.SessionMiddleware",
-    "django.middleware.common.CommonMiddleware",
-    "django.middleware.csrf.CsrfViewMiddleware",
-    "django.contrib.auth.middleware.AuthenticationMiddleware",
-    "django.contrib.messages.middleware.MessageMiddleware",
-    "django.middleware.clickjacking.XFrameOptionsMiddleware",
-    "profiles.middleware.IPRateLimitMiddleware",
-    "middleware.error_handling.ErrorHandlingMiddleware",
-    "simple_history.middleware.HistoryRequestMiddleware",
-]
-
-ROOT_URLCONF = "stream.urls"
 TEMPLATES = [
     {
         "BACKEND": "django.template.backends.django.DjangoTemplates",
@@ -110,6 +87,30 @@ TEMPLATES = [
         },
     },
 ]
+
+MIDDLEWARE = [
+    "django.middleware.security.SecurityMiddleware",
+    "whitenoise.middleware.WhiteNoiseMiddleware",
+    "django.middleware.common.BrokenLinkEmailsMiddleware",
+    "django.contrib.sessions.middleware.SessionMiddleware",
+    "django.middleware.common.CommonMiddleware",
+    "django.middleware.csrf.CsrfViewMiddleware",
+    "django.contrib.auth.middleware.AuthenticationMiddleware",
+    "django.contrib.messages.middleware.MessageMiddleware",
+    "django.middleware.clickjacking.XFrameOptionsMiddleware",
+    "profiles.middleware.IPRateLimitMiddleware",
+    "middleware.error_handling.ErrorHandlingMiddleware",
+    "simple_history.middleware.HistoryRequestMiddleware",
+]
+
+SITE_ID = 1
+
+SITE_URL = "https://streamenglish-co-uk.stackstaging.com"
+
+# Update admin site URL
+DJANGO_ADMIN_SITE_URL = "https://streamenglish-co-uk.stackstaging.com"
+
+ROOT_URLCONF = "stream.urls"
 
 WSGI_APPLICATION = "stream.wsgi.application"
 

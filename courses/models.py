@@ -97,7 +97,11 @@ class Course(models.Model):
     )
     timestamp = models.DateTimeField(auto_now_add=True)
     updated = models.DateTimeField(auto_now=True)
-
+    external_image_url = models.URLField(
+        blank=True,
+        null=True,
+        help_text="External URL for the course image (must be jpg or png)",
+    )
     image = models.ImageField(
         upload_to="courses/images/", null=True, blank=True, storage=public_storage
     )
@@ -119,16 +123,16 @@ class Course(models.Model):
     def get_display_name(self):
         return f"{self.title} - Course"
 
+    @property
     def get_display_image(self):
-        """Get full-size image URL"""
-        try:
-            return self.image.url if self.image else None
-        except Exception:
-            return None
+        """Get image URL from either uploaded image or external URL"""
+        return self.get_image_url()
 
     def get_image_url(self):
-        """Get full-size image URL"""
+        """Get the URL for the main image"""
         try:
+            if self.external_image_url:
+                return self.external_image_url
             return self.image.url if self.image else None
         except Exception:
             return None
@@ -163,6 +167,11 @@ class Lesson(models.Model):
         blank=True,
         null=True,
         help_text="Enter a YouTube URL if you want to embed a video from YouTube.",
+    )
+    external_image_url = models.URLField(
+        blank=True,
+        null=True,
+        help_text="External URL for the lesson thumbnail (must be jpg or png)",
     )
     order = models.IntegerField(default=0)
     can_preview = models.BooleanField(
@@ -208,9 +217,22 @@ class Lesson(models.Model):
             return None
 
     def get_thumbnail_url(self):
-        """Get thumbnail URL with error handling"""
+        """Get thumbnail URL with fallbacks"""
         try:
-            return self.thumbnail.url if self.thumbnail else None
+            if self.external_image_url:
+                return self.external_image_url
+            if self.thumbnail:
+                return self.thumbnail.url
+            if self.youtube_url:
+                # Get YouTube thumbnail as fallback
+                if "youtu.be" in self.youtube_url:
+                    video_id = self.youtube_url.split("/")[-1]
+                elif "v=" in self.youtube_url:
+                    video_id = self.youtube_url.split("v=")[1].split("&")[0]
+                else:
+                    return None
+                return f"https://img.youtube.com/vi/{video_id}/maxresdefault.jpg"
+            return None
         except Exception:
             return None
 

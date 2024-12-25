@@ -1,6 +1,6 @@
-# courses/admin.py
 from django.contrib import admin
 from django.utils.html import format_html
+from django.core.exceptions import ValidationError
 from .models import Course, Lesson, Category
 
 
@@ -18,6 +18,20 @@ class LessonInline(admin.StackedInline):
     readonly_fields = [
         "public_id",
         "updated",
+        "display_thumbnail",
+        "display_video",
+    ]
+    fields = [
+        "title",
+        "slug",
+        "description",
+        "thumbnail",
+        "external_image_url",
+        "video",
+        "youtube_url",
+        "order",
+        "can_preview",
+        "status",
         "display_thumbnail",
         "display_video",
     ]
@@ -52,6 +66,13 @@ class LessonInline(admin.StackedInline):
                 obj.youtube_url,
             )
         return "No video available"
+
+    def clean_external_image_url(self, value):
+        if value and not any(
+            value.lower().endswith(ext) for ext in [".jpg", ".jpeg", ".png"]
+        ):
+            raise ValidationError("External image URL must point to a JPG or PNG file")
+        return value
 
     display_thumbnail.short_description = "Thumbnail Preview"
     display_video.short_description = "Video Preview"
@@ -88,11 +109,21 @@ class CourseAdmin(admin.ModelAdmin):
                 )
             },
         ),
-        ("Media", {"fields": ("image", "display_image"), "classes": ("collapse",)}),
+        (
+            "Media",
+            {
+                "fields": ("image", "external_image_url", "display_image"),
+                "classes": ("collapse",),
+            },
+        ),
     )
-    readonly_fields = ["public_id", "display_image"]
-    prepopulated_fields = {"slug": ("title",)}
-    search_fields = ["title", "description", "category__name", "slug"]
+
+    def clean_external_image_url(self, value):
+        if value and not any(
+            value.lower().endswith(ext) for ext in [".jpg", ".jpeg", ".png"]
+        ):
+            raise ValidationError("External image URL must point to a JPG or PNG file")
+        return value
 
     def display_image(self, obj):
         image_url = obj.get_image_url()

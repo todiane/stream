@@ -52,6 +52,12 @@ class Product(models.Model):
         max_length=20, choices=PRODUCT_TYPES, default="download"
     )
     status = models.CharField(max_length=10, choices=STATUS_CHOICES, default="draft")
+    external_image_url = models.URLField(
+        max_length=500,
+        blank=True,
+        null=True,
+        help_text="External URL for product image (jpg/png only)",
+    )
     is_active = models.BooleanField(default=True)
 
     # Pricing
@@ -102,6 +108,8 @@ class Product(models.Model):
     def get_image_url(self):
         """Get the URL for the main image"""
         try:
+            if self.external_image_url:
+                return self.external_image_url
             if self.preview_image:
                 return self.preview_image.url.replace("/media/public/", "/media/")
             return None
