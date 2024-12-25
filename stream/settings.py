@@ -233,7 +233,7 @@ CKEDITOR_CONFIGS = {
         "extraPlugins": ",".join(
             [
                 "uploadimage",
-                "image2",  # Enhanced image plugin
+                "image2",
                 "autolink",
                 "autoembed",
                 "embedsemantic",
@@ -247,6 +247,18 @@ CKEDITOR_CONFIGS = {
             ]
         ),
         "uploadUrl": "/ckeditor/upload/",
+        "contentsCss": ["p { margin: 0.5em 0; }"],
+        "enterMode": 2,  # CKEDITOR.ENTER_BR
+        "shiftEnterMode": 1,  # CKEDITOR.ENTER_P
+        "format_tags": "p;h1;h2;h3;pre",
+        "removeDialogTabs": "image:advanced;link:advanced",
+        "stylesSet": [
+            {
+                "name": "Paragraph",
+                "element": "p",
+                "attributes": {"style": "margin: 0.5em 0;"},
+            }
+        ],
     },
 }
 
