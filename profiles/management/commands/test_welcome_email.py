@@ -26,7 +26,7 @@ class Command(BaseCommand):
             try:
                 domain = Site.objects.get_current().domain
             except Site.DoesNotExist:
-                domain = "streamenglish-co-uk.stackstaging.com"
+                domain = "streamenglish.co.uk"
 
             # Create context with all required variables
             context = {

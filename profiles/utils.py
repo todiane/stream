@@ -29,7 +29,7 @@ def get_email_context(request, user, token=None):
     """
     # Handle case where request is None (for tests)
     protocol = "https" if request and request.is_secure() else "http"
-    domain = "streamenglish-co-uk.stackstaging.com"  # Default domain
+    domain = "streamenglish.co.uk"  # Default domain
 
     if request:
         current_site = get_current_site(request)

@@ -107,10 +107,10 @@ MIDDLEWARE = [
 
 SITE_ID = 1
 
-SITE_URL = "https://streamenglish-co-uk.stackstaging.com"
+SITE_URL = "https://streamenglish.co.uk"
 
 # Update admin site URL
-DJANGO_ADMIN_SITE_URL = "https://streamenglish-co-uk.stackstaging.com"
+DJANGO_ADMIN_SITE_URL = "https://streamenglish.co.uk/admin/"
 
 ROOT_URLCONF = "stream.urls"
 
