@@ -27,6 +27,7 @@ LOGGING = {
         "console": {
             "class": "logging.StreamHandler",
             "formatter": "verbose",
+            "level": "DEBUG",
         },
     },
     "loggers": {
@@ -45,7 +46,7 @@ LOGGING = {
             "level": "DEBUG",
             "propagate": False,
         },
-        "stream": {
+        "profiles": {  # Add specific logger for profiles app
             "handlers": ["file", "console"],
             "level": "DEBUG",
             "propagate": True,

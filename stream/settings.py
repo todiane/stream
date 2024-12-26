@@ -99,10 +99,10 @@ MIDDLEWARE = [
     "django.contrib.auth.middleware.AuthenticationMiddleware",
     "django.contrib.messages.middleware.MessageMiddleware",
     "django.middleware.clickjacking.XFrameOptionsMiddleware",
+    "redirects.middleware.RedirectMiddleware",  # Move this up
     "simple_history.middleware.HistoryRequestMiddleware",
     "profiles.middleware.IPRateLimitMiddleware",
     "middleware.error_handling.ErrorHandlingMiddleware",
-    "redirects.middleware.RedirectMiddleware",
 ]
 
 SITE_ID = 1

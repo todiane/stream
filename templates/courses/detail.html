@@ -28,28 +28,30 @@
             </div>
         </div>
 
-        <!-- Enrollment Button -->
+         <!-- Enrollment Button -->
         <div class="flex justify-center mt-8">
-            {% if user.is_authenticated %}
-                {% if object in user.profile.enrolled_courses.all %}
-                    <span class="inline-block bg-yellow-400 text-black font-medium px-4 py-2 rounded-md cursor-default">
-                        You Are Enrolled
-                    </span>
+            <div class="inline-block text-center">  <!-- Add this wrapper -->
+                {% if user.is_authenticated %}
+                    {% if object in user.profile.enrolled_courses.all %}
+                        <div class="inline-block bg-blue-600 text-white font-medium px-4 py-2 rounded-md">
+                            You Are Enrolled
+                        </div>
+                    {% else %}
+                        <form method="post" action="{% url 'profiles:enrol_course' course_slug=object.slug %}">
+                            {% csrf_token %}
+                            <button type="submit"
+                                    class="inline-block bg-blue-600 text-white font-medium px-4 py-2 rounded-md border-0 cursor-pointer transition-all duration-300 hover:bg-black hover:text-white">
+                                Enrol in Lesson
+                            </button>
+                        </form>
+                    {% endif %}
                 {% else %}
-                    <form method="post" action="{% url 'profiles:enrol_course' course_slug=object.slug %}">
-                        {% csrf_token %}
-                        <button type="submit"
-                                class="bg-yellow-400 text-black font-medium px-4 py-2 rounded-md border-0 cursor-pointer transition-all duration-300 hover:bg-black hover:text-white">
-                            Enrol in Lesson
-                        </button>
-                    </form>
+                    <a href="{% url 'profiles:login' %}?next={{ request.path }}"
+                    class="inline-block bg-blue-600 text-white font-medium px-4 py-2 rounded-md no-underline cursor-pointer transition-all duration-300 hover:bg-black hover:text-white">
+                        Enrol in Lesson
+                    </a>
                 {% endif %}
-            {% else %}
-                <a href="{% url 'profiles:login' %}?next={{ request.path }}"
-                   class="inline-block bg-yellow-400 text-black font-medium px-4 py-2 rounded-md no-underline cursor-pointer transition-all duration-300 hover:bg-black hover:text-white">
-                    Enrol in Lesson
-                </a>
-            {% endif %}
+            </div>
         </div>
 
         <!-- Lessons Section -->
