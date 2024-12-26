@@ -176,7 +176,7 @@ def send_admin_notification(subject, message):
                 subject,
                 message,
                 settings.DEFAULT_FROM_EMAIL,
-                ["streamenglish@outlook.com"],
+                ["info@streamenglish.co.uk"],
                 fail_silently=True,
             )
 

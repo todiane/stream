@@ -68,6 +68,7 @@ INSTALLED_APPS = [
     "pages",
     "news",
     "shop",
+    "redirects",
 ]
 
 TEMPLATES = [
@@ -98,9 +99,10 @@ MIDDLEWARE = [
     "django.contrib.auth.middleware.AuthenticationMiddleware",
     "django.contrib.messages.middleware.MessageMiddleware",
     "django.middleware.clickjacking.XFrameOptionsMiddleware",
+    "simple_history.middleware.HistoryRequestMiddleware",
     "profiles.middleware.IPRateLimitMiddleware",
     "middleware.error_handling.ErrorHandlingMiddleware",
-    "simple_history.middleware.HistoryRequestMiddleware",
+    "redirects.middleware.RedirectMiddleware",
 ]
 
 SITE_ID = 1
@@ -125,14 +127,13 @@ IP_RATE_LIMIT_MAX_ATTEMPTS = 20  # Maximum attempts per IP
 IP_RATE_LIMIT_TIMEOUT = 300  # Reset after 5 minutes (in seconds)
 
 
-# Email settings
+# New 20i email settings to be implemented:
 EMAIL_BACKEND = "django.core.mail.backends.smtp.EmailBackend"
-EMAIL_HOST = "smtp.sendgrid.net"
+EMAIL_HOST = "smtp.stackmail.com"
 EMAIL_PORT = 587
 EMAIL_USE_TLS = True
-EMAIL_HOST_USER = "apikey"
-EMAIL_HOST_PASSWORD = env("SENDGRID_API_KEY", default="")
-SENDGRID_API_KEY = env("SENDGRID_API_KEY", default=None)
+EMAIL_HOST_USER = env("DEFAULT_FROM_EMAIL")
+EMAIL_HOST_PASSWORD = env("EMAIL_PASSWORD", default="")
 DEFAULT_FROM_EMAIL = env("DEFAULT_FROM_EMAIL")
 CONTACT_EMAIL = env("CONTACT_EMAIL")
 
@@ -168,7 +169,7 @@ STRIPE_WEBHOOK_SECRET = env("STRIPE_WEBHOOK_SECRET", default="")
 STRIPE_CURRENCY = "gbp"
 
 # Shop Email
-SHOP_EMAIL = "streamenglish@outlook.com"
+SHOP_EMAIL = "info@streamenglish.co.uk"
 
 CART_SESSION_ID = "cart"
 
@@ -187,7 +188,7 @@ SHOP_CANCEL_URL = "/shop/cancel/"
 
 # Admin notification settings
 ADMINS = [
-    ("Admin", "streamenglish@outlook.com"),
+    ("Admin", "info@streamenglish.co.uk"),
 ]
 
 # media and static settings
