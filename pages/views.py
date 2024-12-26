@@ -1,11 +1,11 @@
 # pages/views.py
-from django.shortcuts import render, get_object_or_404
+from django.shortcuts import redirect, render, get_object_or_404
 from django.contrib.admin.views.decorators import staff_member_required
 from django.http import Http404
-from .models import Page, Hero
+from .models import Page, Hero, TuitionFeature
 from shop.models import Product
 from courses.models import Course
-from .models import HeroBanner, AboutMe, AboutCourses, AboutMeColumns
+from .models import HeroBanner, AboutFeature
 
 
 def home_view(request):
@@ -13,7 +13,7 @@ def home_view(request):
         page = Page.objects.get(template="home", is_active=True)
         hero = Hero.objects.filter(is_active=True).first()
         banner = HeroBanner.objects.filter(is_active=True).first()
-        featured_courses = Course.objects.filter(status="publish")[:6]
+        featured_courses = Course.objects.filter(status="publish")[:3]
 
         featured_products = Product.objects.filter(
             featured=True, status="publish", is_active=True
@@ -33,31 +33,39 @@ def home_view(request):
         raise Http404("Homepage not found")
 
 
+def page_detail_view(request, slug):
+    page = get_object_or_404(Page, slug=slug, is_active=True)
+
+    # Redirect to appropriate view based on template
+    if page.template == "home":
+        return redirect("pages:home")
+    elif page.template == "about":
+        return redirect("pages:about")
+    elif page.template == "tuition":
+        return redirect("pages:tuition")
+
+    context = {
+        "page": page,
+    }
+    return render(request, f"pages/{page.template}.html", context)
+
+
 def about_view(request):
     try:
         page = get_object_or_404(Page, template="about", is_active=True)
-        about_me = AboutMe.objects.filter(is_active=True).first()
-        about_me_columns = AboutMeColumns.objects.filter(is_active=True).first()
-        courses_section = AboutCourses.objects.filter(is_active=True).first()
-        featured_courses = (
-            Course.objects.filter(status="publish")[:6]
-            if courses_section and courses_section.show_courses_section
-            else None
-        )
+        features = AboutFeature.objects.filter(is_active=True).order_by("order")
+        featured_courses = Course.objects.filter(status="publish")[:3]
 
         context = {
             "page": page,
-            "about_me": about_me,
-            "about_me_columns": about_me_columns,
-            "courses_section": courses_section,
+            "features": features,
             "object_list": featured_courses,
             "meta_description": "About Stream English - GCSE English Language and Literature tuition",
-            "meta_title": "About GCSE English tuition with Robyn Wear of Stream English",
+            "meta_title": "About GCSE English tuition with Stream English",
         }
         return render(request, "pages/about.html", context)
     except Exception as e:
         print(f"Error in about_view: {e}")
-        # Return a basic context if data is missing
         return render(
             request, "pages/about.html", {"page": page if "page" in locals() else None}
         )
@@ -83,17 +91,23 @@ def preview_page(request, pk):
     return render(request, template, context)
 
 
-from .models import TuitionFeature
-
-
 def tuition_view(request):
     try:
         page = get_object_or_404(Page, template="tuition", is_active=True)
         features = TuitionFeature.objects.filter(is_active=True).order_by("order")
 
+        # Add this to get featured products from shop
+        featured_products = Product.objects.filter(
+            featured=True,
+            status="publish",
+            is_active=True,
+            product_type="tuition",
+        ).order_by("created")[:3]
+
         context = {
             "page": page,
             "features": features,
+            "featured_products": featured_products,  # Add this to context
         }
         return render(request, "pages/tuition.html", context)
     except Exception as e:

@@ -3,7 +3,7 @@ from django.db import models
 from django.urls import reverse
 from django.utils import timezone
 from ckeditor_uploader.fields import RichTextUploadingField
-from simple_history.models import HistoricalRecords
+from simple_history.models import HistoricalRecords  # type: ignore
 
 
 class SEOFields(models.Model):
@@ -85,7 +85,11 @@ class Page(SEOFields):
     def get_absolute_url(self):
         if self.template == "home":
             return reverse("pages:home")
-        return reverse("pages:page_detail", kwargs={"slug": self.slug})
+        elif self.template == "about":
+            return reverse("pages:about")
+        elif self.template == "tuition":
+            return reverse("pages:tuition")
+        return "/"
 
     @property
     def is_published(self):
@@ -155,6 +159,40 @@ class TuitionFeature(models.Model):
         ordering = ["order"]
         verbose_name = "Tuition Feature"
         verbose_name_plural = "Tuition Features"
+
+    def __str__(self):
+        return self.title
+
+
+class AboutFeature(models.Model):
+    ICON_CHOICES = [
+        ("book", "Book"),
+        ("pencil", "Pencil"),
+        ("star", "Star"),
+        ("certificate", "Certificate"),
+        ("lightbulb", "Lightbulb"),
+        ("laptop", "Laptop"),
+        ("people-fill", "People"),
+        ("award", "Award"),
+        ("journal-text", "Journal"),
+    ]
+
+    SIZE_CHOICES = [
+        ("small", "Small"),
+        ("large", "Large"),
+    ]
+
+    icon = models.CharField(max_length=20, choices=ICON_CHOICES)
+    title = models.CharField(max_length=200)
+    description = models.TextField()
+    size = models.CharField(max_length=10, choices=SIZE_CHOICES)
+    order = models.PositiveIntegerField(default=0)
+    is_active = models.BooleanField(default=True)
+
+    class Meta:
+        ordering = ["order"]
+        verbose_name = "About Feature"
+        verbose_name_plural = "About Features"
 
     def __str__(self):
         return self.title

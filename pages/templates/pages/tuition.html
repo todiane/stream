@@ -8,20 +8,21 @@
     <div class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
         <div class="container mx-auto max-w-3xl"> 
             <div class="space-y-6 pt-2 pb-8">
+                <!-- Top section with consistent line height -->
                 <div class="text-center mb-12">
                     <h1 class="text-4xl font-bold text-gray-900 mb-4">GCSE English Tuition</h1>
                     {% if page.content %}
-                        <div class="max-w-3xl mx-auto prose prose-blue">
+                        <div class="max-w-3xl mx-auto prose prose-blue leading-relaxed">
                             {{ page.content|safe }}
                         </div>
                     {% endif %}
                 </div>
 
+                <!-- Features section with consistent spacing -->
                 <div class="space-y-6 pt-2 pb-8">
                     {% with features|dictsort:"order" as sorted_features %}
-                        {# First Row #}
                         <div class="grid grid-cols-1 lg:grid-cols-2 gap-8 mx-auto max-w-5xl">
-                            {% for feature in sorted_features|slice:":2" %}
+                            {% for feature in sorted_features %}
                                 <div class="{% if feature.size == 'large' %}lg:col-span-2{% endif %}">
                                     <div class="bg-white p-6 transition-all duration-300 hover:shadow-lg hover:-translate-y-1 h-full">
                                         <div class="mb-4">
@@ -31,26 +32,7 @@
                                             </div>
                                         </div>
                                         <div>
-                                            <p class="text-gray-600">{{ feature.description }}</p>
-                                        </div>
-                                    </div>
-                                </div>
-                            {% endfor %}
-                        </div>
-
-                        {# Second Row #}
-                        <div class="grid grid-cols-1 lg:grid-cols-2 gap-8 mx-auto max-w-5xl">
-                            {% for feature in sorted_features|slice:"2:4" %}
-                                <div class="{% if feature.size == 'large' %}lg:col-span-2{% endif %}">
-                                    <div class="bg-white p-6 transition-all duration-300 hover:shadow-lg hover:-translate-y-1 h-full">
-                                        <div class="mb-4">
-                                            <div class="flex items-center space-x-6">
-                                                <i class="bi bi-{{ feature.icon }} text-[#0C8C9D] text-xl"></i>
-                                                <h3 class="text-xl font-semibold">{{ feature.title }}</h3>
-                                            </div>
-                                        </div>
-                                        <div>
-                                            <p class="text-gray-600">{{ feature.description }}</p>
+                                            <p class="text-gray-600 leading-relaxed">{{ feature.description }}</p>
                                         </div>
                                     </div>
                                 </div>
@@ -59,9 +41,10 @@
                     {% endwith %}
                 </div>
 
+                <!-- Bottom section with consistent line height -->
                 {% if page.second_content %}
-                    <div class="mt-16 bg-white ">
-                        <div class="max-w-3xl mx-auto prose prose-blue p-8">
+                    <div class="mt-16 bg-white">
+                        <div class="max-w-3xl mx-auto prose prose-blue leading-relaxed p-8">
                             {{ page.second_content|safe }}
                         </div>
                     </div>
@@ -69,5 +52,45 @@
             </div>
         </div>
     </div>
+    
+{% if featured_products %}
+<section class="section bg-slate-50 dark:bg-gray-800 py-12 mb-20">
+    <div class="container mx-auto px-4">
+        <h2 class="text-3xl font-extrabold text-center mb-8 text-gray-900 dark:text-white">
+            Tuition Packages
+        </h2>
+
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+            {% for product in featured_products %}
+            <div class="bg-white rounded-lg shadow-lg overflow-hidden dark:bg-gray-700">
+                {% if product.get_image_url %}
+                <img class="w-full h-48 object-cover" src="{{ product.get_image_url }}" alt="{{ product.title }}">
+                {% endif %}
+                <div class="p-6">
+                    <h3 class="text-xl font-bold mb-2 text-gray-900 dark:text-white">{{ product.title }}</h3>
+                    <p class="text-gray-700 dark:text-gray-300 mb-4">
+                        £{{ product.current_price|floatformat:2 }}
+                    </p>
+                    <a href="{% url 'shop:product_detail' product.slug %}" 
+                       class="inline-flex items-center text-blue-600 hover:text-blue-700">
+                        View Details
+                        <svg class="w-5 h-5 ml-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/>
+                        </svg>
+                    </a>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+        <div class="text-center mt-8">
+            <a href="{% url 'shop:product_list' %}" 
+               class="inline-flex items-center px-5 py-3 text-base font-medium text-white bg-blue-600 rounded-lg hover:bg-blue-700">
+                Other Resources
+            </a>
+        </div>
+    </div>
+</section>
+
+{% endif %}
 </div>
 {% endblock %}
