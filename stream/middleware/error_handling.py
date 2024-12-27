@@ -1,4 +1,6 @@
+# middleware/error_handling.py
 from django.template import RequestContext
+from shop.cart import Cart
 
 
 class ErrorHandlingMiddleware:
@@ -9,6 +11,7 @@ class ErrorHandlingMiddleware:
         return self.get_response(request)
 
     def process_exception(self, request, exception):
-        # Ensure base context processors are applied
-        context = RequestContext(request)
-        return None  # Let Django's error handling take over
+        # Add cart to context
+        request.cart = Cart(request)
+        # Let Django continue with normal error handling
+        return None

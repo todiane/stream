@@ -41,7 +41,11 @@ DATABASES = {
 }
 
 
-ALLOWED_HOSTS = ["streamenglish-co-uk.stackstaging.com", "streamenglish.co.uk"]
+ALLOWED_HOSTS = [
+    "streamenglish-co-uk.stackstaging.com",
+    "streamenglish.co.uk",
+    "www.streamenglish.co.uk",
+]
 
 CSRF_TRUSTED_ORIGINS = [
     "https://streamenglish-co-uk.stackstaging.com",
@@ -130,9 +134,9 @@ IP_RATE_LIMIT_TIMEOUT = 300  # Reset after 5 minutes (in seconds)
 # New 20i email settings to be implemented:
 EMAIL_BACKEND = "django.core.mail.backends.smtp.EmailBackend"
 EMAIL_HOST = "smtp.stackmail.com"
-EMAIL_PORT = 465
-EMAIL_USE_TLS = False
-EMAIL_USE_SSL = True
+EMAIL_PORT = 587
+EMAIL_USE_TLS = True
+EMAIL_USE_SSL = False
 EMAIL_HOST_USER = env("EMAIL_HOST_USER")
 EMAIL_HOST_PASSWORD = env("EMAIL_HOST_PASSWORD")
 DEFAULT_FROM_EMAIL = env("DEFAULT_FROM_EMAIL")

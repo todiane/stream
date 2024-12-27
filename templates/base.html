@@ -15,7 +15,9 @@
     
 </head>
 <body class="flex flex-col min-h-screen">
-    {% include 'partials/_messages.html' %}
+    {% if messages %}
+        {% include 'partials/_messages.html' %}
+    {% endif %}
     {% include 'base/navbar.html' %}
     
     <main class="flex-grow" role="main">
