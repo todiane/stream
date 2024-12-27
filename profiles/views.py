@@ -41,46 +41,19 @@ logger = logging.getLogger(__name__)
 
 
 def signup_view(request):
-    # Debug logging at the start
-    logging.debug("==== Starting signup process ====")
-    logging.debug("Email settings check:")
-    logging.debug(f"HOST: {settings.EMAIL_HOST}")
-    logging.debug(f"PORT: {settings.EMAIL_PORT}")
-    logging.debug(f"USER: {settings.EMAIL_HOST_USER}")
-    logging.debug(f"TLS: {settings.EMAIL_USE_TLS}")
-    logging.debug(f"FROM_EMAIL: {settings.DEFAULT_FROM_EMAIL}")
-
-    # Test email sending
-    send_test_email("info@streamenglish.co.uk")
-
     if request.method == "POST":
-        logger.debug("Signup POST request received")
-        logger.debug(f"POST data: {request.POST}")
-
         form = UserRegisterForm(request.POST)
         if form.is_valid():
-            logger.debug("Form is valid, attempting to create user")
             try:
                 user = form.save(commit=False)
                 user.is_active = True
                 user.save()
-                logger.debug(f"User created: {user.username}")
 
-                # Get or update the profile
                 profile, created = Profile.objects.get_or_create(user=user)
                 profile.first_name = form.cleaned_data.get("first_name")
                 profile.email_verified = False
                 profile.save()
-                logger.debug("Profile created/updated")
-            except Exception as e:
-                logger.error(f"Error creating user or profile: {str(e)}")
-                messages.error(
-                    request,
-                    "There was an error creating your account. Please try again.",
-                )
-                return redirect("profiles:signup")
 
-                # Prepare email content first
                 current_site = get_current_site(request)
                 subject = "Activate your Stream English Account"
                 unsubscribe_uid = urlsafe_base64_encode(force_bytes(user.pk))
@@ -95,9 +68,7 @@ def signup_view(request):
                     "email": user.email,
                     "unsubscribe_url": f"https://streamenglish.co.uk{reverse('profiles:unsubscribe_email', kwargs={'uidb64': unsubscribe_uid})}",
                 }
-                logger.debug(f"Prepared email context for {user.email}")
 
-                # Send activation email
                 try:
                     html_message = render_to_string(
                         "account/email/account_activation_email.html", context
@@ -110,22 +81,33 @@ def signup_view(request):
                         subject, text_message, settings.DEFAULT_FROM_EMAIL, [user.email]
                     )
                     msg.attach_alternative(html_message, "text/html")
-
-                    logging.debug("Attempting to send activation email...")
                     msg.send()
-                    logging.debug("Activation email sent successfully")
+
+                    messages.success(
+                        request, "Please check your email to activate your account."
+                    )
+                    return redirect("profiles:login")
 
                 except Exception as e:
-                    logging.error(
-                        f"Failed to send activation email: {str(e)}", exc_info=True
+                    messages.error(
+                        request,
+                        "There was an error sending the activation email. Please try again.",
                     )
-                    logging.error(
-                        "SMTP Connection details: HOST=%s, PORT=%s, USER=%s",
-                        settings.EMAIL_HOST,
-                        settings.EMAIL_PORT,
-                        settings.EMAIL_HOST_USER,
-                    )
-                    raise
+                    user.delete()
+                    return redirect("profiles:signup")
+
+            except Exception as e:
+                messages.error(
+                    request,
+                    "There was an error creating your account. Please try again.",
+                )
+                return redirect("profiles:signup")
+        else:
+            pass
+    else:
+        form = UserRegisterForm()
+
+    return render(request, "profiles/signup.html", {"form": form})
 
 
 def login_view(request):
