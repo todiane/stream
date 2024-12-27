@@ -31,6 +31,7 @@ urlpatterns = [
     path("news/", include("news.urls", namespace="news")),
     path("shop/", include("shop.urls", namespace="shop")),
     path("policy/privacy/", views.privacy_view, name="privacy_policy"),
+    path("policy/cookies/", views.cookie_view, name="cookie_policy"),
     path("policy/terms-conditions/", views.terms_view, name="terms_conditions"),
     path(
         "sitemap.xml",

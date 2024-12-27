@@ -130,16 +130,19 @@ IP_RATE_LIMIT_TIMEOUT = 300  # Reset after 5 minutes (in seconds)
 # New 20i email settings to be implemented:
 EMAIL_BACKEND = "django.core.mail.backends.smtp.EmailBackend"
 EMAIL_HOST = "smtp.stackmail.com"
-EMAIL_PORT = 587
-EMAIL_USE_TLS = True
-EMAIL_HOST_USER = env("DEFAULT_FROM_EMAIL")
-EMAIL_HOST_PASSWORD = env("EMAIL_PASSWORD", default="")
+EMAIL_PORT = 465
+EMAIL_USE_TLS = False
+EMAIL_USE_SSL = True
+EMAIL_HOST_USER = env("EMAIL_HOST_USER")
+EMAIL_HOST_PASSWORD = env("EMAIL_HOST_PASSWORD")
 DEFAULT_FROM_EMAIL = env("DEFAULT_FROM_EMAIL")
 CONTACT_EMAIL = env("CONTACT_EMAIL")
 
+# Add these explicit settings
 
-EMAIL_TIMEOUT = 5  # seconds
+EMAIL_TIMEOUT = 30  # Timeout in seconds
 EMAIL_MAX_RETRIES = 3
+SERVER_EMAIL = env("DEFAULT_FROM_EMAIL")
 
 # Account activation settings
 ACCOUNT_ACTIVATION_DAYS = 7  # One-week activation window

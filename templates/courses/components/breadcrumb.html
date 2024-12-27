@@ -1,4 +1,4 @@
-<nav class=" px-3 py-2 mb-4 max-w-3xl">
+<nav class="px-3 py-2 mb-4 max-w-3xl">
     <ol class="flex items-center text-sm">
         <li class="flex items-center">
             <a href="{% url 'pages:home' %}" class="text-gray-700 hover:text-blue-600">Home</a>
@@ -22,7 +22,7 @@
             <svg class="w-4 h-4 mx-2 text-gray-400" viewBox="0 0 24 24" fill="none" stroke="currentColor">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/>
             </svg>
-            <span class="text-gray-500">{{ lesson.title }}</span>
+            <span class="text-gray-500">{{ lesson_item.title }}</span>
         </li>
         {% endif %}
     </ol>

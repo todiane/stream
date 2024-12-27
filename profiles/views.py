@@ -1,4 +1,10 @@
 # profiles/views.py
+import email
+from email import message
+from email.message import EmailMessage
+import logging
+from django.core.mail import get_connection
+import smtplib
 from profiles.models import Profile
 from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib import messages
@@ -30,22 +36,34 @@ from .forms import CustomPasswordResetForm
 from .tokens import account_activation_token
 from courses.models import Course, Lesson
 
-import logging
 
 logger = logging.getLogger(__name__)
 
 
 def signup_view(request):
+    # Debug logging at the start
+    logging.debug("==== Starting signup process ====")
+    logging.debug("Email settings check:")
+    logging.debug(f"HOST: {settings.EMAIL_HOST}")
+    logging.debug(f"PORT: {settings.EMAIL_PORT}")
+    logging.debug(f"USER: {settings.EMAIL_HOST_USER}")
+    logging.debug(f"TLS: {settings.EMAIL_USE_TLS}")
+    logging.debug(f"FROM_EMAIL: {settings.DEFAULT_FROM_EMAIL}")
+
+    # Test email sending
+    send_test_email("info@streamenglish.co.uk")
+
     if request.method == "POST":
+        logger.debug("Signup POST request received")
+        logger.debug(f"POST data: {request.POST}")
+
         form = UserRegisterForm(request.POST)
-        logger.debug(f"Form data received: {request.POST}")
         if form.is_valid():
-            logger.debug("Form is valid, attempting to save")
+            logger.debug("Form is valid, attempting to create user")
             try:
                 user = form.save(commit=False)
                 user.is_active = True
                 user.save()
-
                 logger.debug(f"User created: {user.username}")
 
                 # Get or update the profile
@@ -53,28 +71,34 @@ def signup_view(request):
                 profile.first_name = form.cleaned_data.get("first_name")
                 profile.email_verified = False
                 profile.save()
-
                 logger.debug("Profile created/updated")
+            except Exception as e:
+                logger.error(f"Error creating user or profile: {str(e)}")
+                messages.error(
+                    request,
+                    "There was an error creating your account. Please try again.",
+                )
+                return redirect("profiles:signup")
+
+                # Prepare email content first
+                current_site = get_current_site(request)
+                subject = "Activate your Stream English Account"
+                unsubscribe_uid = urlsafe_base64_encode(force_bytes(user.pk))
+
+                context = {
+                    "user": user,
+                    "domain": "streamenglish.co.uk",
+                    "uid": urlsafe_base64_encode(force_bytes(user.pk)),
+                    "token": account_activation_token.make_token(user),
+                    "protocol": "https",
+                    "expiration_days": settings.ACCOUNT_ACTIVATION_DAYS,
+                    "email": user.email,
+                    "unsubscribe_url": f"https://streamenglish.co.uk{reverse('profiles:unsubscribe_email', kwargs={'uidb64': unsubscribe_uid})}",
+                }
+                logger.debug(f"Prepared email context for {user.email}")
 
                 # Send activation email
                 try:
-                    current_site = get_current_site(request)
-                    subject = "Activate your Stream English Account"
-                    unsubscribe_uid = urlsafe_base64_encode(force_bytes(user.pk))
-
-                    context = {
-                        "user": user,
-                        "domain": current_site.domain,
-                        "uid": urlsafe_base64_encode(force_bytes(user.pk)),
-                        "token": account_activation_token.make_token(user),
-                        "protocol": "https",
-                        "expiration_days": settings.ACCOUNT_ACTIVATION_DAYS,
-                        "email": user.email,
-                        "unsubscribe_url": f"https://{current_site.domain}{reverse('profiles:unsubscribe_email', kwargs={'uidb64': unsubscribe_uid})}",
-                    }
-
-                    logger.debug(f"Preparing to send email to {user.email}")
-
                     html_message = render_to_string(
                         "account/email/account_activation_email.html", context
                     )
@@ -86,40 +110,22 @@ def signup_view(request):
                         subject, text_message, settings.DEFAULT_FROM_EMAIL, [user.email]
                     )
                     msg.attach_alternative(html_message, "text/html")
-                    msg.send()
 
-                    logger.debug("Activation email sent successfully")
+                    logging.debug("Attempting to send activation email...")
+                    msg.send()
+                    logging.debug("Activation email sent successfully")
 
                 except Exception as e:
-                    logger.error(f"Email sending failed: {str(e)}", exc_info=True)
+                    logging.error(
+                        f"Failed to send activation email: {str(e)}", exc_info=True
+                    )
+                    logging.error(
+                        "SMTP Connection details: HOST=%s, PORT=%s, USER=%s",
+                        settings.EMAIL_HOST,
+                        settings.EMAIL_PORT,
+                        settings.EMAIL_HOST_USER,
+                    )
                     raise
-
-                messages.success(
-                    request, "Please check your email to complete registration."
-                )
-                return redirect("profiles:login")
-            except Exception as e:
-                logger.error(f"Registration error: {str(e)}", exc_info=True)
-                if "user" in locals():
-                    user.delete()
-                messages.error(
-                    request, f"An error occurred during registration: {str(e)}"
-                )
-                return redirect("profiles:signup")
-        else:
-            logger.error(f"Form validation errors: {form.errors}")
-            messages.error(request, f"Registration failed: {form.errors}")
-    else:
-        form = UserRegisterForm()
-    return render(
-        request,
-        "profiles/signup.html",
-        {
-            "form": form,
-            "meta_description": "Register for access to GCSE English lessons and support with Stream English",
-            "meta_title": "Register - Stream English",
-        },
-    )
 
 
 def login_view(request):
@@ -505,3 +511,52 @@ class CustomPasswordResetView(FormView):
     def form_valid(self, form):
         form.save(self.request)
         return super().form_valid(form)
+
+
+def send_test_email(to_email):
+    try:
+        logging.debug(f"Starting test email send to {to_email}")
+        logging.debug(f"SMTP Settings:")
+        logging.debug(f"Host: {settings.EMAIL_HOST}")
+        logging.debug(f"Port: {settings.EMAIL_PORT}")
+        logging.debug(f"User: {settings.EMAIL_HOST_USER}")
+        logging.debug(f"SSL: {settings.EMAIL_USE_SSL}")
+
+        # Create connection with explicit auth
+        connection = get_connection()
+        connection.open()
+
+        # Force authentication
+        if not connection.connection.has_extn("auth"):
+            logging.error("SMTP server does not support authentication")
+            return False
+
+        try:
+            connection.connection.login(
+                settings.EMAIL_HOST_USER, settings.EMAIL_HOST_PASSWORD
+            )
+            logging.debug("SMTP authentication successful")
+        except Exception as e:
+            logging.error(f"SMTP authentication failed: {str(e)}")
+            return False
+
+        email = EmailMessage(
+            "Test Email",
+            "This is a test email.",
+            settings.DEFAULT_FROM_EMAIL,
+            [to_email],
+            connection=connection,
+        )
+
+        email.send()
+        logging.debug("Test email sent successfully")
+        connection.close()
+        return True
+
+    except Exception as e:
+        logging.error(f"Email error: {str(e)}")
+        if hasattr(e, "smtp_code"):
+            logging.error(f"SMTP Code: {e.smtp_code}")
+        if hasattr(e, "smtp_error"):
+            logging.error(f"SMTP Error: {e.smtp_error}")
+        return False
