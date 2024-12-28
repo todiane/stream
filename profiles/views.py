@@ -354,7 +354,7 @@ def activate(request, uidb64, token):
             print(f"Admin notification sent: {notification_sent}")  # Debug print
 
             messages.success(request, "Your account has been successfully activated!")
-            return redirect("pages:home")
+            return redirect("profiles:profile")
 
 
 # Resend activation email
