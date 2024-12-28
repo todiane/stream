@@ -58,6 +58,13 @@ class Product(models.Model):
         null=True,
         help_text="External URL for product image (jpg/png only)",
     )
+    external_preview_url = models.URLField(
+        max_length=500,
+        blank=True,
+        null=True,
+        help_text="External URL for preview file (PDF only)",
+        db_collation="latin1_swedish_ci",
+    )
     is_active = models.BooleanField(default=True)
 
     # Pricing
@@ -119,6 +126,17 @@ class Product(models.Model):
     def get_thumbnail_url(self):
         """Get thumbnail URL - falls back to main image if no thumbnail"""
         return self.get_image_url()
+
+    def get_preview_url(self):
+        """Get the URL for the preview file"""
+        try:
+            if self.external_preview_url:
+                return self.external_preview_url
+            if self.preview_file:
+                return self.preview_file.url
+            return None
+        except Exception:
+            return None
 
     def get_download_url(self):
         if self.files:
@@ -222,6 +240,14 @@ class OrderItem(models.Model):
 
     def get_price_in_pounds(self):
         return self.price_paid_pence / 100
+
+    def get_download_url(self):
+        """Get download URL for any product type"""
+        return self.product.get_download_url()
+
+    def has_downloadable_content(self):
+        """Check if this item has any downloadable content"""
+        return bool(self.product.files or self.product.get_download_url())
 
     @property
     def price(self):

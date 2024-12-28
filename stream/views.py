@@ -37,3 +37,8 @@ def terms_view(request):
 def cookie_view(request):
     template_name = "policy/cookies.html"
     return render(request, template_name)
+
+
+def content_view(request):
+    template_name = "policy/contents.html"
+    return render(request, template_name)

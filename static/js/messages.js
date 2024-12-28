@@ -4,10 +4,10 @@ document.addEventListener('DOMContentLoaded', function () {
     const messages = document.querySelectorAll('[role="alert"]');
     messages.forEach(function (message) {
       message.style.opacity = '0';
-      message.style.transition = 'opacity 0.5s ease-in-out';
+      message.style.transition = 'opacity 0.3s ease-in-out';
       setTimeout(function () {
         message.remove();
-      }, 500);
+      }, 300);
     });
   }, 5000);
 

@@ -65,6 +65,7 @@ class ProductAdmin(admin.ModelAdmin):
                     "external_image_url",
                     "files",
                     "preview_file",
+                    "external_preview_url",
                 ),
             },
         ),
@@ -111,6 +112,41 @@ class ProductAdmin(admin.ModelAdmin):
         return format_html("".join(html)) if html else "-"
 
     display_preview.short_description = "Preview"
+
+    def clean_external_preview_url(self, url):
+        if not url:
+            return url
+
+        # Validate URL format
+        validator = URLValidator()
+        try:
+            validator(url)
+        except ValidationError:
+            raise ValidationError("Invalid URL format")
+
+        # Check if URL exists and is a PDF
+        try:
+            response = requests.head(url, allow_redirects=True)
+            content_type = response.headers.get("content-type", "").lower()
+
+            if not content_type == "application/pdf":
+                raise ValidationError("URL must point to a PDF file")
+
+        except requests.RequestException:
+            raise ValidationError("Could not validate preview URL")
+
+        return url
+
+    def save_model(self, request, obj, form, change):
+        if "external_image_url" in form.changed_data:
+            obj.external_image_url = self.clean_external_image_url(
+                obj.external_image_url
+            )
+        if "external_preview_url" in form.changed_data:
+            obj.external_preview_url = self.clean_external_preview_url(
+                obj.external_preview_url
+            )
+        super().save_model(request, obj, form, change)
 
     def clean_external_image_url(self, url):
         if not url:

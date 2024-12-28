@@ -11,16 +11,22 @@
             <div class="divide-y divide-gray-200 dark:divide-gray-700">
                 {% for item in cart %}
                 <div class="p-6 flex items-start space-x-6">
-                    <!-- Product Image Container - Fixed dimensions with centered content -->
+                    <!-- Product Image Container with fallback -->
                     <div class="w-48 h-48 flex-shrink-0 bg-gray-50 rounded-lg overflow-hidden">
                         <a href="/shop/product/{{ item.product.slug }}" class="block w-full h-full">
-                            <img src="{{ item.product.preview_image.url }}" 
-                                alt="{{ item.product.title |safe}}"
-                                class="w-full h-full object-cover">
+                            {% if item.product.get_image_url %}
+                                <img src="{{ item.product.get_image_url }}" 
+                                     alt="{{ item.product.title|safe }}"
+                                     class="w-full h-full object-cover">
+                            {% else %}
+                                <div class="w-full h-full flex items-center justify-center bg-gray-100">
+                                    <span class="text-gray-400">No image</span>
+                                </div>
+                            {% endif %}
                         </a>
                     </div>
 
-                    <!-- Product Details - Flexible width with consistent spacing -->
+                    <!-- Rest of your existing cart item code remains the same -->
                     <div class="flex-1 min-w-0 flex flex-col">
                         <h2 class="text-xl font-semibold text-gray-900 dark:text-white">
                             <a href="/shop/product/{{ item.product.slug }}" class="hover:text-blue-600">
@@ -28,13 +34,13 @@
                             </a>
                         </h2>
                         <div class="mt-2 text-lg text-gray-500 dark:text-gray-400 line-clamp-3">
-                            {{ item.product.description|truncatewords:20 | safe }}
+                            {{ item.product.description|truncatewords:20|safe }}
                         </div>
                         <div class="mt-2 text-sm text-gray-500 dark:text-gray-400">
                             Price: £{{ item.price|floatformat:2 }}
                         </div>
                         
-                        <!-- Quantity Control with improved spacing -->
+                        <!-- Quantity Control -->
                         <div class="mt-4 flex items-center">
                             <form method="post" action="{% url 'shop:cart_update' item.product.id %}" 
                                   class="flex items-center">
@@ -53,7 +59,7 @@
                         </div>
                     </div>
 
-                    <!-- Price and Remove - Fixed width with consistent alignment -->
+                    <!-- Price and Remove -->
                     <div class="w-32 flex-shrink-0 flex flex-col items-end">
                         <div class="text-lg font-semibold text-gray-900 dark:text-white">
                             £{{ item.total_price|floatformat:2 }}

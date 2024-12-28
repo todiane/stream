@@ -46,7 +46,18 @@ LOGGING = {
             "level": "DEBUG",
             "propagate": False,
         },
-        "profiles": {  # Add specific logger for profiles app
+        "profiles": {
+            "handlers": ["file", "console"],
+            "level": "DEBUG",
+            "propagate": True,
+        },
+        # Add email logging
+        "shop.emails": {  # Add specific logger for shop emails
+            "handlers": ["file", "console"],
+            "level": "DEBUG",
+            "propagate": True,
+        },
+        "django.core.mail": {  # Add logging for Django's email backend
             "handlers": ["file", "console"],
             "level": "DEBUG",
             "propagate": True,

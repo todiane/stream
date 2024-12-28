@@ -5,7 +5,7 @@
 {% block content %}
 <p>Hello {% if order_item.order.user %}{{ order_item.order.user.profile.first_name }}{% else %}{{ order_item.order.guest_details.first_name }}{% endif %},</p>
 
-<p>Your download for {{ order_item.product.title }} is ready.</p>
+<p>Your download for {{ order_item.product.title }} is ready. If you have an account with us, you can also download this in your profile area.</p>
 
 <div style="background: #f8f9fa; padding: 20px; border-radius: 5px; margin-bottom: 20px;">
     <h3>Download Information</h3>

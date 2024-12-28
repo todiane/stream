@@ -33,18 +33,27 @@
                 </div>
 
                 <!-- Digital Product Details -->
-                {% if product.files %}
-                    <div class="bg-white dark:bg-gray-700 rounded-lg p-4">
-                        <h3 class="text-lg font-semibold text-gray-900 dark:text-white mb-2">Digital Product Details</h3>
-                        <ul class="space-y-2 text-gray-600 dark:text-gray-300">
-                            <li>Download Limit: {{ product.download_limit|default:"Unlimited" }}</li>
-                            {% if product.product_type %}
-                                <li>Product Type: {{ product.product_type }}</li>
+                <div class="bg-white dark:bg-gray-700 rounded-lg p-4">
+                    <h3 class="text-lg font-semibold text-gray-900 dark:text-white mb-2">Digital Product Details</h3>
+                    <ul class="space-y-2 text-gray-600 dark:text-gray-300">
+                        {% if product.product_type %}
+                            <li>Product Type: {{ product.get_product_type_display }}</li>
+                        {% endif %}
+                        
+                        {% if has_purchased %}
+                            <li>Download Limit: {{ order_item.downloads_remaining }}</li>
+                            {% if order_item.download_count < order_item.downloads_remaining %}
+                                <li>File: <a href="{% url 'shop:secure_download' order_item.id %}" class="text-blue-600 hover:underline">Download</a></li>
+                            {% else %}
+                                <li>Download limit reached</li>
                             {% endif %}
-                            <li>File: <a href="{{ product.files.url }}" class="text-blue-600 hover:underline">Download</a></li>
-                        </ul>
-                    </div>
-                {% endif %}
+                        {% endif %}
+                
+                        {% if product.preview_file %}
+                            <li>Preview: <a href="{{ product.preview_file.url }}" class="text-blue-600 hover:underline">Download Preview</a></li>
+                        {% endif %}
+                    </ul>
+                </div>
 
                 <!-- Add to Cart Form -->
                 {% if product.status == "publish" %}
