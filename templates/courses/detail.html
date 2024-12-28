@@ -2,7 +2,7 @@
 {% load static %} 
 
 {% block content %}
-{% include "courses/components/breadcrumb.html" with course=course lesson=lesson %}
+{% include "courses/components/breadcrumb.html" with course=course %}
 
 <div class="bg-white">
     <div class="py-8 lg:py-16 space-y-8 lg:space-y-16 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
@@ -66,10 +66,10 @@
             <div class="grid gap-8 md:grid-cols-2 lg:grid-cols-3">
                 {% for lesson_item in lessons_queryset %}
                     <div class="bg-white rounded-lg shadow-md overflow-hidden">
-                        {% if lesson_item.thumbnail %}
+                        {% if lesson_item.get_thumbnail_url %}
                             <img src="{{ lesson_item.get_thumbnail_url }}"
-                                 alt="{{ lesson_item.title }}"
-                                 class="w-full h-72 object-cover transition-all duration-300 hover:scale-105"
+                                alt="{{ lesson_item.title }}"
+                                class="w-full h-72 object-cover transition-all duration-300 hover:scale-105"
                             />
                         {% endif %}
                         <div class="p-4">

@@ -307,9 +307,24 @@ def download_product(request, product_id):
 
     # Send download link email
     try:
-        send_download_link_email(order_item)
+        context = {
+            "order_item": order_item,
+            "product": order_item.product,
+            "site_url": settings.SITE_URL,
+            "downloads_remaining": order_item.downloads_remaining,
+            "user": order_item.order.user,
+            "email": (
+                order_item.order.user.email
+                if order_item.order.user
+                else order_item.order.guest_details.email
+            ),
+            "unsubscribe_url": f"{settings.SITE_URL}/profiles/email-preferences/",
+        }
+        send_download_link_email(order_item, context)
     except Exception as e:
-        print(f"Error sending download email: {str(e)}")
+        logger.error(
+            f"Failed to send download email for order item {order_item.id}: {str(e)}"
+        )
 
     # Get download URL
     download_url = product.get_download_url()

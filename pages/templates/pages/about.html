@@ -5,15 +5,6 @@
 {% block content %}
 <section id="about" class="py-8 bg-white dark:bg-gray-800 p-6">
     <div class="container prose mx-auto">
-        {% if about_me %}
-        <h1 class="text-4xl font-bold text-center text-gray-900 dark:text-white">{{ about_me.title }}</h1>
-        <div class="bg-white flex flex-col md:flex-row items-start md:space-x-6">
-            <!-- Text Section -->
-            <div class="md:w-3/4">
-                <div class="mb-4">{{ about_me.description|safe }}</div>
-            </div>
-        </div>
-        {% endif %}
 
         {% if page %}
         <div class="mt-8">
@@ -46,25 +37,5 @@
 </section>
 {% endif %}
 
-<section id="about-columns" class="py-12 bg-white dark:bg-gray-800">
-    <div class="container mx-auto">
-        {% if about_me_columns %}
-        <div class="grid md:grid-cols-2 gap-6 lg:gap-12">
-            <div class="bg-white p-6">
-                <h3 class="text-xl font-semibold mb-3">{{ about_me_columns.title }}</h3>
-                <div class="text-gray-600">
-                    {{ about_me_columns.description|safe }}
-                </div>
-            </div>
-            <div class="bg-white p-6">
-                <h3 class="text-xl font-semibold mb-3">{{ about_me_columns.second_title }}</h3>
-                <div class="text-gray-600">
-                    {{ about_me_columns.second_description|safe }}
-                </div>
-            </div>
-        </div>
-        {% endif %}
-    </div>
-</section>
 
 {% endblock content %}

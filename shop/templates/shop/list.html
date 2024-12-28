@@ -20,7 +20,7 @@
             <!-- Dynamic Category Tabs -->
             {% for category in categories %}
             <a href="{{ category.get_absolute_url }}" 
-               class="text-blue-600 hover:underline px-4 py-2 rounded-lg whitespace-nowrap {% if current_category.id == category.id %}bg-blue-100 font-semibold{% endif %}">
+               class="text-blue-600 hover:underline px-4 py-2 rounded-lg whitespace-nowrap {% if current_category and current_category.id == category.id %} bg-blue-100 font-semibold{% endif %}">
                 {{ category.name }}
             </a>
             {% endfor %}
