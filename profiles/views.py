@@ -1,10 +1,7 @@
 # profiles/views.py
-import email
-from email import message
 from email.message import EmailMessage
 import logging
 from django.core.mail import get_connection
-import smtplib
 from profiles.models import Profile
 from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib import messages
@@ -45,31 +42,34 @@ def signup_view(request):
         form = UserRegisterForm(request.POST)
         if form.is_valid():
             try:
+                # Create user first
                 user = form.save(commit=False)
                 user.is_active = True
                 user.save()
 
+                # Create or update profile
                 profile, created = Profile.objects.get_or_create(user=user)
                 profile.first_name = form.cleaned_data.get("first_name")
                 profile.email_verified = False
                 profile.save()
 
-                current_site = get_current_site(request)
-                subject = "Activate your Stream English Account"
-                unsubscribe_uid = urlsafe_base64_encode(force_bytes(user.pk))
-
-                context = {
-                    "user": user,
-                    "domain": "streamenglish.co.uk",
-                    "uid": urlsafe_base64_encode(force_bytes(user.pk)),
-                    "token": account_activation_token.make_token(user),
-                    "protocol": "https",
-                    "expiration_days": settings.ACCOUNT_ACTIVATION_DAYS,
-                    "email": user.email,
-                    "unsubscribe_url": f"https://streamenglish.co.uk{reverse('profiles:unsubscribe_email', kwargs={'uidb64': unsubscribe_uid})}",
-                }
-
+                # Try to send activation email
                 try:
+                    current_site = get_current_site(request)
+                    subject = "Activate your Stream English Account"
+                    unsubscribe_uid = urlsafe_base64_encode(force_bytes(user.pk))
+
+                    context = {
+                        "user": user,
+                        "domain": "streamenglish.co.uk",
+                        "uid": urlsafe_base64_encode(force_bytes(user.pk)),
+                        "token": account_activation_token.make_token(user),
+                        "protocol": "https",
+                        "expiration_days": settings.ACCOUNT_ACTIVATION_DAYS,
+                        "email": user.email,
+                        "unsubscribe_url": f"https://streamenglish.co.uk{reverse('profiles:unsubscribe_email', kwargs={'uidb64': unsubscribe_uid})}",
+                    }
+
                     html_message = render_to_string(
                         "account/email/account_activation_email.html", context
                     )
@@ -83,27 +83,31 @@ def signup_view(request):
                     msg.attach_alternative(html_message, "text/html")
                     msg.send()
 
-                    messages.success(
-                        request, "Please check your email to activate your account."
+                except Exception as e:
+                    # Log the specific email error but don't prevent registration
+                    logger.error(f"Failed to send activation email: {str(e)}")
+                    messages.warning(
+                        request,
+                        "Your account was created but there was an error sending the activation email. "
+                        "You can still log in, but you'll need to verify your email to access all features.",
                     )
                     return redirect("profiles:login")
 
-                except Exception as e:
-                    messages.error(
-                        request,
-                        "There was an error sending the activation email. Please try again.",
-                    )
-                    user.delete()
-                    return redirect("profiles:signup")
+                messages.success(
+                    request,
+                    "Registration successful! Please check your email to activate your account. "
+                    "You can still log in, but some features require email verification.",
+                )
+                return redirect("profiles:login")
 
             except Exception as e:
+                # Log any other errors during user creation
+                logger.error(f"Error during user registration: {str(e)}")
                 messages.error(
                     request,
                     "There was an error creating your account. Please try again.",
                 )
-                return redirect("profiles:signup")
-        else:
-            pass
+                return render(request, "profiles/signup.html", {"form": form})
     else:
         form = UserRegisterForm()
 
@@ -542,3 +546,31 @@ def send_test_email(to_email):
         if hasattr(e, "smtp_error"):
             logging.error(f"SMTP Error: {e.smtp_error}")
         return False
+
+
+def test_email_settings():
+    import smtplib
+    from django.conf import settings
+
+    try:
+        print(f"Attempting to connect to {settings.EMAIL_HOST}:{settings.EMAIL_PORT}")
+        print(f"Using username: {settings.EMAIL_HOST_USER}")
+
+        # Create SMTP connection using SSL
+        server = smtplib.SMTP_SSL(
+            settings.EMAIL_HOST, settings.EMAIL_PORT
+        )  # Changed back to SMTP_SSL for port 465
+        server.set_debuglevel(1)  # Enable debug output
+
+        print("Connection established, attempting login...")
+        # Try to login
+        server.login(settings.EMAIL_HOST_USER, settings.EMAIL_HOST_PASSWORD)
+
+        print("Login successful, closing connection...")
+        # Close the connection
+        server.quit()
+        return True, "SMTP connection successful"
+    except Exception as e:
+        error_msg = f"SMTP connection failed: {str(e)}"
+        print(error_msg)
+        return False, error_msg
