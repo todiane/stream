@@ -1,6 +1,7 @@
 {% extends "base.html" %}
 
 {% block content %}
+{% include "courses/components/breadcrumb.html" with course=object.course lesson_item=object %}
 
 <h1>{{ object.title }}</h1>
 
