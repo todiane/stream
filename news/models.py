@@ -55,6 +55,13 @@ class Post(models.Model):
     image = models.ImageField(
         upload_to="news/images/", null=True, blank=True, storage=public_storage
     )
+    external_image_url = models.URLField(
+        max_length=500,
+        blank=True,
+        null=True,
+        help_text="External URL for product image (jpg/png only)",
+        db_collation="latin1_swedish_ci",
+    )
     youtube_url = models.URLField(blank=True, null=True)
     thumbnail = models.ImageField(
         upload_to="news/thumbnails/", null=True, blank=True, storage=public_storage
@@ -83,6 +90,17 @@ class Post(models.Model):
         try:
             if self.image:
                 return self.preview_image.url.replace("/media/public/", "/media/")
+            return None
+        except Exception:
+            return None
+
+    def get_image_url(self):
+        """Get the URL for the main image"""
+        try:
+            if self.external_image_url:
+                return self.external_image_url
+            if self.image:
+                return self.image.url.replace("/media/public/", "/media/")
             return None
         except Exception:
             return None

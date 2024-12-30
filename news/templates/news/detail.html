@@ -14,10 +14,14 @@
             </div>
         </header>
         
-        {% if post.get_image_url %}
-        <div class="mb-8">
-            <img src="{{ post.get_image_url }}" alt="{{ post.title }}" class="w-full h-auto rounded-lg shadow-sm">
-        </div>
+        {% if post.external_image_url %}
+            <div class="mb-8">
+                <img src="{{ post.external_image_url }}" alt="{{ post.title }}" class="w-full h-auto rounded-lg shadow-sm">
+            </div>
+            {% elif post.get_image_url %}
+            <div class="mb-8">
+                <img src="{{ post.get_image_url }}" alt="{{ post.title }}" class="w-full h-auto rounded-lg shadow-sm">
+            </div>
         {% endif %}
 
         {% if post.youtube_url %}
@@ -77,31 +81,27 @@
                 {{ post.category.name }}
             </a>
         </div>
-        <!-- related posts -->
+       <!-- related posts -->
         <div class="mt-12 mb-24">
             <h2 class="text-2xl font-bold mb-8">Related Posts</h2>
             <div class="flex flex-row justify-between space-x-8">
                 {% for related in related_posts %}
-                
                 <a href="{{ related.get_absolute_url }}" class="group w-1/2">
-                        <div class="aspect-video w-full mb-4 overflow-hidden rounded-lg bg-gray-100">
-                            {% if related.get_display_image %}
-                                <img 
-                                    src="{{ related.get_display_image }}" 
-                                    alt="{{ related.title }}" 
-                                    class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-200"
-                                >
-                            {% else %}
-                                <div class="w-full h-full bg-gray-200 flex items-center justify-center">
-                                    <span class="text-gray-400">No image</span>
-                                </div>
-                            {% endif %}
-                        </div>
-                        <p class="text-lg text-gray-900 group-hover:text-blue-600 transition-colors duration-200">
-                            {{ related.title|truncatechars:60 }}
-                            
-                        </p>
-                    </a>
+                    <div class="aspect-video w-full mb-4 overflow-hidden rounded-lg bg-gray-100">
+                        {% if related.external_image_url %}
+                            <img src="{{ related.external_image_url }}" 
+                                alt="{{ related.title }}" 
+                                class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-200">
+                        {% elif related.get_display_image %}
+                            <img src="{{ related.get_display_image }}" 
+                                alt="{{ related.title }}" 
+                                class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-200">
+                        {% endif %}
+                    </div>
+                    <p class="text-lg text-gray-900 group-hover:text-blue-600 transition-colors duration-200">
+                        {{ related.title|truncatechars:60 }}
+                    </p>
+                </a>
                 {% empty %}
                     <div class="w-full text-center text-gray-500 py-4">
                         No related posts found
@@ -109,7 +109,5 @@
                 {% endfor %}
             </div>
         </div>
-    </div>
 </div>
-<p>{{ related.get_image_url }}</p>
 {% endblock %}

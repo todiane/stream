@@ -11,8 +11,12 @@
         {% for post in posts %}
             <div class="bg-white rounded-lg shadow-lg overflow-hidden">
                 <div class="w-full h-48 overflow-hidden">
-                    {% if post.image %}
-                        <img src="{{ post.image.url }}" 
+                    {% if post.external_image_url %}
+                        <img src="{{ post.external_image_url }}" 
+                             alt="{{ post.title }}" 
+                             class="w-full h-full object-cover">
+                    {% elif post.get_image_url %}
+                        <img src="{{ post.get_image_url }}" 
                              alt="{{ post.title }}" 
                              class="w-full h-full object-cover">
                     {% elif post.youtube_url %}
@@ -20,10 +24,6 @@
                              alt="{{ post.title }}"
                              class="w-full h-full object-cover"
                              onerror="this.onerror=null; this.src='https://img.youtube.com/vi/{{ post.get_youtube_video_id }}/hqdefault.jpg';">
-                    {% elif post.thumbnail %}
-                        <img src="{{ post.thumbnail.url }}" 
-                             alt="{{ post.title }}" 
-                             class="w-full h-full object-cover">
                     {% endif %}
                 </div>
                 
@@ -37,7 +37,7 @@
             </div>
         {% empty %}
             <div class="col-span-2 text-center py-12">
-                <p class="text-gray-600">No posts available in this category.</p>
+                <p class="text-gray-600">New posts coming soon.</p>
             </div>
         {% endfor %}
     </div>
