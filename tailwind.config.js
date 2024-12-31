@@ -24,6 +24,7 @@ module.exports = {
             fontFamily: {
                 'sans': ['Poppins', 'system-ui', 'sans-serif'],
                 'poppins': ['Poppins', 'system-ui', 'sans-serif'],
+                'heading': ['Lato', 'system-ui', 'sans-serif'],
             },
         },
     },
@@ -31,6 +32,13 @@ module.exports = {
         require('@tailwindcss/aspect-ratio'),
         require('@tailwindcss/forms'),
         require('@tailwindcss/typography'),
+        function ({ addBase, theme }) {
+            addBase({
+                'h1, h2, h3, h4, h5, h6': {
+                    fontFamily: theme('fontFamily.heading')
+                }
+            })
+        }
     ],
     variants: {
         extend: {

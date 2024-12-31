@@ -255,9 +255,12 @@ CKEDITOR_CONFIGS = {
             ]
         ),
         "uploadUrl": "/ckeditor/upload/",
-        "contentsCss": ["p { margin: 0.5em 0; }"],
-        "enterMode": 2,  # CKEDITOR.ENTER_BR
-        "shiftEnterMode": 1,  # CKEDITOR.ENTER_P
+        "contentsCss": [
+            "p { margin: 0.5em 0; }",
+            "h1, h2, h3, h4, h5, h6 { font-family: 'Lato', sans-serif; }",
+        ],
+        "enterMode": 2,
+        "shiftEnterMode": 1,
         "format_tags": "p;h1;h2;h3;pre",
         "removeDialogTabs": "image:advanced;link:advanced",
         "stylesSet": [
@@ -265,10 +268,26 @@ CKEDITOR_CONFIGS = {
                 "name": "Paragraph",
                 "element": "p",
                 "attributes": {"style": "margin: 0.5em 0;"},
-            }
+            },
+            {
+                "name": "Heading 1",
+                "element": "h1",
+                "attributes": {"style": "font-family: 'Lato', sans-serif;"},
+            },
+            {
+                "name": "Heading 2",
+                "element": "h2",
+                "attributes": {"style": "font-family: 'Lato', sans-serif;"},
+            },
+            {
+                "name": "Heading 3",
+                "element": "h3",
+                "attributes": {"style": "font-family: 'Lato', sans-serif;"},
+            },
         ],
     },
 }
+
 
 # Internationalization
 LANGUAGE_CODE = "en-us"
