@@ -6,7 +6,7 @@
         <!-- Breadcrumb -->
         <nav class="mb-8">
             <ol class="flex items-center space-x-2 text-gray-600 dark:text-gray-400">
-                <li><a href="{% url 'shop:product_list' %}" class="hover:text-blue-600 dark:hover:text-blue-400">Shop</a></li>
+                <li><a href="{% url 'shop:product_list' %}" class="hover:text-blue-600 dark:hover:text-blue-400">Study Materials</a></li>
                 <li><span class="mx-2">/</span></li>
                 {% if product.category %}
                     <li><a href="{{ product.category.get_absolute_url }}" class="hover:text-blue-600 dark:hover:text-blue-400">{{ product.category.name }}</a></li>

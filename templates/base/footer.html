@@ -8,8 +8,9 @@
           <h2 class="mb-4 text-sm font-semibold uppercase text-gray-900 dark:text-white">Resources</h2>
           <ul class="text-gray-600 dark:text-gray-400">
             <li class="mb-2"><a href="{% url 'news:category' slug='teacher-resources' %}" class="hover:underline">Teachers</a></li>
+            <li class="mb-2"><a href="{% url 'news:category' slug='students' %}" class="hover:underline">Students</a></li>
             <li class="mb-2"><a href="{% url 'courses:course_list' %}" class="hover:underline">Lessons</a></li>
-            <li class="mb-2"><a href="{% url 'news:list' %}" class="hover:underline">News</a></li>
+            <li class="mb-2"><a href="{% url 'news:category' slug='news' %}" class="hover:underline">News Releases</a></li>
           </ul>
         </div>
 
@@ -19,7 +20,7 @@
           <ul class="text-gray-600 dark:text-gray-400">
             <li class="mb-2"><a href="{% url 'profiles:signup' %}" class="hover:underline">Register</a></li>
             <li class="mb-2"><a href="{% url 'pages:tuition' %}" class="hover:underline">Tuition</a></li>
-            <li class="mb-2"><a href="{% url 'shop:product_list' %}" class="hover:underline">Shop</a></li>
+            <li class="mb-2"><a href="{% url 'shop:product_list' %}" class="hover:underline">Study Materials</a></li>
           </ul>
         </div>
 
