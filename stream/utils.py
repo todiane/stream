@@ -2,18 +2,33 @@ from django.utils.text import slugify as django_slugify
 import re
 
 
-def custom_slugify(text):
-    """
-    Custom slugify function that preserves apostrophes for English language content
-    but still creates valid URLs
-    """
-    # Replace smart/curly quotes with straight quotes
-    text = text.replace(""", "'").replace(""", "'").replace('"', '"').replace('"', '"')
+def sanitize_text(text):
+    """Sanitize text for latin1 compatibility while preserving meaning"""
+    if not isinstance(text, str):
+        return text
 
-    # Preserve apostrophes in words like "Shakespeare's" but remove other special characters
-    text = re.sub(
-        r"([a-zA-Z])'([a-zA-Z])", r"\1-\2", text
-    )  # Replace apostrophes in words with hyphens
-    text = django_slugify(text)  # Handle all other characters
+    replacements = {
+        '"': '"',  # Smart quotes to straight quotes
+        '"': '"',
+        """: "'",  # Smart apostrophes to straight
+        """: "'",
+        "…": "...",  # Ellipsis
+        "–": "-",  # En dash
+        "—": "-",  # Em dash
+        "•": "*",  # Bullet
+        ",": ",",  # Standard comma
+        "\u201A": ",",  # Single low-9 quotation mark (looks like comma)
+        "\u2039": ",",  # Single left-pointing angle quotation mark
+    }
+
+    for old, new in replacements.items():
+        text = text.replace(old, new)
 
     return text
+
+
+def custom_slugify(text):
+    """Create URL-friendly slugs while preserving apostrophes"""
+    text = sanitize_text(text)
+    text = re.sub(r"([a-zA-Z])'([a-zA-Z])", r"\1-\2", text)
+    return django_slugify(text)

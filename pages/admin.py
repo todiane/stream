@@ -1,51 +1,44 @@
-# pages/admin.py
 from django.contrib import admin
 from django.urls import reverse
 from django.utils.html import format_html
+from django import forms
 from simple_history.admin import SimpleHistoryAdmin  # type: ignore
-from .models import AboutFeature, Page, Hero, HeroBanner, AboutMe, AboutCourses
+from .models import (
+    AboutFeature,
+    Page,
+    Hero,
+    HeroBanner,
+    AboutMe,
+    AboutCourses,
+    TuitionFeature,
+)
+from stream.utils import sanitize_text
 
 
-@admin.register(Hero)
-class HeroAdmin(SimpleHistoryAdmin):
-    list_display = ["title", "is_active"]
-    search_fields = ["title", "description"]
-    fieldsets = (
-        (None, {"fields": ("title", "subtitle", "description", "is_active")}),
-        (
-            "Video",
-            {
-                "fields": ("video_url",),
-                "description": "Add a YouTube video URL to display in the hero section",
-            },
-        ),
-        ("Call to Action", {"fields": ("cta_text", "cta_link")}),
-    )
+class PageAdminForm(forms.ModelForm):
+    class Meta:
+        model = Page
+        fields = "__all__"
 
-    def save_model(self, request, obj, form, change):
-        # Ensure only one hero section is active
-        if obj.is_active:
-            Hero.objects.exclude(pk=obj.pk).update(is_active=False)
-        super().save_model(request, obj, form, change)
-
-
-@admin.register(HeroBanner)
-class HeroBannerAdmin(admin.ModelAdmin):
-    list_display = ["text", "is_active"]
-
-    def save_model(self, request, obj, form, change):
-        if obj.is_active:
-            HeroBanner.objects.exclude(pk=obj.pk).update(is_active=False)
-        super().save_model(request, obj, form, change)
+    def clean(self):
+        cleaned_data = super().clean()
+        # Clean text fields
+        text_fields = ["title", "meta_title", "meta_description", "meta_keywords"]
+        for field in text_fields:
+            if cleaned_data.get(field):
+                cleaned_data[field] = sanitize_text(cleaned_data[field])
+        return cleaned_data
 
 
 @admin.register(Page)
 class PageAdmin(SimpleHistoryAdmin):
+    form = PageAdminForm
     list_display = ["title", "template", "is_active", "publish_date", "preview_link"]
     list_filter = ["is_active", "template"]
     search_fields = ["title", "content", "meta_title", "meta_description"]
     prepopulated_fields = {"slug": ("title",)}
     readonly_fields = ["preview_link"]
+
     fieldsets = (
         (None, {"fields": ("title", "slug", "template", "content", "second_content")}),
         ("Publishing", {"fields": ("is_active", "publish_date")}),
@@ -69,11 +62,60 @@ class PageAdmin(SimpleHistoryAdmin):
     preview_link.short_description = "Preview"
 
     def save_model(self, request, obj, form, change):
+        # Sanitize text fields before saving
+        obj.title = sanitize_text(obj.title)
+        if obj.meta_title:
+            obj.meta_title = sanitize_text(obj.meta_title)
+        if obj.meta_description:
+            obj.meta_description = sanitize_text(obj.meta_description)
+        if obj.meta_keywords:
+            obj.meta_keywords = sanitize_text(obj.meta_keywords)
+
         # Ensure only one homepage exists
         if obj.template == "home":
             Page.objects.filter(template="home").exclude(pk=obj.pk).update(
                 template="about"
             )
+        super().save_model(request, obj, form, change)
+
+
+@admin.register(Hero)
+class HeroAdmin(SimpleHistoryAdmin):
+    list_display = ["title", "is_active"]
+    search_fields = ["title", "description"]
+
+    fieldsets = (
+        (None, {"fields": ("title", "subtitle", "description", "is_active")}),
+        (
+            "Video",
+            {
+                "fields": ("video_url",),
+                "description": "Add a YouTube video URL to display in the hero section",
+            },
+        ),
+        ("Call to Action", {"fields": ("cta_text", "cta_link")}),
+    )
+
+    def save_model(self, request, obj, form, change):
+        obj.title = sanitize_text(obj.title)
+        if obj.subtitle:
+            obj.subtitle = sanitize_text(obj.subtitle)
+        if obj.description:
+            obj.description = sanitize_text(obj.description)
+
+        if obj.is_active:
+            Hero.objects.exclude(pk=obj.pk).update(is_active=False)
+        super().save_model(request, obj, form, change)
+
+
+@admin.register(HeroBanner)
+class HeroBannerAdmin(admin.ModelAdmin):
+    list_display = ["text", "is_active"]
+
+    def save_model(self, request, obj, form, change):
+        obj.text = sanitize_text(obj.text)
+        if obj.is_active:
+            HeroBanner.objects.exclude(pk=obj.pk).update(is_active=False)
         super().save_model(request, obj, form, change)
 
 
@@ -83,6 +125,7 @@ class AboutMeAdmin(admin.ModelAdmin):
     fields = ["title", "description", "is_active"]
 
     def save_model(self, request, obj, form, change):
+        obj.title = sanitize_text(obj.title)
         if obj.is_active:
             AboutMe.objects.exclude(pk=obj.pk).update(is_active=False)
         super().save_model(request, obj, form, change)
@@ -95,6 +138,12 @@ class AboutFeatureAdmin(admin.ModelAdmin):
     search_fields = ["title", "description"]
     ordering = ["order"]
     list_editable = ["order", "is_active"]
+
+    def save_model(self, request, obj, form, change):
+        obj.title = sanitize_text(obj.title)
+        if obj.description:
+            obj.description = sanitize_text(obj.description)
+        super().save_model(request, obj, form, change)
 
 
 @admin.register(AboutCourses)
@@ -109,12 +158,15 @@ class AboutCoursesAdmin(admin.ModelAdmin):
     ]
 
     def save_model(self, request, obj, form, change):
+        obj.title = sanitize_text(obj.title)
+        if obj.description:
+            obj.description = sanitize_text(obj.description)
+        if obj.button_text:
+            obj.button_text = sanitize_text(obj.button_text)
+
         if obj.is_active:
             AboutCourses.objects.exclude(pk=obj.pk).update(is_active=False)
         super().save_model(request, obj, form, change)
-
-
-from .models import TuitionFeature
 
 
 @admin.register(TuitionFeature)
@@ -124,3 +176,9 @@ class TuitionFeatureAdmin(admin.ModelAdmin):
     search_fields = ["title", "description"]
     ordering = ["order"]
     list_editable = ["order", "is_active"]
+
+    def save_model(self, request, obj, form, change):
+        obj.title = sanitize_text(obj.title)
+        if obj.description:
+            obj.description = sanitize_text(obj.description)
+        super().save_model(request, obj, form, change)

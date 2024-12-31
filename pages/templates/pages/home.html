@@ -28,7 +28,7 @@
 <section class="bg-slate-50 dark:bg-gray-900">
     <!-- Full-width Title and Subtitle -->
     <div class="py-4 px-4 text-center">
-        <h1 class="mb-2 text-4xl font-extrabold tracking-tight leading-none md:text-5xl lg:text-6xl text-gray-900 dark:text-white">
+        <h1 class="mb-4 text-4xl font-extrabold tracking-tight leading-none md:text-5xl lg:text-6xl text-gray-900 dark:text-white">
             {{ hero.title }}
         </h1>
         {% if hero.subtitle %}
@@ -92,9 +92,20 @@
 {% if object_list %}
 <section class="section bg-slate-50 dark:bg-gray-800 py-12">
     <div class="container mx-auto px-4">
-        <h2 class="text-3xl font-extrabold text-center mb-8 text-gray-900 dark:text-white">
-            Lessons
-        </h2>
+        {% if about_courses %}
+            <h2 class="text-3xl font-extrabold text-center mb-4 text-gray-900 dark:text-white">
+                {{ about_courses.title }}
+            </h2>
+            {% if about_courses.description %}
+                <div class="prose prose-lg mx-auto text-center mb-8 text-gray-600 dark:text-gray-400">
+                    {{ about_courses.description|safe }}
+                </div>
+            {% endif %}
+        {% else %}
+            <h2 class="text-3xl font-extrabold text-center mb-8 text-gray-900 dark:text-white">
+                Register for Online Lessons
+            </h2>
+        {% endif %}
 
         <div id="course-list">
             {% include 'courses/snippets/list-display.html' with queryset=object_list %}
@@ -102,13 +113,14 @@
 
         <div class="text-center mt-8">
             <a href="{% url 'courses:course_list' %}" 
-               class="inline-flex items-center px-5 py-3 text-base font-medium text-white bg-blue-600 rounded-lg hover:bg-blue-700">
-                View All Lessons
+            class="inline-flex items-center px-5 py-3 text-base font-medium text-white bg-blue-600 rounded-lg hover:bg-blue-700">
+                {{ about_courses.button_text|default:"View All Lessons" }}
             </a>
         </div>
     </div>
 </section>
 {% endif %}
+
 {% if page.second_content %}
 <section class="bg-white py-4 px-4 lg:py-20 lg:px-8">
     <div class="container mx-auto px-4 max-w-screen-xl">
@@ -130,9 +142,9 @@
 
         <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
             {% for product in featured_products %}
-            <div class="bg-white rounded-lg shadow-lg overflow-hidden dark:bg-gray-700">
+            <div class="bg-white shadow rounded-lg overflow-hidden hover:shadow-lg transition-shadow duration-300">
                 {% if product.get_image_url %}
-                <img class="w-full h-48 object-cover" src="{{ product.get_image_url }}" alt="{{ product.title }}">
+                <img class="w-full h-64 object-cover" src="{{ product.get_image_url }}" alt="{{ product.title }}">
                 {% endif %}
                 <div class="p-6">
                     <h3 class="text-xl font-bold mb-2 text-gray-900 dark:text-white">{{ product.title }}</h3>
@@ -153,7 +165,7 @@
         <div class="text-center mt-8">
             <a href="{% url 'shop:product_list' %}" 
                class="inline-flex items-center px-5 py-3 text-base font-medium text-white bg-blue-600 rounded-lg hover:bg-blue-700">
-                Other Resources
+                Other Study Materials
             </a>
         </div>
     </div>
