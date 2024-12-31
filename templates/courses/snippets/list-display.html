@@ -8,12 +8,12 @@
         {% endif %}
   
         {% if object.get_image_url %}
-        <div class="flex justify-center">
+        <div class="flex justify-center overflow-hidden">
             <a href="{{ object.get_absolute_url }}" class="block">
                 <img 
                     src="{{ object.get_image_url }}" 
                     alt="{{ object.title }}"
-                    class="rounded-t-lg w-full object-cover h-auto transition-transform duration-300 custom-ease transform hover:scale-110"
+                    class="rounded-t-lg w-full object-cover h-auto transition-all duration-300 ease-in-out filter grayscale-[50%] hover:grayscale-0 hover:scale-110"
                     style="max-width: 382px;"
                 >
             </a>
@@ -37,4 +37,4 @@
         </div>
     </div>
     {% endfor %}
-  </div>
+</div>
