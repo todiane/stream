@@ -70,7 +70,7 @@
 
     <!-- Enrolled Courses Section -->
     <div class="bg-white shadow rounded-lg p-6 mb-8">
-        <h2 class="text-2xl font-semibold mb-6 text-gray-800">Enrolled Courses</h2>
+        <h2 class="text-2xl font-semibold mb-6 text-gray-800">Enrolled Lessons</h2>
         
         {% if enrolled_courses %}
             <div class="space-y-8">
@@ -96,14 +96,14 @@
                         <div class="flex space-x-3">
                             <a href="{% url 'profiles:resume_course' course_slug=course_data.course.slug %}" 
                                class="bg-blue-600 hover:bg-blue-700 text-white font-medium py-2 px-4 rounded transition duration-150 ease-in-out">
-                                Resume Course
+                                Resume Lesson
                             </a>
                             <form method="POST" action="{% url 'profiles:remove_course' course_slug=course_data.course.slug %}" class="inline">
                                 {% csrf_token %}
                                 <button type="button" 
                                         class="bg-green-800 hover:bg-green-900 text-white font-medium py-2 px-4 rounded transition duration-150 ease-in-out"
                                         onclick="showConfirmation('Are you sure you want to remove this course?', () => this.closest('form').submit())">
-                                    Remove Course
+                                    Remove Lesson
                                 </button>
                             </form>
                         </div>
@@ -111,7 +111,7 @@
                 {% endfor %}
             </div>
         {% else %}
-            <p class="text-gray-600">You are not enrolled in any courses yet.</p>
+            <p class="text-gray-600">You are not enrolled in any lessons yet.</p>
         {% endif %}
     </div>
     <!-- Contact Teacher Section starts here -->
