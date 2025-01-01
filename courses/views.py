@@ -14,9 +14,33 @@ from . import services
 def course_list_view(request):
     if request.headers.get("X-Requested-With") == "XMLHttpRequest":
         query = request.GET.get("query", "")
+        # Search courses
         courses = Course.objects.filter(Q(title__icontains=query), status="publish")
-        data = [{"title": course.title, "path": course.path} for course in courses]
-        return JsonResponse({"results": data})
+        # Search lessons
+        lessons = Lesson.objects.filter(
+            Q(title__icontains=query),
+            course__status="publish",
+            status__in=["publish", "soon"],
+        )
+
+        # Combine results
+        results = []
+        # Add courses
+        for course in courses:
+            results.append(
+                {"title": course.title, "path": course.path, "type": "course"}
+            )
+        # Add lessons
+        for lesson_item in lessons:
+            results.append(
+                {
+                    "title": lesson_item.title,
+                    "path": lesson_item.get_absolute_url(),
+                    "type": "lesson",
+                }
+            )
+
+        return JsonResponse({"results": results})
 
     queryset = services.get_publish_courses()
     context = {"object_list": queryset if queryset.exists() else []}
