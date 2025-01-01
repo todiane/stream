@@ -40,7 +40,19 @@ class PageAdmin(SimpleHistoryAdmin):
     readonly_fields = ["preview_link"]
 
     fieldsets = (
-        (None, {"fields": ("title", "slug", "template", "content", "second_content")}),
+        (
+            None,
+            {
+                "fields": (
+                    "title",
+                    "slug",
+                    "template",
+                    "content",
+                    "second_content",
+                    "third_content",
+                )
+            },
+        ),
         ("Publishing", {"fields": ("is_active", "publish_date")}),
         (
             "SEO",

@@ -16,9 +16,17 @@ def home_view(request):
         featured_courses = Course.objects.filter(status="publish")[:3]
         about_courses = AboutCourses.objects.filter(is_active=True).first()
 
+        # Get featured products for tuition packages
         featured_products = Product.objects.filter(
             featured=True, status="publish", is_active=True
         ).order_by("created")[:6]
+
+        # Get latest products for third section
+        latest_products = (
+            Product.objects.filter(status="publish", is_active=True)
+            .exclude(id__in=[p.id for p in featured_products])
+            .order_by("-created")[:3]
+        )
 
         context = {
             "page": page,
@@ -28,6 +36,7 @@ def home_view(request):
             "about_courses": about_courses,
             "meta_description": "GCSE English Language and Literature - online courses and tuition",
             "featured_products": featured_products,
+            "latest_products": latest_products,
             "meta_title": "Stream English - GCSE English Language and Literature tuition",
         }
         return render(request, "pages/home.html", context)

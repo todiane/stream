@@ -75,6 +75,7 @@ class Page(SEOFields):
     publish_date = models.DateTimeField(default=timezone.now)
     history = HistoricalRecords()
     second_content = RichTextUploadingField(blank=True, null=True)
+    third_content = RichTextUploadingField(blank=True, null=True)
 
     class Meta:
         ordering = ["title"]

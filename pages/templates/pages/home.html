@@ -8,7 +8,6 @@
 
 {% block content %}
 {% if hero %}
-<!-- pages/templates/pages/home.html -->
 <!-- Banner Section -->
 <div class="flex items-center justify-center py-8 px-4 bg-slate-50 dark:bg-gray-800">
     <div class="flex items-center gap-2 px-4 py-2 bg-gray-100 rounded-md text-gray-900 shadow">
@@ -21,8 +20,6 @@
         </a>
     </div>
 </div>
-
-
 
 <!-- Hero Section -->
 <section class="bg-slate-50 dark:bg-gray-900">
@@ -84,11 +81,13 @@
     <div class="container mx-auto px-4 max-w-screen-xl">
         <div class="prose prose-lg mx-auto">
             <div class="text-center mb-12">
-            {{ page.content|safe }}
+                {{ page.content|safe }}
+            </div>
         </div>
     </div>
 </section>
 
+<!-- Course Section -->
 {% if object_list %}
 <section class="section bg-slate-50 dark:bg-gray-800 py-12">
     <div class="container mx-auto px-4">
@@ -113,7 +112,7 @@
 
         <div class="text-center mt-8">
             <a href="{% url 'courses:course_list' %}" 
-            class="inline-flex items-center px-5 py-3 text-base font-medium text-white bg-blue-600 rounded-lg hover:bg-blue-700">
+               class="inline-flex items-center px-5 py-3 text-base font-medium text-white bg-blue-600 rounded-lg hover:bg-blue-700">
                 {{ about_courses.button_text|default:"View All Lessons" }}
             </a>
         </div>
@@ -121,6 +120,7 @@
 </section>
 {% endif %}
 
+<!-- Second Content Section -->
 {% if page.second_content %}
 <section class="bg-white py-4 px-4 lg:py-20 lg:px-8">
     <div class="container mx-auto px-4 max-w-screen-xl">
@@ -133,8 +133,9 @@
 </section>
 {% endif %}
 
+<!-- Featured Products Section -->
 {% if featured_products %}
-<section class="section bg-slate-50 dark:bg-gray-800 py-12 mb-20">
+<section class="section bg-slate-50 dark:bg-gray-800 py-12">
     <div class="container mx-auto px-4">
         <h2 class="text-3xl font-extrabold text-center mb-8 text-gray-900 dark:text-white">
             Tuition Packages
@@ -162,6 +163,54 @@
             </div>
             {% endfor %}
         </div>
+    </div>
+</section>
+{% endif %}
+
+<!-- Third Content Section -->
+{% if page.third_content %}
+<section class="bg-white py-4 px-4 lg:py-20 lg:px-8">
+    <div class="container mx-auto px-4 max-w-screen-xl">
+        <div class="prose prose-lg mx-auto">
+            <div class="text-center mb-12">
+                {{ page.third_content|safe }}
+            </div>
+        </div>
+    </div>
+</section>
+{% endif %}
+
+<!-- Latest Products Section -->
+{% if latest_products %}
+<section class="section bg-slate-50 dark:bg-gray-800 py-12">
+    <div class="container mx-auto px-4">
+        <h2 class="text-3xl font-extrabold text-center mb-8 text-gray-900 dark:text-white">
+            Latest Resources
+        </h2>
+
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
+            {% for product in latest_products %}
+            <div class="bg-white shadow rounded-lg overflow-hidden hover:shadow-lg transition-shadow duration-300">
+                {% if product.get_image_url %}
+                <img class="w-full h-64 object-cover" src="{{ product.get_image_url }}" alt="{{ product.title }}">
+                {% endif %}
+                <div class="p-6">
+                    <h3 class="text-xl font-bold mb-2 text-gray-900 dark:text-white">{{ product.title }}</h3>
+                    <p class="text-gray-700 dark:text-gray-300 mb-4">
+                        £{{ product.current_price|floatformat:2 }}
+                    </p>
+                    <a href="{% url 'shop:product_detail' product.slug %}" 
+                       class="inline-flex items-center text-blue-600 hover:text-blue-700">
+                        View Details
+                        <svg class="w-5 h-5 ml-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/>
+                        </svg>
+                    </a>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+
         <div class="text-center mt-8">
             <a href="{% url 'shop:product_list' %}" 
                class="inline-flex items-center px-5 py-3 text-base font-medium text-white bg-blue-600 rounded-lg hover:bg-blue-700">
@@ -170,7 +219,6 @@
         </div>
     </div>
 </section>
-
 {% endif %}
 
 {% endblock content %}
