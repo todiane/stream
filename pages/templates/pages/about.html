@@ -7,7 +7,10 @@
     <div class="container prose mx-auto">
 
         {% if page %}
-        <div class="my-8">
+        <div class="text-center mb-12">
+            <h1 class="text-4xl font-bold text-gray-900 mb-4">{{ page.title }}</h1>
+                      <!-- Image -->
+                <img src="https://res.cloudinary.com/dehgeciaw/image/upload/v1735722921/about-mrs-wear-stream-english_knkivk.png" class="w-full" alt="Mrs wear Stream English">
             {{ page.content|safe }}
             {% if page.second_content %}
                 {{ page.second_content|safe }}
