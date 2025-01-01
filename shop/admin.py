@@ -25,11 +25,13 @@ class ProductAdmin(admin.ModelAdmin):
         "purchase_count",
         "featured",
         "display_thumbnail",
+        "order",
     ]
     list_filter = ["status", "category", "product_type", "featured", "created"]
     search_fields = ["title", "description", "public_id"]
     prepopulated_fields = {"slug": ("title",)}
     readonly_fields = ["public_id", "purchase_count", "display_preview"]
+    list_editable = ["order"]
 
     fieldsets = (
         (
@@ -76,6 +78,7 @@ class ProductAdmin(admin.ModelAdmin):
                     "download_limit",
                     "featured",
                     "purchase_count",
+                    "order",
                 )
             },
         ),

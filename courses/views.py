@@ -62,13 +62,19 @@ def enrol_course(request, course_slug):
 
 
 def lesson_detail_view(request, course_slug=None, lesson_slug=None, *args, **kwargs):
-    lesson_obj = get_object_or_404(
-        Lesson,
-        course__slug=course_slug,
-        course__status="publish",
-        status__in=["publish", "soon"],
-        slug=lesson_slug,
-    )
+    # First try to get the course
+    try:
+        course = Course.objects.get(slug=course_slug, status="publish")
+    except Course.DoesNotExist:
+        return redirect("courses:course_list")
+
+    # Try to get the lesson, if it doesn't exist, redirect to course page
+    try:
+        lesson_obj = Lesson.objects.get(
+            course=course, slug=lesson_slug, status__in=["publish", "soon"]
+        )
+    except Lesson.DoesNotExist:
+        return redirect("courses:course_detail", course_slug=course_slug)
 
     # Check if email verification is required
     email_id_exists = request.session.get("email_id")
@@ -88,7 +94,7 @@ def lesson_detail_view(request, course_slug=None, lesson_slug=None, *args, **kwa
     context = {
         "object": lesson_obj,
         "course": lesson_obj.course,
-        "lesson_item": lesson_obj,
+        "lesson_item": lesson_obj,  # Keeping lesson_item
         "lessons_queryset": lessons_queryset,
         "previous_lesson": previous_lesson,
         "next_lesson": next_lesson,
@@ -100,7 +106,6 @@ def lesson_detail_view(request, course_slug=None, lesson_slug=None, *args, **kwa
         video_id = lesson_obj.youtube_url.split("v=")[-1]
         context["video_embed"] = f"https://www.youtube.com/embed/{video_id}?rel=0"
     elif lesson_obj.video:
-        # For local video files
         video_url = lesson_obj.video.url
         context[
             "video_embed"

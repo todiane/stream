@@ -1,5 +1,7 @@
 import os
 from pathlib import Path
+from django.http import Http404
+from django.core.exceptions import ObjectDoesNotExist
 
 BASE_DIR = Path(__file__).resolve().parent.parent
 
@@ -17,49 +19,55 @@ LOGGING = {
             "style": "{",
         },
     },
+    "filters": {
+        "require_debug_false": {
+            "()": "django.utils.log.RequireDebugFalse",
+        },
+        "ignore_404_errors": {
+            "()": "django.utils.log.CallbackFilter",
+            "callback": lambda record: not (
+                record.exc_info and record.exc_info[0] in (Http404, ObjectDoesNotExist)
+            ),
+        },
+    },
     "handlers": {
         "file": {
             "class": "logging.FileHandler",
             "filename": os.path.join(BASE_DIR, "logs", "django.log"),
             "formatter": "verbose",
-            "level": "DEBUG",
+            "level": "ERROR",
         },
-        "console": {
-            "class": "logging.StreamHandler",
-            "formatter": "verbose",
-            "level": "DEBUG",
+        "mail_admins": {
+            "level": "ERROR",
+            "filters": ["require_debug_false", "ignore_404_errors"],
+            "class": "django.utils.log.AdminEmailHandler",
+            "include_html": True,
         },
     },
     "loggers": {
         "django": {
-            "handlers": ["file", "console"],
-            "level": "DEBUG",
+            "handlers": ["file"],
+            "level": "ERROR",
             "propagate": True,
         },
         "django.request": {
-            "handlers": ["file", "console"],
-            "level": "DEBUG",
+            "handlers": ["file", "mail_admins"],
+            "level": "ERROR",
             "propagate": False,
         },
         "django.db.backends": {
-            "handlers": ["file", "console"],
-            "level": "DEBUG",
+            "handlers": ["file"],
+            "level": "ERROR",
             "propagate": False,
         },
+        "shop.emails": {
+            "handlers": ["file"],
+            "level": "ERROR",
+            "propagate": True,
+        },
         "profiles": {
-            "handlers": ["file", "console"],
-            "level": "DEBUG",
-            "propagate": True,
-        },
-        # Add email logging
-        "shop.emails": {  # Add specific logger for shop emails
-            "handlers": ["file", "console"],
-            "level": "DEBUG",
-            "propagate": True,
-        },
-        "django.core.mail": {  # Add logging for Django's email backend
-            "handlers": ["file", "console"],
-            "level": "DEBUG",
+            "handlers": ["file"],
+            "level": "ERROR",
             "propagate": True,
         },
     },

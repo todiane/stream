@@ -30,7 +30,7 @@ def product_list(request):
     categories = Category.objects.all()
     products = Product.objects.filter(
         is_active=True, status__in=["publish", "soon", "full"]
-    )
+    ).order_by("order", "-created")
     paginator = Paginator(products, 18)
     page = request.GET.get("page")
     products = paginator.get_page(page)
@@ -351,7 +351,7 @@ def category_list(request, slug):
     category = get_object_or_404(Category, slug=slug)
     products = Product.objects.filter(
         category=category, status__in=["publish", "soon", "full"], is_active=True
-    )
+    ).order_by("order", "-created")
     categories = Category.objects.all()
 
     paginator = Paginator(products, 18)

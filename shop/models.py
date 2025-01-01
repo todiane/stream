@@ -92,13 +92,14 @@ class Product(models.Model):
     download_limit = models.PositiveIntegerField(default=5)
     featured = models.BooleanField(default=False)
     purchase_count = models.PositiveIntegerField(default=0)
+    order = models.IntegerField(default=0)
 
     # Timestamps
     created = models.DateTimeField(auto_now_add=True)
     updated = models.DateTimeField(auto_now=True)
 
     class Meta:
-        ordering = ["-created"]
+        ordering = ["order", "-created"]
 
     def __str__(self):
         return self.title
