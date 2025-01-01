@@ -31,7 +31,7 @@ def product_list(request):
     products = Product.objects.filter(
         is_active=True, status__in=["publish", "soon", "full"]
     )
-    paginator = Paginator(products, 12)
+    paginator = Paginator(products, 18)
     page = request.GET.get("page")
     products = paginator.get_page(page)
 
@@ -354,7 +354,7 @@ def category_list(request, slug):
     )
     categories = Category.objects.all()
 
-    paginator = Paginator(products, 12)
+    paginator = Paginator(products, 18)
     page = request.GET.get("page")
     products = paginator.get_page(page)
 
