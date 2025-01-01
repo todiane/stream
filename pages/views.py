@@ -58,11 +58,13 @@ def about_view(request):
         page = get_object_or_404(Page, template="about", is_active=True)
         features = AboutFeature.objects.filter(is_active=True).order_by("order")
         featured_courses = Course.objects.filter(status="publish")[:3]
+        about_courses = AboutCourses.objects.filter(is_active=True).first()
 
         context = {
             "page": page,
             "features": features,
             "object_list": featured_courses,
+            "about_courses": about_courses,
             "meta_description": "About Stream English - GCSE English Language and Literature tuition",
             "meta_title": "About GCSE English tuition with Stream English",
         }

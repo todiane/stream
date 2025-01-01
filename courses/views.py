@@ -64,7 +64,7 @@ def lesson_detail_view(request, course_slug=None, lesson_slug=None, *args, **kwa
     context = {
         "object": lesson_obj,
         "course": lesson_obj.course,
-        "lesson": lesson_obj,
+        "lesson_item": lesson_obj,
         "lessons_queryset": lessons_queryset,
         "previous_lesson": previous_lesson,
         "next_lesson": next_lesson,
