@@ -97,6 +97,7 @@ class Course(models.Model):
     )
     timestamp = models.DateTimeField(auto_now_add=True)
     updated = models.DateTimeField(auto_now=True)
+    order = models.IntegerField(default=0)
     external_image_url = models.URLField(
         blank=True,
         null=True,
@@ -105,6 +106,9 @@ class Course(models.Model):
     image = models.ImageField(
         upload_to="courses/images/", null=True, blank=True, storage=public_storage
     )
+
+    class Meta:
+        ordering = ["order", "-updated"]
 
     def save(self, *args, **kwargs):
         if not self.slug:

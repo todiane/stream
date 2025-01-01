@@ -88,11 +88,13 @@ class CourseAdmin(admin.ModelAdmin):
         "access",
         "public_id",
         "display_thumbnail",
+        "order",
     ]
     list_filter = ["status", "access", "category", "category__exam_board"]
     search_fields = ["title", "description", "category__name", "slug"]
     prepopulated_fields = {"slug": ("title",)}
     readonly_fields = ["public_id", "display_image"]
+    list_editable = ["order"]
 
     fieldsets = (
         (
@@ -106,6 +108,7 @@ class CourseAdmin(admin.ModelAdmin):
                     "category",
                     "status",
                     "access",
+                    "order",
                 )
             },
         ),
