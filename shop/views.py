@@ -28,7 +28,9 @@ logger = logging.getLogger("shop.emails")
 
 def product_list(request):
     categories = Category.objects.all()
-    products = Product.objects.filter(is_active=True, status="publish")
+    products = Product.objects.filter(
+        is_active=True, status__in=["publish", "soon", "full"]
+    )
     paginator = Paginator(products, 12)
     page = request.GET.get("page")
     products = paginator.get_page(page)
@@ -46,9 +48,13 @@ def product_list(request):
 
 
 def product_detail(request, slug):
-    product = get_object_or_404(Product, slug=slug, is_active=True, status="publish")
+    product = get_object_or_404(
+        Product, slug=slug, is_active=True, status__in=["publish", "soon", "full"]
+    )
     related_products = Product.objects.filter(
-        category=product.category, status="publish", is_active=True
+        category=product.category,
+        status__in=["publish", "full"],
+        is_active=True,
     ).exclude(id=product.id)[:3]
 
     has_purchased = False
@@ -344,7 +350,7 @@ def purchases(request):
 def category_list(request, slug):
     category = get_object_or_404(Category, slug=slug)
     products = Product.objects.filter(
-        category=category, status="publish", is_active=True
+        category=category, status__in=["publish", "soon", "full"], is_active=True
     )
     categories = Category.objects.all()
 

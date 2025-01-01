@@ -61,14 +61,26 @@
                         {% csrf_token %}
                         <div class="flex items-center space-x-4">
                             <input type="number" name="quantity" value="1" min="1" max="99"
-                                   class="w-20 px-3 py-2 border border-gray-300 rounded-md focus:ring-blue-500 focus:border-blue-500">
+                                class="w-20 px-3 py-2 border border-gray-300 rounded-md focus:ring-blue-500 focus:border-blue-500">
                             <button type="submit" 
-                                   class="bg-blue-600 hover:bg-blue-700 text-white font-medium py-2 px-4 rounded-lg focus:outline-none focus:ring-4 focus:ring-blue-300">
-                               Add to Cart
-                           </button>
+                                class="bg-blue-600 hover:bg-blue-700 text-white font-medium py-2 px-4 rounded-lg focus:outline-none focus:ring-4 focus:ring-blue-300">
+                            Add to Cart
+                        </button>
                         </div>
                     </form>
-                {% endif %}
+                {% elif product.is_coming_soon %}
+                    <div class="bg-yellow-100 border-l-4 border-yellow-500 p-4">
+                        <p class="text-yellow-700">
+                            <span class="font-bold">Coming Soon!</span> This item will be available for purchase shortly.
+                        </p>
+                    </div>
+                {% elif product.is_fully_booked %}
+                    <div class="bg-red-100 border-l-4 border-red-500 p-4">
+                        <p class="text-red-700">
+                            <span class="font-bold">Fully Booked!</span> This item is currently at capacity.
+                        </p>
+                    </div>
+            {% endif %}
             </div>
 
             <!-- Right Column - Product Info -->
@@ -81,10 +93,16 @@
                     <span class="text-3xl font-bold text-gray-900 dark:text-white">£{{ product.current_price|floatformat:2|default:"0.00" }}</span>
                     {% if product.status == "publish" %}
                         <span class="px-3 py-1 text-sm text-green-800 bg-green-100 rounded-full">Available</span>
+                    {% elif product.is_coming_soon %}
+                        <span class="px-3 py-1 text-sm text-yellow-800 bg-yellow-100 rounded-full">Coming Soon</span>
+                    {% elif product.is_fully_booked %}
+                        <span class="px-3 py-1 text-sm text-red-800 bg-red-100 rounded-full">Fully Booked</span>
                     {% else %}
                         <span class="px-3 py-1 text-sm text-red-800 bg-red-100 rounded-full">Not Available</span>
                     {% endif %}
                 </div>
+
+
 
                 <!-- Description -->
                 <div class="prose dark:prose-invert max-w-none">

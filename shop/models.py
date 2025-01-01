@@ -38,6 +38,7 @@ class Product(models.Model):
     STATUS_CHOICES = [
         ("publish", "Published"),
         ("soon", "Coming Soon"),
+        ("full", "Fully Booked"),
         ("draft", "Draft"),
     ]
     PRODUCT_TYPES = [("download", "Digital Download"), ("tuition", "Tuition Hours")]
@@ -165,6 +166,14 @@ class Product(models.Model):
     @property
     def is_on_sale(self):
         return bool(self.sale_price_pence)
+
+    @property
+    def is_coming_soon(self):
+        return self.status == "soon"
+
+    @property
+    def is_fully_booked(self):
+        return self.status == "full"
 
 
 class GuestDetails(models.Model):
