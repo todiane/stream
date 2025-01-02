@@ -38,17 +38,16 @@
         {% if is_guest %}
         <!-- Guest Details Form -->
         <div class="bg-white rounded-lg shadow p-6 mb-8">
-            <h2 class="text-xl font-bold mb-4">Contact Details</h2>
+            <h1 class="text-xl font-bold mb-4">Register First Or LogIn</h1>
             <div class="mb-4 p-4 bg-yellow-50 border border-yellow-200 rounded-md">
-                <p class="text-yellow-700 text-sm">
-                    Note: Your purchase details will not be saved unless you create an account.
-                    You will receive download links via email.
+                <p class="text-red-700 text-sm">
+                    Your downloads will be available in your account area. Please <a href="{% url 'profiles:signup' %}" class="font-bold underline hover:underline">Register for an account </a> or <a href="{% url 'profiles:login' %}" class="font-bold underline hover:underline">LOGIN HERE</a> before completing this purchase.
                 </p>
             </div>
-            <form id="guest-details-form" method="post" class="space-y-4">
+            <!-- <form id="guest-details-form" method="post" class="space-y-4">
                 {% csrf_token %}
                 {{ guest_form.as_p }}
-            </form>
+            </form> -->
         </div>
         {% endif %}
 
