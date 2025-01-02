@@ -15,7 +15,8 @@ def send_order_confirmation_email(order):
         items_data = [
             {
                 "name": item.product.title,
-                "price": item.price_paid_pence / 100,
+                "price": (item.price_paid_pence * item.quantity)
+                / 100,  # Calculate total price for quantity
                 "quantity": item.quantity,
                 "downloads_remaining": item.downloads_remaining,
             }

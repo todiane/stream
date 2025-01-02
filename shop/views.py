@@ -245,7 +245,7 @@ def payment_success(request):
             order_item = OrderItem.objects.create(
                 order=order,
                 product=item["product"],
-                price_paid_pence=int(float(item["price"]) * 100),
+                price_paid_pence=int(item["price"] * 100),
                 quantity=item["quantity"],
                 downloads_remaining=item["product"].download_limit,
             )

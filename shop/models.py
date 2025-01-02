@@ -225,7 +225,8 @@ class Order(models.Model):
         super().save(*args, **kwargs)
 
     def get_total_cost(self):
-        return sum(item.get_cost() for item in self.items.all()) / 100
+        """Return total cost in pounds"""
+        return sum(item.get_cost() for item in self.items.all())
 
     @property
     def total_price(self):
@@ -246,7 +247,8 @@ class OrderItem(models.Model):
         return str(self.id)
 
     def get_cost(self):
-        return self.price_paid_pence * self.quantity
+        """Return cost in pounds"""
+        return (self.price_paid_pence * self.quantity) / 100
 
     def get_price_in_pounds(self):
         return self.price_paid_pence / 100
