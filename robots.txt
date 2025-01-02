@@ -10,3 +10,4 @@ Disallow: /*/tag/
 Disallow: /*?*
 Disallow: /*/category/*/feed/
 Disallow: /feed/
+Disallow: /shop/secure-download/
