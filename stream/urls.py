@@ -4,13 +4,15 @@ from django.urls import include, path
 from django.conf import settings
 from django.conf.urls.static import static
 from django.contrib.sitemaps.views import sitemap
-from . import views  # Add this back
+from . import views
 from .sitemaps import (
     StaticViewSitemap,
     CourseSitemap,
     LessonSitemap,
     NewsSitemap,
     PageSitemap,
+    ShopCategorySitemap,
+    ShopProductSitemap,
 )
 from django.views.generic import TemplateView
 
@@ -20,6 +22,8 @@ sitemaps = {
     "lessons": LessonSitemap,
     "news": NewsSitemap,
     "pages": PageSitemap,
+    "shop_categories": ShopCategorySitemap,
+    "shop_products": ShopProductSitemap,
 }
 
 urlpatterns = [

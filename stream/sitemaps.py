@@ -3,6 +3,7 @@ from django.urls import reverse
 from courses.models import Course, Lesson
 from news.models import Post
 from pages.models import Page
+from shop.models import Category, Product
 
 
 class StaticViewSitemap(Sitemap):
@@ -58,3 +59,31 @@ class PageSitemap(Sitemap):
 
     def lastmod(self, obj):
         return obj.publish_date
+
+
+class ShopCategorySitemap(Sitemap):
+    changefreq = "weekly"
+    priority = 0.8
+
+    def items(self):
+        return Category.objects.all()
+
+    def lastmod(self, obj):
+        # Get the latest product update in this category
+        latest_product = (
+            Product.objects.filter(category=obj, status="publish")
+            .order_by("-updated")
+            .first()
+        )
+        return latest_product.updated if latest_product else None
+
+
+class ShopProductSitemap(Sitemap):
+    changefreq = "daily"
+    priority = 0.9
+
+    def items(self):
+        return Product.objects.filter(status="publish", is_active=True)
+
+    def lastmod(self, obj):
+        return obj.updated
