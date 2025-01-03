@@ -23,7 +23,7 @@ from .cart import Cart
 stripe.api_key = settings.STRIPE_SECRET_KEY
 
 # Set up logger
-logger = logging.getLogger("shop.emails")
+logger = logging.getLogger("shop.stripe")
 
 
 def product_list(request):
@@ -144,9 +144,17 @@ def checkout(request):
 
     try:
         total_price = cart.get_total_price()
+        logger.debug(f"Cart total price: {total_price}")
+
         if total_price <= 0:
             messages.error(request, "Invalid cart total")
             return redirect("shop:cart_detail")
+
+        # Log Stripe key info before creating payment intent
+        logger.debug(
+            f"Stripe publishable key being used: {settings.STRIPE_PUBLISHABLE_KEY[:8]}..."
+        )
+        logger.debug(f"Creating payment intent for amount: {int(total_price * 100)}")
 
         payment_intent_data = {
             "amount": int(total_price * 100),
@@ -160,6 +168,8 @@ def checkout(request):
             },
         }
 
+        logger.debug(f"Creating payment intent with data: {payment_intent_data}")
+
         if request.user.is_authenticated:
             payment_intent_data["receipt_email"] = request.user.email
         elif "guest_details" in request.session:
@@ -168,6 +178,7 @@ def checkout(request):
             ]
 
         intent = stripe.PaymentIntent.create(**payment_intent_data)
+        logger.debug(f"Payment intent created: {intent.id}")
 
         context = {
             "client_secret": intent.client_secret,
@@ -178,14 +189,16 @@ def checkout(request):
             "payment_intent_id": intent.id,
         }
 
+        logger.debug(f"Rendering checkout with context: {context}")
+
         return render(request, "shop/checkout.html", context)
 
     except stripe.error.StripeError as e:
-        print(f"Stripe error: {str(e)}")
+        logger.error(f"Stripe error: {str(e)}")
         messages.error(request, f"Payment processing error: {str(e)}")
         return redirect("shop:cart_detail")
     except Exception as e:
-        print(f"Checkout error: {str(e)}")
+        logger.error(f"Checkout error: {str(e)}")
         messages.error(request, "An error occurred during checkout. Please try again.")
         return redirect("shop:cart_detail")
 

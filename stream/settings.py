@@ -170,7 +170,7 @@ LOGIN_URL = "/profiles/login/"
 ACCOUNT_LOGOUT_REDIRECT_URL = "/profiles/login/"
 
 # Stripe settings
-STRIPE_PUBLISHABLE_KEY = env("STRIPE_PUBLIC_KEY", default="")
+STRIPE_PUBLISHABLE_KEY = env("STRIPE_PUBLISHABLE_KEY", default="")
 STRIPE_SECRET_KEY = env("STRIPE_SECRET_KEY", default="")
 STRIPE_WEBHOOK_SECRET = env("STRIPE_WEBHOOK_SECRET", default="")
 STRIPE_CURRENCY = "gbp"

@@ -84,12 +84,12 @@
             </div>
 
             <!-- Right Column - Product Info -->
-            <div class="space-y-6">
+            <div class="space-y-4">
                 <!-- Title -->
                 <h1 class="text-3xl font-bold text-gray-900 dark:text-white">{{ product.title }}</h1>
                 
                 <!-- Price and Availability -->
-                <div class="flex items-center space-x-4">
+                <div class="flex flex-col sm:flex-row sm:items-center gap-2 sm:gap-4 mb-4">
                     <span class="text-3xl font-bold text-gray-900 dark:text-white">£{{ product.current_price|floatformat:2|default:"0.00" }}</span>
                     {% if product.status == "publish" %}
                         <span class="px-3 py-1 text-sm text-green-800 bg-green-100 rounded-full">Available</span>
@@ -101,11 +101,8 @@
                         <span class="px-3 py-1 text-sm text-red-800 bg-red-100 rounded-full">Not Available</span>
                     {% endif %}
                 </div>
-
-
-
                 <!-- Description -->
-                <div class="prose dark:prose-invert max-w-none">
+                <div class="prose dark:prose-invert max-w-none mt-4"> 
                     {{ product.description|safe|default:"No description available" }}
                 </div>
             </div>

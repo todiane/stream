@@ -35,7 +35,8 @@ LOGGING = {
             "class": "logging.FileHandler",
             "filename": os.path.join(BASE_DIR, "logs", "django.log"),
             "formatter": "verbose",
-            "level": "ERROR",
+            "level": "DEBUG",
+            "mode": "a",
         },
         "mail_admins": {
             "level": "ERROR",
@@ -48,6 +49,11 @@ LOGGING = {
         "django": {
             "handlers": ["file"],
             "level": "ERROR",
+            "propagate": True,
+        },
+        "shop.stripe": {
+            "handlers": ["file"],
+            "level": "DEBUG",  # Set to DEBUG to catch all Stripe-related logs
             "propagate": True,
         },
         "django.request": {
