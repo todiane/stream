@@ -178,6 +178,9 @@ STRIPE_CURRENCY = "gbp"
 # Shop Email
 SHOP_EMAIL = "info@streamenglish.co.uk"
 
+# logging error emails
+SERVER_EMAIL = "no-reply@streamenglish.co.uk"
+
 CART_SESSION_ID = "cart"
 
 # Shop Settings
