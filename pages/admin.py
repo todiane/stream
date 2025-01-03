@@ -11,6 +11,7 @@ from .models import (
     AboutMe,
     AboutCourses,
     TuitionFeature,
+    Testimonial,
 )
 from stream.utils import sanitize_text
 
@@ -194,3 +195,18 @@ class TuitionFeatureAdmin(admin.ModelAdmin):
         if obj.description:
             obj.description = sanitize_text(obj.description)
         super().save_model(request, obj, form, change)
+
+
+@admin.register(Testimonial)
+class TestimonialAdmin(admin.ModelAdmin):
+    list_display = ["id", "preview_image", "order", "is_active"]
+    list_editable = ["order", "is_active"]
+    ordering = ["order"]
+
+    def preview_image(self, obj):
+        image_url = obj.get_image_url()
+        if image_url:
+            return format_html('<img src="{}" style="max-height: 50px;" />', image_url)
+        return "No image"
+
+    preview_image.short_description = "Image Preview"

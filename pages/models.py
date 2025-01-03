@@ -4,6 +4,7 @@ from django.urls import reverse
 from django.utils import timezone
 from ckeditor_uploader.fields import RichTextUploadingField
 from simple_history.models import HistoricalRecords  # type: ignore
+from stream.storage import public_storage
 
 
 class SEOFields(models.Model):
@@ -197,3 +198,33 @@ class AboutFeature(models.Model):
 
     def __str__(self):
         return self.title
+
+
+class Testimonial(models.Model):
+    image = models.ImageField(
+        upload_to="testimonials/images/", null=True, blank=True, storage=public_storage
+    )
+    external_image_url = models.URLField(
+        max_length=500,
+        blank=True,
+        null=True,
+        help_text="External URL for testimonial image (jpg/png only)",
+    )
+    order = models.PositiveIntegerField(default=0)
+    is_active = models.BooleanField(default=True)
+
+    class Meta:
+        ordering = ["order"]
+        verbose_name = "Testimonial"
+        verbose_name_plural = "Testimonials"
+
+    def get_image_url(self):
+        """Get the URL for the testimonial image"""
+        try:
+            if self.external_image_url:
+                return self.external_image_url
+            if self.image:
+                return self.image.url.replace("/media/public/", "/media/")
+            return None
+        except Exception:
+            return None

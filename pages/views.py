@@ -6,6 +6,7 @@ from .models import Page, Hero, TuitionFeature, AboutCourses
 from shop.models import Product
 from courses.models import Course
 from .models import HeroBanner, AboutFeature
+from .models import Testimonial
 
 
 def home_view(request):
@@ -15,6 +16,9 @@ def home_view(request):
         banner = HeroBanner.objects.filter(is_active=True).first()
         featured_courses = Course.objects.filter(status="publish")[:3]
         about_courses = AboutCourses.objects.filter(is_active=True).first()
+
+        # Get testimonials
+        testimonials = Testimonial.objects.filter(is_active=True).order_by("order")[:10]
 
         # Get featured products for tuition packages
         featured_products = Product.objects.filter(
@@ -37,6 +41,7 @@ def home_view(request):
             "meta_description": "GCSE English Language and Literature - online courses and tuition",
             "featured_products": featured_products,
             "latest_products": latest_products,
+            "testimonials": testimonials,
             "meta_title": "Stream English - GCSE English Language and Literature tuition",
         }
         return render(request, "pages/home.html", context)
