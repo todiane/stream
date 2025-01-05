@@ -260,3 +260,40 @@ class Lesson(models.Model):
             video_id = self.youtube_url.split("v=")[-1]
             return f"https://www.youtube.com/embed/{video_id}"
         return None
+
+    def get_video_duration(self):
+        """Placeholder for video duration - required for schema"""
+        return "PT10M"  # Default 10 minutes - you may want to make this a field
+
+    def get_video_id(self):
+        """Extract YouTube video ID"""
+        if self.youtube_url:
+            if "youtu.be" in self.youtube_url:
+                return self.youtube_url.split("/")[-1]
+            elif "v=" in self.youtube_url:
+                return self.youtube_url.split("v=")[1].split("&")[0]
+        return None
+
+    def get_video_schema(self):
+        """Generate VideoObject schema"""
+        if not self.youtube_url and not self.video:
+            return None
+            
+        video_url = self.youtube_url if self.youtube_url else self.get_video_url()
+        thumbnail_url = self.get_thumbnail_url()
+        
+        return {
+            "@context": "https://schema.org",
+            "@type": "VideoObject",
+            "name": self.title,
+            "description": self.description,
+            "thumbnailUrl": thumbnail_url,
+            "uploadDate": self.timestamp.strftime("%Y-%m-%d"),
+            "duration": self.get_video_duration(),
+            "contentUrl": video_url,
+            "embedUrl": self.get_youtube_embed_url() if self.youtube_url else video_url,
+            "author": {
+                "@type": "Organization",
+                "name": "Stream English"
+            }
+        }

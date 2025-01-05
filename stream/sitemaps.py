@@ -87,3 +87,19 @@ class ShopProductSitemap(Sitemap):
 
     def lastmod(self, obj):
         return obj.updated
+
+
+# sitemaps.py
+
+class VideoSitemap(Sitemap):
+    changefreq = "weekly"
+    priority = 0.8
+
+    def items(self):
+        return Lesson.objects.filter(status="publish", course__status="publish").exclude(youtube_url='')
+
+    def lastmod(self, obj):
+        return obj.updated
+
+    def location(self, obj):
+        return obj.get_absolute_url()

@@ -2,46 +2,80 @@
 <!DOCTYPE html>
 <html lang="en" class="h-full">
 <head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="GCSE English Language and Literature tuition and resources">
+    
+    <!-- Styles -->
     <link href="{% static 'css/dist/styles.css' %}" rel="stylesheet">
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <link href="https://fonts.googleapis.com/css2?family=Lato:wght@400;700;900&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    
     {% block extra_head %}
     <script src="https://js.stripe.com/v3/"></script>
     {% endblock %}
-    <title>{% block head_title %}Stream English{% endblock %}</title>
+    
+    <title>{% block head_title %}Stream English - GCSE English Language and Literature{% endblock %}</title>
     <link rel="icon" type="image/ico" href="{% static 'img/favicon.ico' %}">
     
+    <!-- Schema.org markup for Google -->
+    <script type="application/ld+json">
+    {
+        "@context": "https://schema.org",
+        "@type": "EducationalOrganization",
+        "name": "Stream English",
+        "url": "https://streamenglish.co.uk",
+        "description": "GCSE English Language and Literature tuition and resources",
+        "sameAs": [
+            "https://www.youtube.com/c/StreamEnglish"
+        ]
+    }
+    </script>
 </head>
 <body class="flex flex-col min-h-screen">
+    <!-- Skip to main content for accessibility -->
+    <a href="#main-content" class="sr-only focus:not-sr-only">Skip to main content</a>
+
     {% if messages %}
-        {% include 'partials/_messages.html' %}
+        <section aria-label="Notifications" role="alert">
+            {% include 'partials/_messages.html' %}
+        </section>
     {% endif %}
-    {% include 'base/navbar.html' %}
+
+    <!-- Primary Navigation -->
+    <header role="banner">
+        {% include 'base/navbar.html' %}
+    </header>
     
-    <main class="flex-grow" role="main">
-        {% block content %}{% endblock %}
+    <!-- Main Content -->
+    <main id="main-content" class="flex-grow" role="main">
+        <article>
+            {% block content %}{% endblock %}
+        </article>
     </main>
 
-    {% include 'base/footer.html' %}
+    <!-- Footer -->
+    <footer role="contentinfo">
+        {% include 'base/footer.html' %}
+    </footer>
     
-    <!-- Cookie Consent Banner -->
-    <div id="cookie-banner" class="fixed bottom-0 left-0 right-0 bg-gray-900 text-white py-4 px-6 hidden">
+    <!-- Cookie Consent -->
+    <aside id="cookie-banner" class="fixed bottom-0 left-0 right-0 bg-gray-900 text-white py-4 px-6 hidden" role="dialog" aria-labelledby="cookie-title">
         <div class="max-w-7xl mx-auto flex flex-col sm:flex-row items-center justify-between gap-4">
             <div class="text-sm">
+                <h2 id="cookie-title" class="sr-only">Cookie Consent</h2>
                 We use cookies to enhance your experience. By continuing to visit this site you agree to our use of cookies. 
                 <a href="{% url 'privacy_policy' %}" class="underline hover:text-blue-300">Privacy Policy</a>
             </div>
             <div class="flex gap-4">
-                <button id="accept-cookies" class="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg text-sm transition-colors">Accept</button>
-                <button id="decline-cookies" class="bg-gray-600 hover:bg-gray-700 text-white px-4 py-2 rounded-lg text-sm transition-colors">Decline</button>
+                <button id="accept-cookies" class="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg text-sm transition-colors" aria-label="Accept cookies">Accept</button>
+                <button id="decline-cookies" class="bg-gray-600 hover:bg-gray-700 text-white px-4 py-2 rounded-lg text-sm transition-colors" aria-label="Decline cookies">Decline</button>
             </div>
         </div>
-    </div>
+    </aside>
 
+    <!-- Scripts -->
     <script src="{% static 'js/menu.js' %}"></script>
     <script src="{% static 'js/messages.js' %}"></script>
     <script src="{% static 'js/testimonial-carousel.js' %}"></script>

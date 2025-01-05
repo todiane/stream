@@ -13,6 +13,7 @@ from .sitemaps import (
     PageSitemap,
     ShopCategorySitemap,
     ShopProductSitemap,
+    VideoSitemap,
 )
 from django.views.generic import TemplateView
 
@@ -24,6 +25,7 @@ sitemaps = {
     "pages": PageSitemap,
     "shop_categories": ShopCategorySitemap,
     "shop_products": ShopProductSitemap,
+    'videos': VideoSitemap,
 }
 
 urlpatterns = [
