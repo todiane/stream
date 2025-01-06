@@ -40,6 +40,14 @@
                             <li>Product Type: {{ product.get_product_type_display }}</li>
                         {% endif %}
                         
+                        {% if product.status %}
+                            <li>Status: {{ product.get_status_display }}</li>
+                        {% endif %}
+                
+                        {% if product.number_of_pages %}
+                            <li>Number of Pages: {{ product.number_of_pages }}</li>
+                        {% endif %}
+                        
                         {% if has_purchased %}
                             <li>Download Limit: {{ order_item.downloads_remaining }}</li>
                             {% if order_item.download_count < order_item.downloads_remaining %}
@@ -49,8 +57,15 @@
                             {% endif %}
                         {% endif %}
                 
-                        {% if product.preview_file %}
-                            <li>Preview: <a href="{{ product.preview_file.url }}" class="text-blue-600 hover:underline">Download Preview</a></li>
+                        {% if product.get_preview_url %}
+                            <li>Preview: <a href="{{ product.get_preview_url }}" 
+                                            target="_blank" 
+                                            class="text-blue-600 hover:underline inline-flex items-center">
+                                <span>View Preview PDF</span>
+                                <svg class="w-4 h-4 ml-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14"/>
+                                </svg>
+                            </a></li>
                         {% endif %}
                     </ul>
                 </div>

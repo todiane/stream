@@ -52,6 +52,11 @@ class Product(models.Model):
     product_type = models.CharField(
         max_length=20, choices=PRODUCT_TYPES, default="download"
     )
+    number_of_pages = models.PositiveIntegerField(
+        null=True, 
+        blank=True,
+        help_text="Number of pages for digital downloads"
+    )
     status = models.CharField(max_length=10, choices=STATUS_CHOICES, default="draft")
     external_image_url = models.URLField(
         max_length=500,

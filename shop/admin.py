@@ -44,6 +44,7 @@ class ProductAdmin(admin.ModelAdmin):
                     "category",
                     "description",
                     "product_type",
+                    "number_of_pages",  
                     "status",
                     "is_active",
                 )
