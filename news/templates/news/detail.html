@@ -110,21 +110,19 @@
             </div>
         </div>
         <!-- Advertisement Section -->
-        {% if post.ad_type != 'none' %}
-            <div class="mt-16 mb-12 text-center">
-                {% if post.ad_type == 'adsense' %}
-                    <div class="adsense-container">
-                        {{ post.ad_code|safe }}
-                    </div>
-                {% elif post.ad_type == 'banner' and post.ad_image %}
-                    <a href="{{ post.ad_url }}" target="_blank" rel="noopener noreferrer">
-                        <img src="{{ post.ad_image.url }}" 
-                            alt="Advertisement" 
-                            class="mx-auto max-w-full h-auto rounded-lg shadow-sm">
-                    </a>
-                {% endif %}
-            </div>
+        {% if post.ad_type == 'banner' and post.ad_image %}
+            <img src="{{ post.get_ad_image_url }}" alt="Advertisement" class="mx-auto max-w-full h-auto rounded-lg shadow-sm">
         {% endif %}
     </div>
 </div>
+<!-- Debug info -->
+<div style="display:none;">
+    MEDIA_URL: {{ MEDIA_URL }}
+    Image URL: {{ post.ad_image.url }}
+    Direct path: {{ post.ad_image.path }}
+</div>
+
+<img src="{{ MEDIA_URL }}{{ post.ad_image.name }}" alt="Advertisement">
+
+<p><img src="{{ post.ad_image.url }}" alt="Advertisement"></p>
 {% endblock %}

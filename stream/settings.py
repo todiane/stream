@@ -45,6 +45,7 @@ ALLOWED_HOSTS = [
     "streamenglish-co-uk.stackstaging.com",
     "streamenglish.co.uk",
     "www.streamenglish.co.uk",
+    "webmail.streamenglish.co.uk",
 ]
 
 CSRF_TRUSTED_ORIGINS = [
@@ -125,6 +126,7 @@ SESSION_COOKIE_SECURE = True
 CSRF_COOKIE_SECURE = True
 SECURE_PROXY_SSL_HEADER = ("HTTP_X_FORWARDED_PROTO", "https")
 USE_X_FORWARDED_HOST = True
+X_FRAME_OPTIONS = 'SAMEORIGIN'
 
 # IP Rate limiting settings
 IP_RATE_LIMIT_MAX_ATTEMPTS = 20  # Maximum attempts per IP
@@ -195,23 +197,46 @@ LOGIN_REDIRECT_URL = "/profiles/profile/"
 SHOP_SUCCESS_URL = "/shop/success/"
 SHOP_CANCEL_URL = "/shop/cancel/"
 
-
 # Admin notification settings
 ADMINS = [
     ("Admin", "info@streamenglish.co.uk"),
 ]
 
-# media and static settings
-MEDIA_URL = "/media/"
+# Media and Storage Configuration
+MEDIA_URL = '/media/'
 MEDIA_ROOT = os.path.join(BASE_DIR, "media")
 PUBLIC_MEDIA_ROOT = os.path.join(MEDIA_ROOT, "public")
 SECURE_MEDIA_ROOT = os.path.join(MEDIA_ROOT, "secure_downloads")
 MEDIA_PREFIX = "public/"
 
+# File Permissions
+FILE_UPLOAD_PERMISSIONS = 0o644
+FILE_UPLOAD_DIRECTORY_PERMISSIONS = 0o755
+
+# Storage Configuration
+STORAGES = {
+    "default": {
+        "BACKEND": "django.core.files.storage.FileSystemStorage",
+        "OPTIONS": {
+            "location": MEDIA_ROOT,
+            "base_url": MEDIA_URL,
+            "file_permissions_mode": FILE_UPLOAD_PERMISSIONS,
+            "directory_permissions_mode": FILE_UPLOAD_DIRECTORY_PERMISSIONS,
+        },
+    },
+    "staticfiles": {
+        "BACKEND": "whitenoise.storage.CompressedManifestStaticFilesStorage",
+    }
+}
+
+# Serving Configuration
+X_FRAME_OPTIONS = 'SAMEORIGIN'
+SECURE_PROXY_SSL_HEADER = ('HTTP_X_FORWARDED_PROTO', 'https')
+USE_X_FORWARDED_HOST = True
+
 # Create directories if they don't exist
 for directory in [MEDIA_ROOT, PUBLIC_MEDIA_ROOT, SECURE_MEDIA_ROOT]:
     os.makedirs(directory, exist_ok=True)
-
 
 # Static files configuration
 STATIC_URL = "/static/"
@@ -223,14 +248,19 @@ SECURE_DOWNLOADS_URL = (
     "/downloads/"  # This will be handled by a view, not direct access
 )
 
-DEFAULT_FILE_STORAGE = "django.core.files.storage.FileSystemStorage"
-
 # WhiteNoise configuration
-STATICFILES_STORAGE = "whitenoise.storage.CompressedManifestStaticFilesStorage"
+
 WHITENOISE_USE_FINDERS = True
 WHITENOISE_MANIFEST_STRICT = False
 
+
+# Ensure consistent handling of URLs
+CKEDITOR_UPLOAD_SLUGIFY_FILENAME = True
+CKEDITOR_JQUERY_URL = None
+CKEDITOR_FILENAME_GENERATOR = 'utils.get_filename_generator'
+
 CKEDITOR_UPLOAD_PATH = "uploads/"
+CKEDITOR_ALLOW_NONIMAGE_FILES = True
 CKEDITOR_IMAGE_BACKEND = "pillow"
 CKEDITOR_BASEPATH = "/static/ckeditor/ckeditor/"
 CKEDITOR_RESTRICT_BY_USER = True
@@ -258,6 +288,8 @@ CKEDITOR_CONFIGS = {
             ]
         ),
         "uploadUrl": "/ckeditor/upload/",
+        "filebrowserUploadUrl": "/ckeditor/upload/",
+        "filebrowserBrowseUrl": "/ckeditor/browse/",
         "contentsCss": [
             "p { margin: 0.5em 0; }",
             "h1, h2, h3, h4, h5, h6 { font-family: 'Lato', sans-serif; }",
@@ -308,3 +340,5 @@ DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
 SOCIALACCOUNT_PROVIDERS = {
     # Add social providers here if needed
 }
+
+

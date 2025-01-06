@@ -33,42 +33,7 @@
                 </div>
 
                 <!-- Digital Product Details -->
-                <div class="bg-white dark:bg-gray-700 rounded-lg p-4">
-                    <h3 class="text-lg font-semibold text-gray-900 dark:text-white mb-2">Digital Product Details</h3>
-                    <ul class="space-y-2 text-gray-600 dark:text-gray-300">
-                        {% if product.product_type %}
-                            <li>Product Type: {{ product.get_product_type_display }}</li>
-                        {% endif %}
-                        
-                        {% if product.status %}
-                            <li>Status: {{ product.get_status_display }}</li>
-                        {% endif %}
-                
-                        {% if product.number_of_pages %}
-                            <li>Number of Pages: {{ product.number_of_pages }}</li>
-                        {% endif %}
-                        
-                        {% if has_purchased %}
-                            <li>Download Limit: {{ order_item.downloads_remaining }}</li>
-                            {% if order_item.download_count < order_item.downloads_remaining %}
-                                <li>File: <a href="{% url 'shop:secure_download' order_item.id %}" class="text-blue-600 hover:underline">Download</a></li>
-                            {% else %}
-                                <li>Download limit reached</li>
-                            {% endif %}
-                        {% endif %}
-                
-                        {% if product.get_preview_url %}
-                            <li>Preview: <a href="{{ product.get_preview_url }}" 
-                                            target="_blank" 
-                                            class="text-blue-600 hover:underline inline-flex items-center">
-                                <span>View Preview PDF</span>
-                                <svg class="w-4 h-4 ml-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14"/>
-                                </svg>
-                            </a></li>
-                        {% endif %}
-                    </ul>
-                </div>
+                {% include 'shop/snippets/digital-product-details.html'  %}
 
                 <!-- Add to Cart Form -->
                 {% if product.status == "publish" %}
@@ -122,45 +87,10 @@
                 </div>
             </div>
         </div>
-
+        <!-- Reviews Section -->
+        {% include 'shop/snippets/reviews-section.html'  %}
         <!-- Related Products -->
-        {% if related_products %}
-            <div class="mt-16">
-                <h2 class="text-2xl font-bold mb-6 text-gray-900 dark:text-white">Related Products</h2>
-                <div class="grid gap-8 md:grid-cols-2 lg:grid-cols-3">
-                    {% for related in related_products %}
-                        <div class="bg-white shadow rounded-lg overflow-hidden hover:shadow-lg transition-shadow duration-300">
-                            {% if related.get_image_url %}
-                                <img src="{{ related.get_image_url }}" 
-                                    alt="{{ related.title|default:'Related Product' }}" 
-                                    class="w-full h-48 object-cover rounded-t-lg">
-                            {% else %}
-                                <div class="w-full h-48  flex items-center justify-center text-gray-500">
-                                    No Image Available
-                                </div>
-                            {% endif %}
-                            <div class="p-5">
-                                <h3 class="mb-2 text-xl font-bold tracking-tight text-gray-900 dark:text-white">
-                                    <a href="{{ related.get_absolute_url }}">{{ related.title }}</a>
-                                </h3>
-                                <p class="mb-3 text-gray-600 dark:text-gray-400">
-                                    {{ related.description|safe|truncatewords:15|default:"No description available" }}
-                                </p>
-                                <div class="flex justify-between items-center">
-                                    <span class="text-xl font-bold text-gray-900 dark:text-white">
-                                        £{{ related.current_price|floatformat:2|default:"0.00" }}
-                                    </span>
-                                    <a href="{{ related.get_absolute_url }}" 
-                                       class="inline-flex items-center px-4 py-2 text-sm font-medium text-white bg-blue-600 rounded-lg hover:bg-blue-700 focus:ring-4 focus:ring-blue-300 dark:focus:ring-blue-800">
-                                        View Details
-                                    </a>
-                                </div>
-                            </div>
-                        </div>
-                    {% endfor %}
-                </div>
-            </div>
-        {% endif %}
+        {% include 'shop/snippets/related-products.html'  %} 
     </div>
 </div>
 {% endblock %}

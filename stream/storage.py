@@ -3,46 +3,34 @@ from django.core.files.storage import FileSystemStorage
 from django.conf import settings
 import os
 
-
 class SecureFileStorage(FileSystemStorage):
     def __init__(self):
-        # Initialize with the secure downloads directory
         secure_root = os.path.join(settings.MEDIA_ROOT, "secure_downloads")
-        super().__init__(location=secure_root, base_url=settings.MEDIA_URL)
+        super().__init__(location=secure_root)
 
     def get_valid_name(self, name):
-        """
-        Return a filename without 'public/' prefix
-        """
         name = super().get_valid_name(name)
         return name.replace("public/", "")
 
-
 class PublicMediaStorage(FileSystemStorage):
     def __init__(self):
-        # Initialize with the public media directory
-        public_root = settings.PUBLIC_MEDIA_ROOT
+        public_root = os.path.join(settings.MEDIA_ROOT, "public")
         super().__init__(
-            location=public_root, base_url=settings.MEDIA_URL + settings.MEDIA_PREFIX
+            location=public_root,
+            base_url='/media/public/'  # Changed this line to be explicit
         )
 
     def get_valid_name(self, name):
-        """
-        Return a filename without 'public/' prefix
-        """
         name = super().get_valid_name(name)
         return name.replace("public/", "")
 
     def url(self, name):
-        """
-        Return URL including the public directory
-        """
         url = super().url(name)
+        # Ensure URL starts with /media/public/
         if not url.startswith("/media/public/"):
-            url = url.replace("/media/", "/media/public/")
+            url = f"/media/public/{name}"
         return url
 
-
-# Create instances of storage classes
+# Create instances
 secure_storage = SecureFileStorage()
 public_storage = PublicMediaStorage()

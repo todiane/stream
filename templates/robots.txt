@@ -4,7 +4,7 @@ Sitemap: {{ request.scheme }}://{{ request.get_host }}/sitemap.xml
 
 Disallow: /admin/
 Disallow: /profiles/
-Disallow: /ckeditor4/
+Disallow: /ckeditor/
 Disallow: /redirects/
 Disallow: /*/tag/
 Disallow: /*?*

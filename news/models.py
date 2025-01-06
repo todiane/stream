@@ -88,15 +88,6 @@ class Post(models.Model):
     def get_image_url(self):
         """Get the URL for the main image"""
         try:
-            if self.image:
-                return self.preview_image.url.replace("/media/public/", "/media/")
-            return None
-        except Exception:
-            return None
-
-    def get_image_url(self):
-        """Get the URL for the main image"""
-        try:
             if self.external_image_url:
                 return self.external_image_url
             if self.image:
@@ -104,6 +95,16 @@ class Post(models.Model):
             return None
         except Exception:
             return None
+
+    def get_ad_image_url(self):
+        """Get the URL for the advertisement image"""
+        try:
+            if self.ad_image:
+                return self.ad_image.url.replace("/media/public/", "/media/")
+            return None
+        except Exception:
+            return None
+    
 
     def get_thumbnail_url(self):
         """Get the thumbnail URL - falls back to main image if no thumbnail"""
