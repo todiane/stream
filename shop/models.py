@@ -181,6 +181,27 @@ class Product(models.Model):
     def is_fully_booked(self):
         return self.status == "full"
 
+    @property
+    def average_rating(self):
+        reviews = self.reviews.all()
+        if reviews:
+            return sum(review.rating for review in reviews) / len(reviews)
+        return 0
+
+    @property
+    def total_reviews(self):
+        return self.reviews.count()
+
+    def can_review(self, user):
+        # Check if user has purchased and hasn't reviewed
+        has_purchased = OrderItem.objects.filter(
+            order__user=user,
+            product=self,
+            order__status='completed'
+        ).exists()
+        has_reviewed = self.reviews.filter(user=user).exists()
+        return has_purchased and not has_reviewed
+
 
 class GuestDetails(models.Model):
     first_name = models.CharField(max_length=50)
@@ -269,3 +290,34 @@ class OrderItem(models.Model):
     @property
     def price(self):
         return self.get_price_in_pounds()
+
+class ProductReview(models.Model):
+    RATING_CHOICES = [
+        (1, '1'),
+        (2, '2'),
+        (3, '3'),
+        (4, '4'),
+        (5, '5'),
+    ]
+    product = models.ForeignKey(Product, on_delete=models.CASCADE, related_name='reviews')
+    user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE)
+    rating = models.IntegerField(choices=RATING_CHOICES)
+    comment = models.TextField()
+    created = models.DateTimeField(auto_now_add=True)
+    verified_purchase = models.BooleanField(default=False)
+
+    class Meta:
+        ordering = ['-created']
+        # Ensure one review per user per product
+        unique_together = ('product', 'user')
+
+    def __str__(self):
+        return f'Review by {self.user.username} on {self.product.title}'
+
+    @property
+    def is_verified_purchase(self):
+        return OrderItem.objects.filter(
+            order__user=self.user,
+            product=self.product,
+            order__status='completed'
+        ).exists()

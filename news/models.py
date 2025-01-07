@@ -91,7 +91,7 @@ class Post(models.Model):
             if self.external_image_url:
                 return self.external_image_url
             if self.image:
-                return self.image.url.replace("/media/public/", "/media/")
+                return self.image.url
             return None
         except Exception:
             return None
@@ -149,12 +149,6 @@ class Post(models.Model):
             self.publish_date = timezone.now()
 
         super().save(*args, **kwargs)
-
-    def get_image_url(self):
-        """Get the URL for the main image"""
-        if self.image:
-            return self.image.url
-        return None
 
     def get_display_image(self):
         """Get image URL from either uploaded image, thumbnail, or YouTube video"""

@@ -17,7 +17,7 @@ class PublicMediaStorage(FileSystemStorage):
         public_root = os.path.join(settings.MEDIA_ROOT, "public")
         super().__init__(
             location=public_root,
-            base_url='/media/public/'  # Changed this line to be explicit
+            base_url=settings.MEDIA_URL + 'public/'
         )
 
     def get_valid_name(self, name):
@@ -26,10 +26,12 @@ class PublicMediaStorage(FileSystemStorage):
 
     def url(self, name):
         url = super().url(name)
-        # Ensure URL starts with /media/public/
-        if not url.startswith("/media/public/"):
-            url = f"/media/public/{name}"
-        return url
+        if not url.startswith(settings.MEDIA_URL):
+            url = settings.MEDIA_URL.rstrip('/') + '/public/' + name.lstrip('/')
+        # Add cache busting
+        from django.utils.timezone import now
+        timestamp = int(now().timestamp())
+        return f"{url}?v={timestamp}"
 
 # Create instances
 secure_storage = SecureFileStorage()

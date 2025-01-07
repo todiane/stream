@@ -15,7 +15,7 @@ import os
 import logging
 import mimetypes
 from wsgiref.util import FileWrapper
-from shop.forms import GuestDetailsForm
+from shop.forms import GuestDetailsForm, ProductReviewForm
 from .emails import send_order_confirmation_email, send_download_link_email
 from .models import Category, GuestDetails, Product, Order, OrderItem
 from .cart import Cart
@@ -59,11 +59,18 @@ def product_detail(request, slug):
 
     has_purchased = False
     order_item = None
+    show_review_form = False
+    review_form = None
+
     if request.user.is_authenticated:
         order_item = OrderItem.objects.filter(
             order__user=request.user, order__paid=True, product=product
         ).first()
         has_purchased = bool(order_item)
+        
+        if product.can_review(request.user):
+            review_form = ProductReviewForm()
+            show_review_form = 'show_review_form' in request.GET
 
     return render(
         request,
@@ -74,6 +81,8 @@ def product_detail(request, slug):
             "has_purchased": has_purchased,
             "order_item": order_item,
             "stripe_publishable_key": settings.STRIPE_PUBLISHABLE_KEY,
+            "form": review_form,
+            "show_review_form": show_review_form,
         },
     )
 
@@ -483,3 +492,26 @@ def secure_download(request, order_item_id):
         order_item.save()
 
     return response
+
+@login_required
+def add_review(request, product_id):
+    product = get_object_or_404(Product, id=product_id)
+    
+    if not product.can_review(request.user):
+        messages.error(request, 'You can only review products you have purchased.')
+        return redirect('shop:product_detail', slug=product.slug)
+
+    if request.method == 'POST':
+        form = ProductReviewForm(request.POST)
+        if form.is_valid():
+            review = form.save(commit=False)
+            review.product = product
+            review.user = request.user
+            review.verified_purchase = True  # Will be verified through can_review
+            review.save()
+            messages.success(request, 'Your review has been added.')
+            return redirect('shop:product_detail', slug=product.slug)
+    else:
+        form = ProductReviewForm()
+
+    return render(request, 'shop/add_review.html', {'form': form, 'product': product})

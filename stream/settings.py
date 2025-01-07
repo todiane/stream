@@ -51,6 +51,8 @@ ALLOWED_HOSTS = [
 CSRF_TRUSTED_ORIGINS = [
     "https://streamenglish-co-uk.stackstaging.com",
     "https://streamenglish.co.uk",
+    "https://www.streamenglish.co.uk",
+    
 ]
 
 # Application definition
@@ -209,6 +211,11 @@ PUBLIC_MEDIA_ROOT = os.path.join(MEDIA_ROOT, "public")
 SECURE_MEDIA_ROOT = os.path.join(MEDIA_ROOT, "secure_downloads")
 MEDIA_PREFIX = "public/"
 
+MEDIA_FILE_SERVE_HEADERS = {
+    'Access-Control-Allow-Origin': '*',
+    'Cache-Control': 'no-cache, must-revalidate'
+}
+
 # File Permissions
 FILE_UPLOAD_PERMISSIONS = 0o644
 FILE_UPLOAD_DIRECTORY_PERMISSIONS = 0o755
@@ -233,6 +240,13 @@ STORAGES = {
 X_FRAME_OPTIONS = 'SAMEORIGIN'
 SECURE_PROXY_SSL_HEADER = ('HTTP_X_FORWARDED_PROTO', 'https')
 USE_X_FORWARDED_HOST = True
+
+# Cache Control Headers for Media Files
+MEDIA_FILE_STORAGE_HEADERS = {
+    'Cache-Control': 'no-cache, no-store, must-revalidate',
+    'Pragma': 'no-cache',
+    'Expires': '0'
+}
 
 # Create directories if they don't exist
 for directory in [MEDIA_ROOT, PUBLIC_MEDIA_ROOT, SECURE_MEDIA_ROOT]:
