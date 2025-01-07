@@ -193,7 +193,11 @@ class Product(models.Model):
         return self.reviews.count()
 
     def can_review(self, user):
-        # Check if user has purchased and hasn't reviewed
+        # Superusers can always review
+        if user.is_superuser:
+            return True
+            
+        # For regular users, check purchase and review status
         has_purchased = OrderItem.objects.filter(
             order__user=user,
             product=self,

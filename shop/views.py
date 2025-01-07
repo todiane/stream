@@ -24,6 +24,7 @@ stripe.api_key = settings.STRIPE_SECRET_KEY
 
 # Set up logger
 logger = logging.getLogger("shop.stripe")
+logger = logging.getLogger('django')
 
 
 def product_list(request):
@@ -51,6 +52,8 @@ def product_detail(request, slug):
     product = get_object_or_404(
         Product, slug=slug, is_active=True, status__in=["publish", "soon", "full"]
     )
+    logger.error(f"Product found: {product.id}")
+
     related_products = Product.objects.filter(
         category=product.category,
         status__in=["publish", "full"],
@@ -61,16 +64,17 @@ def product_detail(request, slug):
     order_item = None
     show_review_form = False
     review_form = None
+    can_review_result = False  
 
     if request.user.is_authenticated:
         order_item = OrderItem.objects.filter(
-            order__user=request.user, order__paid=True, product=product
+            order__user=request.user,
+            order__paid=True,
+            product=product
         ).first()
-        has_purchased = bool(order_item)
         
-        if product.can_review(request.user):
-            review_form = ProductReviewForm()
-            show_review_form = 'show_review_form' in request.GET
+        has_purchased = bool(order_item)
+        review_form = ProductReviewForm() if product.can_review(request.user) else None
 
     return render(
         request,
@@ -82,7 +86,6 @@ def product_detail(request, slug):
             "order_item": order_item,
             "stripe_publishable_key": settings.STRIPE_PUBLISHABLE_KEY,
             "form": review_form,
-            "show_review_form": show_review_form,
         },
     )
 
@@ -497,9 +500,11 @@ def secure_download(request, order_item_id):
 def add_review(request, product_id):
     product = get_object_or_404(Product, id=product_id)
     
-    if not product.can_review(request.user):
-        messages.error(request, 'You can only review products you have purchased.')
-        return redirect('shop:product_detail', slug=product.slug)
+    # Allow superusers to review without purchase verification
+    if not request.user.is_superuser:
+        if not product.can_review(request.user):
+            messages.error(request, 'You can only review products you have purchased.')
+            return redirect('shop:product_detail', slug=product.slug)
 
     if request.method == 'POST':
         form = ProductReviewForm(request.POST)
@@ -507,7 +512,7 @@ def add_review(request, product_id):
             review = form.save(commit=False)
             review.product = product
             review.user = request.user
-            review.verified_purchase = True  # Will be verified through can_review
+            review.verified_purchase = True  
             review.save()
             messages.success(request, 'Your review has been added.')
             return redirect('shop:product_detail', slug=product.slug)

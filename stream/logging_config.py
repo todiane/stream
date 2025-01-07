@@ -14,9 +14,9 @@ LOGGING = {
     "version": 1,
     "disable_existing_loggers": False,
     "formatters": {
-        "verbose": {
-            "format": "[{asctime}] {levelname} {module} {process} {thread} {message}\n{exc_info}",
-            "style": "{",
+    "verbose": {
+        "format": "[{asctime}] {levelname} {module} {process} {thread} {message}\n{exc_info}\n{pathname} {lineno}",
+        "style": "{",
         },
     },
     "filters": {
