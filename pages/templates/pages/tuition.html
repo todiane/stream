@@ -17,14 +17,13 @@
                         </div>
                     {% endif %}
                 </div>
-
                 <!-- Features section with consistent spacing -->
                 <div class="space-y-6 pt-2 pb-8">
                     {% with features|dictsort:"order" as sorted_features %}
                         <div class="grid grid-cols-1 lg:grid-cols-2 gap-8 mx-auto max-w-5xl">
                             {% for feature in sorted_features %}
                                 <div class="{% if feature.size == 'large' %}lg:col-span-2{% endif %}">
-                                    <div class="bg-white p-6 transition-all duration-300 hover:shadow-lg hover:-translate-y-1 h-full">
+                                    <div class="bg-white p-6 transition-all duration-300 hover:shadow-lg hover:-translate-y-1 h-full border-2 border-[#98c1d9] rounded-lg">
                                         <div class="mb-4">
                                             <div class="flex items-center space-x-6">
                                                 <i class="bi bi-{{ feature.icon }} text-[#0C8C9D] text-xl"></i>
@@ -40,7 +39,6 @@
                         </div>
                     {% endwith %}
                 </div>
-
                 <!-- Bottom section with consistent line height -->
                 {% if page.second_content %}
                     <div class="mt-16 bg-white">

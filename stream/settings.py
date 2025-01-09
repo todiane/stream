@@ -116,9 +116,6 @@ SITE_ID = 1
 
 SITE_URL = "https://streamenglish.co.uk"
 
-# Update admin site URL
-DJANGO_ADMIN_SITE_URL = "https://streamenglish.co.uk/admin/"
-
 ROOT_URLCONF = "stream.urls"
 
 WSGI_APPLICATION = "stream.wsgi.application"
@@ -201,7 +198,7 @@ SHOP_CANCEL_URL = "/shop/cancel/"
 
 # Admin notification settings
 ADMINS = [
-    ("Admin", "info@streamenglish.co.uk"),
+    ("Admin", "no-reply@streamenglish.co.uk"),
 ]
 
 # Media and Storage Configuration

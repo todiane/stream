@@ -307,6 +307,7 @@ db_test.py
 test_db.py 
 tests.py 
 sevenv 
-
+static/src/
+node_modules/
 venv2
 static
