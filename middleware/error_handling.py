@@ -1,4 +1,4 @@
-# Save as /home/virtual/vps-cbced9/a/a588fe7474/stream/middleware/error_handling.py
+
 
 import logging
 import uuid

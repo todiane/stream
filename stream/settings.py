@@ -42,17 +42,20 @@ DATABASES = {
 
 
 ALLOWED_HOSTS = [
-    "streamenglish-co-uk.stackstaging.com",
     "streamenglish.co.uk",
     "www.streamenglish.co.uk",
-    "webmail.streamenglish.co.uk",
+    "mail.streamenglish.co.uk",
+    "djangify.com"
+    "localhost",
+    "127.0.0.1",
 ]
 
 CSRF_TRUSTED_ORIGINS = [
-    "https://streamenglish-co-uk.stackstaging.com",
     "https://streamenglish.co.uk",
     "https://www.streamenglish.co.uk",
-    
+    "https://djangify.com",
+    "http://localhost",
+    "http://127.0.0.1",
 ]
 
 # Application definition

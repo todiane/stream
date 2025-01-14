@@ -33,9 +33,7 @@ from .forms import CustomPasswordResetForm
 from .tokens import account_activation_token
 from courses.models import Course, Lesson
 
-
 logger = logging.getLogger(__name__)
-
 
 def signup_view(request):
     if request.method == "POST":
@@ -59,17 +57,21 @@ def signup_view(request):
                     subject = "Activate your Stream English Account"
                     unsubscribe_uid = urlsafe_base64_encode(force_bytes(user.pk))
 
+                    print("Attempting to send activation email...")
+                    token = account_activation_token.make_token(user)
+                    print(f"Generated token: {token}")  # Keep this debug line
+
                     context = {
                         "user": user,
                         "domain": "streamenglish.co.uk",
                         "uid": urlsafe_base64_encode(force_bytes(user.pk)),
-                        "token": account_activation_token.make_token(user),
+                        "token": token,  # Use the same token we just generated
                         "protocol": "https",
                         "expiration_days": settings.ACCOUNT_ACTIVATION_DAYS,
                         "email": user.email,
                         "unsubscribe_url": f"https://streamenglish.co.uk{reverse('profiles:unsubscribe_email', kwargs={'uidb64': unsubscribe_uid})}",
                     }
-
+  
                     html_message = render_to_string(
                         "account/email/account_activation_email.html", context
                     )
@@ -82,6 +84,7 @@ def signup_view(request):
                     )
                     msg.attach_alternative(html_message, "text/html")
                     msg.send()
+                    print("Activation email sent successfully!")
 
                 except Exception as e:
                     # Log the specific email error but don't prevent registration
@@ -335,6 +338,8 @@ def activate(request, uidb64, token):
         user = User.objects.get(pk=uid)
     except (TypeError, ValueError, OverflowError, User.DoesNotExist):
         user = None
+        messages.error(request, "Activation link is invalid.")
+        return redirect("profiles:activation_failed")
 
     if user is not None and account_activation_token.check_token(user, token):
         if not user.profile.email_verified:
@@ -342,21 +347,28 @@ def activate(request, uidb64, token):
             user.profile.save()
             login(request, user)
 
-            # Send welcome email after successful activation
-            send_welcome_activated_email(request, user)
+            try:
+                # Send welcome email after successful activation
+                send_welcome_activated_email(request, user)
 
-            print("About to send admin notification")  # Debug print
-            # Send admin notification
-            notification_sent = send_admin_notification(
-                "New Member Validation",
-                f"New member {user.username} has validated their email address at {timezone.now()}",
-            )
-            print(f"Admin notification sent: {notification_sent}")  # Debug print
-
+                # Send admin notification
+                send_admin_notification(
+                    "New Member Validation",
+                    f"New member {user.username} has validated their email address at {timezone.now()}"
+                )
+            except Exception as e:
+                logger.error(f"Error sending welcome/notification emails: {str(e)}")
+                # Continue with activation even if email sending fails
+                
             messages.success(request, "Your account has been successfully activated!")
             return redirect("profiles:profile")
-
-
+        else:
+            messages.info(request, "This account is already activated.")
+            return redirect("profiles:login")
+    else:
+        messages.error(request, "Activation link is invalid or has expired.")
+        return redirect("profiles:activation_failed")
+    
 # Resend activation email
 def resend_activation_email(request, uidb64):
     try:

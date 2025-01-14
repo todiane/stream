@@ -1,13 +1,21 @@
 import os
 import sys
+import logging
 
-# Add your Django project directory to the Python path
-sys.path.insert(0, "/home/virtual/vps-cbced9/a/a588fe7474/stream")
+# Configure logging
+logging.basicConfig(
+    filename=os.path.join(os.path.dirname(__file__), 'logs', 'django.log'),
+    level=logging.DEBUG,
+    format='%(asctime)s [%(levelname)s] %(message)s',
+)
 
-# Set Django settings module
-os.environ["DJANGO_SETTINGS_MODULE"] = "stream.settings"
-
-# Import and create WSGI application
-from django.core.wsgi import get_wsgi_application
-
-application = get_wsgi_application()
+try:
+    # Add your site directory to the Python path
+    SITE_ROOT = os.path.dirname(os.path.realpath(__file__))
+    sys.path.insert(0, SITE_ROOT)
+    
+    # Set up Python environment
+    from stream.wsgi import application
+except Exception as e:
+    logging.error(f"Failed to start application: {str(e)}", exc_info=True)
+    raise

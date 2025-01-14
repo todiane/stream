@@ -52,7 +52,7 @@ def product_detail(request, slug):
     product = get_object_or_404(
         Product, slug=slug, is_active=True, status__in=["publish", "soon", "full"]
     )
-    logger.error(f"Product found: {product.id}")
+    
 
     related_products = Product.objects.filter(
         category=product.category,

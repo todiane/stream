@@ -1,13 +1,13 @@
 import os
 import sys
 
-# Add the project directory to the Python path
-path = "/home/virtual/vps-cbced9/a/a588fe7474/stream"
-if path not in sys.path:
-    sys.path.insert(0, path)
+# Add your Django project directory to the Python path
+sys.path.insert(0, "/home/str3a3eng24/public_html")
 
-os.environ.setdefault("DJANGO_SETTINGS_MODULE", "stream.settings")
+# Set Django settings module
+os.environ["DJANGO_SETTINGS_MODULE"] = "stream.settings"
 
+# Import and create WSGI application
 from django.core.wsgi import get_wsgi_application
 
 application = get_wsgi_application()
