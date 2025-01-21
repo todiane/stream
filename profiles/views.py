@@ -20,7 +20,6 @@ from django.utils.encoding import force_bytes, force_str
 from django.utils.http import urlsafe_base64_encode, urlsafe_base64_decode
 from .utils import (
     send_admin_notification,
-    send_html_email,
     send_welcome_activated_email,
 )
 from .utils import check_email_throttle
@@ -60,7 +59,8 @@ def signup_view(request):
                     print("Attempting to send activation email...")
                     token = account_activation_token.make_token(user)
                     print(f"Generated token: {token}")  # Keep this debug line
-
+                    token = account_activation_token.make_token(user)
+                    logger.info(f"[Token Debug] Generated signup token for {user.username}: {token}")
                     context = {
                         "user": user,
                         "domain": "streamenglish.co.uk",
@@ -71,6 +71,7 @@ def signup_view(request):
                         "email": user.email,
                         "unsubscribe_url": f"https://streamenglish.co.uk{reverse('profiles:unsubscribe_email', kwargs={'uidb64': unsubscribe_uid})}",
                     }
+                    logger.info(f"[Token Debug] Using token in email context: {context['token']}")
   
                     html_message = render_to_string(
                         "account/email/account_activation_email.html", context
@@ -333,42 +334,50 @@ def send_activation_email(request, user):
 
 # Activate account
 def activate(request, uidb64, token):
+    logger.info(f"[Token Debug] Received activation request with token: {token}")
     try:
         uid = force_str(urlsafe_base64_decode(uidb64))
         user = User.objects.get(pk=uid)
-    except (TypeError, ValueError, OverflowError, User.DoesNotExist):
-        user = None
+        logger.info(f"[Token Debug] Found user: {user.username}")
+        
+        # Add debug token verification
+        verification_token = account_activation_token.make_token(user)
+        logger.info(f"[Token Debug] Generated verification token: {verification_token}")
+        logger.info(f"[Token Debug] Tokens match: {token == verification_token}")
+
+        if user is not None and account_activation_token.check_token(user, token):
+            if not user.profile.email_verified:
+                user.profile.email_verified = True
+                user.profile.save()
+                login(request, user)
+
+                try:
+                    # Send welcome email after successful activation
+                    send_welcome_activated_email(request, user)
+
+                    # Send admin notification
+                    send_admin_notification(
+                        "New Member Validation",
+                        f"New member {user.username} has validated their email address at {timezone.now()}"
+                    )
+                except Exception as e:
+                    logger.error(f"Error sending welcome/notification emails: {str(e)}")
+                    
+                messages.success(request, "Your account has been successfully activated!")
+                return redirect("profiles:profile")
+            else:
+                messages.info(request, "This account is already activated.")
+                return redirect("profiles:login")
+        else:
+            messages.error(request, "Activation link is invalid or has expired.")
+            return redirect("profiles:activation_failed")
+            
+    except (TypeError, ValueError, OverflowError, User.DoesNotExist) as e:
+        logger.error(f"[Token Debug] Activation error: {str(e)}")
         messages.error(request, "Activation link is invalid.")
         return redirect("profiles:activation_failed")
 
-    if user is not None and account_activation_token.check_token(user, token):
-        if not user.profile.email_verified:
-            user.profile.email_verified = True
-            user.profile.save()
-            login(request, user)
 
-            try:
-                # Send welcome email after successful activation
-                send_welcome_activated_email(request, user)
-
-                # Send admin notification
-                send_admin_notification(
-                    "New Member Validation",
-                    f"New member {user.username} has validated their email address at {timezone.now()}"
-                )
-            except Exception as e:
-                logger.error(f"Error sending welcome/notification emails: {str(e)}")
-                # Continue with activation even if email sending fails
-                
-            messages.success(request, "Your account has been successfully activated!")
-            return redirect("profiles:profile")
-        else:
-            messages.info(request, "This account is already activated.")
-            return redirect("profiles:login")
-    else:
-        messages.error(request, "Activation link is invalid or has expired.")
-        return redirect("profiles:activation_failed")
-    
 # Resend activation email
 def resend_activation_email(request, uidb64):
     try:
