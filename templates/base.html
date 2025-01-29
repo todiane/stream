@@ -5,7 +5,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="description" content="GCSE English Language and Literature tuition and resources">
-    
+    <meta name="csrf-token" content="{{ csrf_token }}">
     <!-- Styles -->
     <link href="{% static 'css/dist/styles.css' %}" rel="stylesheet">
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
@@ -14,6 +14,7 @@
     
     {% block extra_head %}
     <script src="https://js.stripe.com/v3/"></script>
+    <script src="https://www.youtube.com/iframe_api"></script>
     {% endblock %}
     
     <title>{% block head_title %}Stream English - GCSE English Language and Literature{% endblock %}</title>

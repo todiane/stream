@@ -61,6 +61,11 @@ LOGGING = {
             "level": "ERROR",
             "propagate": False,
         },
+        "courses": {
+            "handlers": ["file"],
+            "level": "DEBUG",  # Set to DEBUG to catch all course-related logs
+            "propagate": True,
+        },
         "django.db.backends": {
             "handlers": ["file"],
             "level": "ERROR",

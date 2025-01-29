@@ -274,16 +274,15 @@ def payment_success(request):
                 quantity=item["quantity"],
                 downloads_remaining=item["product"].download_limit,
             )
+            
+            # Increment purchase count for the product
+            product = item["product"]
+            product.purchase_count += item["quantity"]
+            product.save()
+
             logger.info(
                 f"Order item created for product {item['product'].title} in order {order.order_id}"
             )
-
-            try:
-                send_download_link_email(order_item)
-            except Exception as e:
-                logger.error(
-                    f"Failed to send download email for order item {order_item.id}: {str(e)}"
-                )
 
         # Send order confirmation email
         try:
@@ -310,6 +309,8 @@ def payment_success(request):
         logger.error(f"Unexpected error in payment success: {str(e)}")
         messages.error(request, "There was an error processing your order.")
         return redirect("shop:cart_detail")
+
+
 
 
 def payment_cancel(request):
@@ -453,7 +454,6 @@ def handle_failed_payment(payment_intent):
         order.status = "failed"
         order.save()
 
-
 @login_required
 @require_http_methods(["GET"])
 def secure_download(request, order_item_id):
@@ -467,6 +467,11 @@ def secure_download(request, order_item_id):
     if order_item.product.product_type == "download":
         if order_item.download_count >= order_item.downloads_remaining:
             raise PermissionDenied("Download limit exceeded")
+        
+        # Decrement downloads_remaining and increment download_count
+        order_item.downloads_remaining -= 1
+        order_item.download_count += 1
+        order_item.save()
 
     # Get the file path
     file_path = None
@@ -484,15 +489,10 @@ def secure_download(request, order_item_id):
     file_obj = open(file_path, "rb")
     response = FileResponse(FileWrapper(file_obj), content_type=content_type)
 
-    # Set content disposition and increment download count
+    # Set content disposition
     response["Content-Disposition"] = (
         f'attachment; filename="{os.path.basename(file_path)}"'
     )
-
-    # Only increment download count for digital products
-    if order_item.product.product_type == "download":
-        order_item.download_count += 1
-        order_item.save()
 
     return response
 

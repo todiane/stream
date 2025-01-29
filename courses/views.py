@@ -9,6 +9,9 @@ from django.conf import settings
 from django.db.models import Q
 from .models import Course, Lesson
 from . import services
+import logging
+
+logger = logging.getLogger('django')
 
 
 def course_list_view(request):
@@ -62,6 +65,8 @@ def enrol_course(request, course_slug):
 
 
 def lesson_detail_view(request, course_slug=None, lesson_slug=None, *args, **kwargs):
+    logger.info(f'Lesson view accessed: {course_slug}/{lesson_slug}')
+    logger.debug(f'Request user: {request.user}, is authenticated: {request.user.is_authenticated}')
     # First try to get the course
     try:
         course = Course.objects.get(slug=course_slug, status="publish")

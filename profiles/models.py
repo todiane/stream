@@ -92,3 +92,16 @@ class ContactSubmission(models.Model):
 
     def __str__(self):
         return f"{self.get_reason_display()} from {self.user.username}"
+
+class VideoProgress(models.Model):
+    user = models.ForeignKey(User, on_delete=models.CASCADE)
+    lesson = models.ForeignKey('courses.Lesson', on_delete=models.CASCADE)
+    current_time = models.IntegerField(default=0)  # Store time in seconds
+    is_completed = models.BooleanField(default=False)
+    last_watched = models.DateTimeField(auto_now=True)
+
+    class Meta:
+        unique_together = ['user', 'lesson']
+
+    def __str__(self):
+        return f"{self.user.username} - {self.lesson.title} Progress"

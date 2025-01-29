@@ -25,12 +25,15 @@ from .utils import (
 from .utils import check_email_throttle
 from django.conf import settings
 from django.views.generic.edit import FormView
+from django.http import JsonResponse
+from django.views.decorators.http import require_http_methods
 
 from .forms import UserRegisterForm, UserUpdateForm, ProfileUpdateForm
 from .forms import ContactForm
 from .forms import CustomPasswordResetForm
 from .tokens import account_activation_token
 from courses.models import Course, Lesson
+import json 
 
 logger = logging.getLogger(__name__)
 
@@ -283,18 +286,42 @@ def remove_course(request, course_slug):
             )
     return redirect("profiles:profile")
 
-
 @login_required
+@require_http_methods(["POST"])
 def mark_video_watched(request, lesson_id):
-    lesson = get_object_or_404(Lesson, id=lesson_id)
-    profile = request.user.profile
-    profile.watched_videos.add(lesson)
-    profile.last_watched_lesson = lesson
-    profile.save()
-    return redirect(
-        "courses:lesson_detail", course_slug=lesson.course.slug, lesson_slug=lesson.slug
-    )
-
+    try:
+        lesson = get_object_or_404(Lesson, id=lesson_id)
+        profile = request.user.profile
+        
+        # Get or create video progress
+        progress, created = VideoProgress.objects.get_or_create(
+            user=request.user,
+            lesson=lesson
+        )
+        
+        # Get current time from request
+        data = json.loads(request.body)
+        current_time = data.get('current_time', 0)
+        
+        # Update progress
+        progress.current_time = current_time
+        progress.is_completed = True
+        progress.save()
+        
+        # Add to watched videos if not already there
+        if lesson not in profile.watched_videos.all():
+            profile.watched_videos.add(lesson)
+            profile.last_watched_lesson = lesson
+            profile.save()
+            
+        return JsonResponse({
+            'status': 'success',
+            'watched_count': profile.get_watched_videos_count(),
+            'course_progress': profile.get_course_completion_percentage(lesson.course)
+        })
+    except Exception as e:
+        logger.error(f"Error marking video as watched: {str(e)}")
+        return JsonResponse({'status': 'error', 'message': str(e)}, status=500)
 
 # Email activation views
 def send_activation_email(request, user):
@@ -595,3 +622,17 @@ def test_email_settings():
         error_msg = f"SMTP connection failed: {str(e)}"
         print(error_msg)
         return False, error_msg
+
+@login_required
+def get_video_progress(request, lesson_id):
+    try:
+        progress = VideoProgress.objects.get(
+            user=request.user,
+            lesson_id=lesson_id
+        )
+        return JsonResponse({
+            'current_time': progress.current_time,
+            'is_completed': progress.is_completed
+        })
+    except VideoProgress.DoesNotExist:
+        return JsonResponse({'current_time': 0, 'is_completed': False})

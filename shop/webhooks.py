@@ -4,6 +4,7 @@ from django.http import HttpResponse
 from django.views.decorators.csrf import csrf_exempt
 from django.views.decorators.http import require_POST
 from .models import Order
+from .emails import send_download_link_email  
 
 @csrf_exempt
 @require_POST
@@ -33,19 +34,31 @@ def stripe_webhook(request):
 def handle_payment_intent_succeeded(payment_intent):
     user_id = payment_intent.metadata.get('user_id')
     order = Order.objects.filter(
-        user_id=user_id,
         payment_intent_id=payment_intent.id,
         status='pending'
     ).first()
     
     if order:
         order.status = 'completed'
+        order.paid = True
         order.save()
+
+        # Increment purchase counts
+        for order_item in order.items.all():
+            product = order_item.product
+            product.purchase_count += order_item.quantity
+            product.save()
+
+        # Send emails for each order item
+        try:
+            for order_item in order.items.all():
+                send_download_link_email(order_item)
+        except Exception as e:
+            print(f"Error sending download emails in webhook: {str(e)}")
 
 def handle_payment_intent_failed(payment_intent):
     user_id = payment_intent.metadata.get('user_id')
     order = Order.objects.filter(
-        user_id=user_id,
         payment_intent_id=payment_intent.id,
         status='pending'
     ).first()

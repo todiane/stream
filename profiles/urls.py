@@ -23,6 +23,7 @@ urlpatterns = [
     path("purchases/", include("shop.urls"), name="purchases"),
     path("enrol/<slug:course_slug>/", views.enrol_course, name="enrol_course"),
     path("resume/<slug:course_slug>/", views.resume_course, name="resume_course"),
+    path('get-video-progress/<int:lesson_id>/', views.get_video_progress, name='get_video_progress'),
     path(
         "mark-video-watched/<int:lesson_id>/",
         views.mark_video_watched,
