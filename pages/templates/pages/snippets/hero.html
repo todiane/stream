@@ -1,0 +1,47 @@
+<!-- templates/pages/snippets/hero.html -->
+<section class="bg-slate-50 dark:bg-gray-900">
+  <div class="max-w-7xl mx-auto px-4 py-8">
+      <!-- Title Section -->
+      <div class="text-center mb-8">
+          <h1 class="text-4xl mb-2 font-extrabold text-gray-900 dark:text-white">
+              {{ hero.title }}
+          </h1>
+          {% if hero.subtitle %}
+          <p class="text-lg text-gray-500 mb-4 dark:text-gray-400">
+              {{ hero.subtitle }}
+          </p>
+          {% endif %}
+          {% if hero.description %}
+          <p class="text-lg text-gray-500 max-w-3xl mx-auto">
+              {{ hero.description }}
+          </p>
+          {% endif %}
+          
+          {% if hero.cta_link %}
+          <div class="mt-6">
+              <a href="{{ hero.cta_link }}" 
+                 class="inline-flex items-center px-5 py-3 text-white bg-blue-600 rounded-lg hover:bg-blue-700">
+                  {{ hero.cta_text|default:"Register Here" }}
+                  <svg class="w-5 h-5 ml-2" fill="currentColor" viewBox="0 0 20 20">
+                      <path fill-rule="evenodd" d="M10.293 3.293a1 1 0 011.414 0l6 6a1 1 0 010 1.414l-6 6a1 1 0 01-1.414-1.414L14.586 11H3a1 1 0 110-2h11.586l-4.293-4.293a1 1 0 010-1.414z"/>
+                  </svg>
+              </a>
+          </div>
+          {% endif %}
+      </div>
+
+      <!-- Video Container -->
+      <div class="max-w-4xl mx-auto">
+          <div class="relative w-full" style="padding-bottom: 56.25%;">
+              <iframe 
+                  class="absolute top-0 left-0 w-full h-full rounded-lg shadow-lg"
+                  src="https://www.youtube.com/embed/Ww_XxRREs-U?si=flVcfAjPYj1SxsDm"
+                  title="GCSE English Language and Literature Tuition"
+                  frameborder="0"
+                  allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                  allowfullscreen>
+              </iframe>
+          </div>
+      </div>
+  </div>
+</section>

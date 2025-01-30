@@ -2,7 +2,7 @@
 from email.message import EmailMessage
 import logging
 from django.core.mail import get_connection
-from profiles.models import Profile
+from profiles.models import Profile, VideoProgress
 from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required
