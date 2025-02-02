@@ -135,16 +135,17 @@ IP_RATE_LIMIT_MAX_ATTEMPTS = 20  # Maximum attempts per IP
 IP_RATE_LIMIT_TIMEOUT = 300  # Reset after 5 minutes (in seconds)
 
 
-# New 20i email settings to be implemented:
-EMAIL_BACKEND = "django.core.mail.backends.smtp.EmailBackend"
-EMAIL_HOST = "smtp.stackmail.com"
-EMAIL_PORT = 465
+# email settings to be implemented:
+
+EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
+EMAIL_HOST = 'localhost'  # Using local mail server
+EMAIL_PORT = 25  # Standard SMTP port
 EMAIL_USE_TLS = False
-EMAIL_USE_SSL = True
-EMAIL_HOST_USER = env("EMAIL_HOST_USER")
-EMAIL_HOST_PASSWORD = env("EMAIL_HOST_PASSWORD")
-DEFAULT_FROM_EMAIL = env("DEFAULT_FROM_EMAIL")
-CONTACT_EMAIL = env("CONTACT_EMAIL")
+EMAIL_USE_SSL = False
+EMAIL_HOST_USER = env('EMAIL_HOST_USER')
+EMAIL_HOST_PASSWORD = env('EMAIL_HOST_PASSWORD')
+DEFAULT_FROM_EMAIL = env('DEFAULT_FROM_EMAIL')
+CONTACT_EMAIL = env('CONTACT_EMAIL')
 
 # Add these explicit settings
 
