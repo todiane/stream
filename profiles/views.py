@@ -325,6 +325,9 @@ def mark_video_watched(request, lesson_id):
 
 # Email activation views
 def send_activation_email(request, user):
+    from django.core.mail import get_connection
+    import time
+    
     current_site = get_current_site(request)
     unsubscribe_uid = urlsafe_base64_encode(force_bytes(user.pk))
     context = {
@@ -338,27 +341,43 @@ def send_activation_email(request, user):
         "unsubscribe_url": f"{request.scheme}://{current_site.domain}{reverse('profiles:unsubscribe_email', kwargs={'uidb64': unsubscribe_uid})}",
     }
 
-    # Render both HTML and plain text versions
-    html_content = render_to_string(
-        "account/email/account_activation_email.html", context
-    )
-    text_content = render_to_string(
-        "account/email/account_activation_email.txt", context
-    )
+    html_content = render_to_string("account/email/account_activation_email.html", context)
+    text_content = render_to_string("account/email/account_activation_email.txt", context)
 
-    # Create email
     subject = "Activate your Stream English account"
     from_email = settings.DEFAULT_FROM_EMAIL
     to_email = user.email
 
+    # Create email message
     msg = EmailMultiAlternatives(subject, text_content, from_email, [to_email])
     msg.attach_alternative(html_content, "text/html")
-    msg.send()
 
-    token = account_activation_token.make_token(user)
-    print(f"Generated token: {token}")  # Debugging line
+    # Attempt to send with retries
+    for attempt in range(settings.EMAIL_MAX_RETRIES):
+        try:
+            # Get a fresh connection for each attempt
+            connection = get_connection(fail_silently=False)
+            connection.open()
+            
+            # Send email
+            msg.connection = connection
+            msg.send()
+            
+            # Log success
+            logger.info(f"Successfully sent activation email to {to_email} on attempt {attempt + 1}")
+            return True
+            
+        except Exception as e:
+            logger.error(f"Attempt {attempt + 1} failed: {str(e)}")
+            if attempt < settings.EMAIL_MAX_RETRIES - 1:
+                time.sleep(settings.EMAIL_RETRY_DELAY)
+                continue
+            raise  # Re-raise the last exception if all retries failed
+        
+        finally:
+            connection.close()
 
-
+            
 # Activate account
 def activate(request, uidb64, token):
     logger.info(f"[Token Debug] Received activation request with token: {token}")
