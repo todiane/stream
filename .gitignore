@@ -311,3 +311,4 @@ static/src/
 node_modules/
 venv2
 static
+.htaccess
