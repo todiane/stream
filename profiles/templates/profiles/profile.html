@@ -82,7 +82,11 @@
                         <div class="mb-4">
                             <div class="flex items-center">
                                 <div class="w-full bg-gray-200 rounded-full h-4 mr-2">
-                                    <div class="bg-green-500 rounded-full h-4 transition-all duration-300"
+                                    <div class="course-progress bg-green-500 rounded-full h-4 transition-all duration-300"
+                                         role="progressbar"
+                                         aria-valuenow="{{ course_data.progress }}"
+                                         aria-valuemin="0"
+                                         aria-valuemax="100"
                                          style="width: {{ course_data.progress }}%"
                                          data-tooltip="{{ course_data.progress }}% completed">
                                     </div>
