@@ -3,14 +3,6 @@ from django.urls import include, path, reverse_lazy
 from django.contrib.auth import views as auth_views
 from profiles.forms import CustomPasswordResetForm
 from . import views
-from django.http import HttpResponse
-from .views import test_email_settings
-
-
-def test_email_connection(request):
-    success, message = test_email_settings()
-    return HttpResponse(f"Email test result: {message}")
-
 
 app_name = "profiles"
 
@@ -82,5 +74,4 @@ urlpatterns = [
         ),
         name="password_reset_complete",
     ),
-    path("test-email/", test_email_connection, name="test_email"),
 ]
