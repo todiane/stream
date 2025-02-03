@@ -8,162 +8,112 @@
    {{ object.get_video_schema|safe }}
 </script>
 {% endif %}
-<script>
-    // Assign directly to window object to make it globally available
-    window.csrfToken = '{{ csrf_token }}';
-    console.log('CSRF token initialized:', !!window.csrfToken);
-</script>
-<script src="{% static 'js/video-tracking.js' %}" type="text/javascript"></script>
+<!-- Load YouTube API first -->
+<script src="https://www.youtube.com/iframe_api"></script>
+{% csrf_token %}
 {% endblock %}
 
 {% block content %}
 {% include "courses/components/breadcrumb.html" with course=course lesson=object %}
 
-<article itemscope itemtype="https://schema.org/VideoObject">
-   <div class="gap-8 items-center py-8 px-4 mx-auto max-w-screen-xl xl:gap-16 sm:py-16 lg:px-6">
-       <header>
-           <h1 itemprop="name" class="my-4 text-4xl tracking-tight font-extrabold text-gray-900 dark:text-white">
-               {{ object.title }}
-           </h1>
-       </header>
+<article class="gap-8 items-center py-8 px-4 mx-auto max-w-screen-xl xl:gap-16 sm:py-16 lg:px-6">
+    <header>
+        <h1 class="my-4 text-4xl tracking-tight font-extrabold text-gray-900">
+            {{ object.title }}
+        </h1>
+    </header>
 
-       <!-- Video Section -->
-       <div class="video-container my-8 relative" style="padding-bottom: 56.25%; height: 0; overflow: hidden; max-width: 100%;">
-           {% if object.youtube_url %}
-           <iframe id="youtube-player" 
-                   data-lesson-id="{{ object.id }}"
-                   src="{{ video_embed }}"
-                   frameborder="0"
-                   allowfullscreen
-                   style="position: absolute; top: 0; left: 0; width: 100%; height: 100%"
-                   title="{{ object.title }}">
-           </iframe>
-           {% elif video_embed %}
-           <div itemprop="video">
-               <video id="html5-player" 
-                      data-lesson-id="{{ object.id }}"
-                      controls>
-                   <source src="{{ video_embed }}" type="video/mp4">
-                   Your browser does not support the video tag.
-               </video>
-           </div>
-           {% else %}
-           <p>No video available for this lesson.</p>
-           {% endif %}
-       </div>
-
-       <script>
-           console.log('Testing video section load');
-           console.log('Video element data:', {
-               lessonId: {% if object.id %}'{{ object.id }}'{% else %}null{% endif %},
-               hasYoutubeUrl: {% if object.youtube_url %}true{% else %}false{% endif %},
-               videoEmbed: {% if video_embed %}true{% else %}false{% endif %}
-           });
-       </script>
-
-       <script>
-           document.addEventListener('DOMContentLoaded', function () {
-               console.log('Video tracking script loaded at:', new Date().toISOString());
-               {% if debug %}
-               console.log('Debug mode enabled');
-               {% endif %}
-               
-               const youtubePlayer = document.getElementById('youtube-player');
-               const html5Player = document.getElementById('html5-player');
-               
-               console.log('Found video elements:', {
-                   youtube: youtubePlayer !== null,
-                   html5: html5Player !== null
-               });
-           });
-       </script>
-
-       <script>
-           fetch("{% static 'js/video-tracking.js' %}")
-               .then(response => {
-                   console.log('Video tracking script status:', response.status);
-                   return response.text();
-               })
-               .then(text => {
-                   console.log('Script content length:', text.length);
-               })
-               .catch(error => {
-                   console.error('Error loading script:', error);
-               });
-       </script>
-       {% if user.is_authenticated %}
-        <div id="debug-progress" class="text-sm text-gray-500 mt-2">
-            Loading video progress...
+    <!-- Video Container -->
+    {% if object.youtube_url %}
+        <div class="video-container my-8 relative w-full" style="aspect-ratio: 16/9;">
+            <iframe id="youtube-player" 
+                    data-lesson-id="{{ object.id }}"
+                    src="{{ video_embed }}"
+                    class="absolute top-0 left-0 w-full h-full"
+                    frameborder="0"
+                    allowfullscreen
+                    allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture">
+            </iframe>
         </div>
+    {% elif video_embed %}
+        <div class="video-container my-8">
+            <video id="html5-player" 
+                data-lesson-id="{{ object.id }}"
+                controls
+                class="w-full">
+                <source src="{{ video_embed }}" type="video/mp4">
+                Your browser does not support the video tag.
+            </video>
+        </div>
+    {% else %}
+        <p>No video available for this lesson.</p>
+    {% endif %}
+    <!-- Description -->
+    <div class="mt-4 prose max-w-none text-gray-700">
+        {{ object.description|safe }}
+    </div>
+
+    <!-- Navigation -->
+    <div class="flex justify-between mt-8">
+        {% if previous_lesson %}
+        <a href="{{ previous_lesson.get_absolute_url }}" 
+           class="text-blue-500 hover:underline">Previous Lesson</a>
         {% endif %}
-       <!-- Video Description -->
-       <div itemprop="description" class="mt-4 prose max-w-none text-gray-700 dark:text-gray-300">
-           {{ object.description|safe }}
-       </div>
+        {% if next_lesson %}
+        <a href="{{ next_lesson.get_absolute_url }}" 
+           class="text-blue-500 hover:underline">Next Lesson</a>
+        {% endif %}
+    </div>
+</article>
 
-       <!-- Video Metadata -->
-       <meta itemprop="thumbnailUrl" content="{{ object.get_thumbnail_url }}">
-       <meta itemprop="uploadDate" content="{{ object.timestamp|date:'c' }}">
+<!-- Other Lessons Section -->
+<section class="section bg-gray-100 py-8">
+    <div class="mx-auto max-w-screen-xl px-4">
+        <h2 class="mb-8 text-2xl font-bold text-center text-gray-900">
+            Other Lessons in This Course
+        </h2>
+        <div class="grid gap-8 md:grid-cols-2 lg:grid-cols-3">
+            {% for lesson in lessons_queryset %} 
+            {% if lesson.id != object.id %}
+            <div class="bg-white rounded-lg shadow-md overflow-hidden">
+                {% if lesson.get_thumbnail_url %}
+                <a href="{{ lesson.get_absolute_url }}">
+                    <img src="{{ lesson.get_thumbnail_url }}"
+                         alt="{{ lesson.title }}"
+                         class="w-full h-48 object-cover transition-all duration-300 hover:scale-105"
+                    />
+                </a>
+                {% endif %}
+                <div class="p-4">
+                    <h3 class="mb-2 text-xl font-bold tracking-tight text-gray-900">
+                        <a href="{{ lesson.get_absolute_url }}">{{ lesson.title }}</a>
+                    </h3>
+                    {% if lesson.is_coming_soon %}
+                    <span class="text-sm text-gray-500">Coming Soon</span>
+                    {% endif %}
+                    <a href="{{ lesson.get_absolute_url }}"
+                       class="inline-flex items-center mt-3 font-medium text-blue-600 hover:underline">
+                        View Lesson
+                        <svg class="ml-2 w-4 h-4"
+                             fill="currentColor"
+                             viewBox="0 0 20 20"
+                             xmlns="http://www.w3.org/2000/svg">
+                            <path fill-rule="evenodd"
+                                  d="M10.293 3.293a1 1 0 011.414 0l6 6a1 1 0 010 1.414l-6 6a1 1 0 01-1.414-1.414L14.586 11H3a1 1 0 110-2h11.586l-4.293-4.293a1 1 0 010-1.414z"
+                                  clip-rule="evenodd" />
+                        </svg>
+                    </a>
+                </div>
+            </div>
+            {% endif %} 
+            {% endfor %}
+        </div>
+    </div>
+</section>
 
-       <!-- Navigation -->
-       <div class="flex justify-between mt-8">
-           {% if previous_lesson %}
-           <a href="{{ previous_lesson.get_absolute_url }}" 
-              class="text-blue-500 hover:underline">Previous Lesson</a>
-           {% endif %}
-           {% if next_lesson %}
-           <a href="{{ next_lesson.get_absolute_url }}" 
-              class="text-blue-500 hover:underline">Next Lesson</a>
-           {% endif %}
-       </div>
-   </div>
-
-   <!-- Other Lessons Section -->
-   <section class="section bg-gray-100 dark:bg-gray-800 py-8">
-       <div class="mx-auto max-w-screen-xl px-4">
-           <h2 class="mb-8 text-2xl font-bold text-center text-gray-900 dark:text-white">
-               Other Lessons in This Course
-           </h2>
-
-           <div class="grid gap-8 md:grid-cols-2 lg:grid-cols-3">
-               {% for lesson in lessons_queryset %} 
-               {% if lesson.id != object.id %}
-               <div class="bg-white rounded-lg shadow-md dark:bg-gray-700 overflow-hidden">
-                   {% if lesson.get_thumbnail_url %}
-                   <a href="{{ lesson.get_absolute_url }}">
-                       <img src="{{ lesson.get_thumbnail_url }}"
-                            alt="{{ lesson.title }}"
-                            class="w-full h-48 object-cover transition-all duration-300 hover:scale-105"
-                       />
-                   </a>
-                   {% endif %}
-
-                   <div class="p-4">
-                       <h3 class="mb-2 text-xl font-bold tracking-tight text-gray-900 dark:text-white">
-                           <a href="{{ lesson.get_absolute_url }}">{{ lesson.title }}</a>
-                       </h3>
-
-                       {% if lesson.is_coming_soon %}
-                       <span class="text-sm text-gray-500 dark:text-gray-400">Coming Soon</span>
-                       {% endif %}
-                       
-                       <a href="{{ lesson.get_absolute_url }}"
-                          class="inline-flex items-center mt-3 font-medium text-blue-600 hover:underline dark:text-blue-500">
-                           View Lesson
-                           <svg class="ml-2 w-4 h-4"
-                                fill="currentColor"
-                                viewBox="0 0 20 20"
-                                xmlns="http://www.w3.org/2000/svg">
-                               <path fill-rule="evenodd"
-                                     d="M10.293 3.293a1 1 0 011.414 0l6 6a1 1 0 010 1.414l-6 6a1 1 0 01-1.414-1.414L14.586 11H3a1 1 0 110-2h11.586l-4.293-4.293a1 1 0 010-1.414z"
-                                     clip-rule="evenodd" />
-                           </svg>
-                       </a>
-                   </div>
-               </div>
-               {% endif %} 
-               {% endfor %}
-           </div>
-       </div>
-   </section>
+<!-- Load video tracking script last -->
+{% if object.has_video %}
+<script src="https://www.youtube.com/iframe_api"></script>
+<script src="{% static 'js/video-tracking.js' %}" defer></script>
+{% endif %}
 {% endblock content %}

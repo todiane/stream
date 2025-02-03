@@ -1,7 +1,6 @@
+# logging_config.py
 import os
 from pathlib import Path
-from django.http import Http404
-from django.core.exceptions import ObjectDoesNotExist
 
 BASE_DIR = Path(__file__).resolve().parent.parent
 
@@ -14,72 +13,47 @@ LOGGING = {
     "version": 1,
     "disable_existing_loggers": False,
     "formatters": {
-    "verbose": {
-        "format": "[{asctime}] {levelname} {module} {process} {thread} {message}\n{exc_info}\n{pathname} {lineno}",
-        "style": "{",
+        "verbose": {
+            "format": "[{asctime}] {levelname} {name} {message}",
+            "style": "{",
         },
-    },
-    "filters": {
-        "require_debug_false": {
-            "()": "django.utils.log.RequireDebugFalse",
-        },
-        "ignore_404_errors": {
-            "()": "django.utils.log.CallbackFilter",
-            "callback": lambda record: not (
-                record.exc_info and record.exc_info[0] in (Http404, ObjectDoesNotExist)
-            ),
+        "simple": {
+            "format": "[{asctime}] {levelname} {message}",
+            "style": "{",
         },
     },
     "handlers": {
-        "file": {
-            "class": "logging.FileHandler",
-            "filename": os.path.join(BASE_DIR, "logs", "django.log"),
+        "console": {
+            "class": "logging.StreamHandler",
             "formatter": "verbose",
             "level": "DEBUG",
-            "mode": "a",
         },
-        "mail_admins": {
-            "level": "ERROR",
-            "filters": ["require_debug_false", "ignore_404_errors"],
-            "class": "django.utils.log.AdminEmailHandler",
-            "include_html": True,
+        "file": {
+            "class": "logging.FileHandler",
+            "filename": os.path.join(BASE_DIR, "logs", "debug.log"),
+            "formatter": "verbose",
+            "level": "DEBUG",
         },
     },
     "loggers": {
         "django": {
-            "handlers": ["file"],
-            "level": "ERROR",
+            "handlers": ["console", "file"],
+            "level": "INFO",
             "propagate": True,
         },
-        "shop.stripe": {
-            "handlers": ["file"],
-            "level": "DEBUG",  # Set to DEBUG to catch all Stripe-related logs
+        "profiles": {  # Add specific logger for profiles app
+            "handlers": ["console", "file"],
+            "level": "DEBUG",
             "propagate": True,
         },
-        "django.request": {
-            "handlers": ["file", "mail_admins"],
-            "level": "ERROR",
-            "propagate": False,
-        },
-        "courses": {
-            "handlers": ["file"],
-            "level": "DEBUG",  # Set to DEBUG to catch all course-related logs
+        "courses": {  # Add specific logger for courses app
+            "handlers": ["console", "file"],
+            "level": "DEBUG",
             "propagate": True,
         },
-        "django.db.backends": {
-            "handlers": ["file"],
-            "level": "ERROR",
-            "propagate": False,
-        },
-        "shop.emails": {
-            "handlers": ["file"],
-            "level": "ERROR",
-            "propagate": True,
-        },
-        "profiles": {
-            "handlers": ["file"],
-            "level": "ERROR",
-            "propagate": True,
-        },
+    },
+    "root": {  # This will catch all loggers
+        "handlers": ["console", "file"],
+        "level": "DEBUG",
     },
 }

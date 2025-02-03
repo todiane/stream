@@ -1,9 +1,6 @@
 # profiles/views.py
-from email.message import EmailMessage
-import logging
-from django.core.mail import get_connection
-from profiles.models import Profile, VideoProgress
 from django.shortcuts import render, redirect, get_object_or_404
+from django.db import transaction
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth import login, authenticate, logout
@@ -18,22 +15,23 @@ from django.urls import reverse
 from django.utils import timezone
 from django.utils.encoding import force_bytes, force_str
 from django.utils.http import urlsafe_base64_encode, urlsafe_base64_decode
-from .utils import (
-    send_admin_notification,
-    send_welcome_activated_email,
-)
-from .utils import check_email_throttle
-from django.conf import settings
-from django.views.generic.edit import FormView
 from django.http import JsonResponse
 from django.views.decorators.http import require_http_methods
-
-from .forms import UserRegisterForm, UserUpdateForm, ProfileUpdateForm
-from .forms import ContactForm
-from .forms import CustomPasswordResetForm
-from .tokens import account_activation_token
+from django.conf import settings
+from django.views.generic.edit import FormView
+from django.core.mail import get_connection
+# app imports
+from profiles.models import Profile, VideoProgress
+from profiles.utils import check_email_throttle, send_admin_notification, send_welcome_activated_email
+from profiles.forms import UserRegisterForm, UserUpdateForm, ProfileUpdateForm
+from profiles.forms import ContactForm
+from profiles.forms import CustomPasswordResetForm
+from profiles.tokens import account_activation_token
 from courses.models import Course, Lesson
-import json 
+from email.message import EmailMessage
+# library imports
+import json
+import logging
 
 logger = logging.getLogger(__name__)
 
@@ -59,9 +57,7 @@ def signup_view(request):
                     subject = "Activate your Stream English Account"
                     unsubscribe_uid = urlsafe_base64_encode(force_bytes(user.pk))
 
-                    print("Attempting to send activation email...")
                     token = account_activation_token.make_token(user)
-                    print(f"Generated token: {token}")  # Keep this debug line
                     token = account_activation_token.make_token(user)
                     logger.info(f"[Token Debug] Generated signup token for {user.username}: {token}")
                     context = {
@@ -74,7 +70,7 @@ def signup_view(request):
                         "email": user.email,
                         "unsubscribe_url": f"https://streamenglish.co.uk{reverse('profiles:unsubscribe_email', kwargs={'uidb64': unsubscribe_uid})}",
                     }
-                    logger.info(f"[Token Debug] Using token in email context: {context['token']}")
+                    
   
                     html_message = render_to_string(
                         "account/email/account_activation_email.html", context
@@ -286,43 +282,6 @@ def remove_course(request, course_slug):
             )
     return redirect("profiles:profile")
 
-@login_required
-@require_http_methods(["POST"])
-def mark_video_watched(request, lesson_id):
-    try:
-        lesson = get_object_or_404(Lesson, id=lesson_id)
-        profile = request.user.profile
-        
-        # Get or create video progress
-        progress, created = VideoProgress.objects.get_or_create(
-            user=request.user,
-            lesson=lesson
-        )
-        
-        # Get current time from request
-        data = json.loads(request.body)
-        current_time = data.get('current_time', 0)
-        
-        # Update progress
-        progress.current_time = current_time
-        progress.is_completed = True
-        progress.save()
-        
-        # Add to watched videos if not already there
-        if lesson not in profile.watched_videos.all():
-            profile.watched_videos.add(lesson)
-            profile.last_watched_lesson = lesson
-            profile.save()
-            
-        return JsonResponse({
-            'status': 'success',
-            'watched_count': profile.get_watched_videos_count(),
-            'course_progress': profile.get_course_completion_percentage(lesson.course)
-        })
-    except Exception as e:
-        logger.error(f"Error marking video as watched: {str(e)}")
-        return JsonResponse({'status': 'error', 'message': str(e)}, status=500)
-
 # Email activation views
 def send_activation_email(request, user):
     from django.core.mail import get_connection
@@ -377,19 +336,11 @@ def send_activation_email(request, user):
         finally:
             connection.close()
 
-            
 # Activate account
 def activate(request, uidb64, token):
-    logger.info(f"[Token Debug] Received activation request with token: {token}")
     try:
         uid = force_str(urlsafe_base64_decode(uidb64))
         user = User.objects.get(pk=uid)
-        logger.info(f"[Token Debug] Found user: {user.username}")
-        
-        # Add debug token verification
-        verification_token = account_activation_token.make_token(user)
-        logger.info(f"[Token Debug] Generated verification token: {verification_token}")
-        logger.info(f"[Token Debug] Tokens match: {token == verification_token}")
 
         if user is not None and account_activation_token.check_token(user, token):
             if not user.profile.email_verified:
@@ -419,7 +370,6 @@ def activate(request, uidb64, token):
             return redirect("profiles:activation_failed")
             
     except (TypeError, ValueError, OverflowError, User.DoesNotExist) as e:
-        logger.error(f"[Token Debug] Activation error: {str(e)}")
         messages.error(request, "Activation link is invalid.")
         return redirect("profiles:activation_failed")
 
@@ -502,13 +452,8 @@ def contact_tutor(request):
                     [settings.CONTACT_EMAIL],
                     fail_silently=False,
                 )
-
-                print(
-                    f"Contact form sent to admin at {settings.CONTACT_EMAIL}"
-                )  # Debug print
                 messages.success(request, "Your message has been sent successfully!")
             except Exception as e:
-                print(f"Error sending contact form: {str(e)}")  # Debug print
                 messages.error(
                     request,
                     "There was an error sending your message. Please try again later.",
@@ -538,120 +483,134 @@ def unsubscribe_email(request, uidb64):
         return redirect("pages:home")
 
 
-class SecurePasswordResetView(PasswordResetView):
-    form_class = CustomPasswordResetForm
-
-    def form_valid(self, form):
-        try:
-            check_email_throttle(form.cleaned_data["email"], "password_reset")
-        except ValidationError as e:
-            form.add_error(None, str(e))
-            return self.form_invalid(form)
-
-        return super().form_valid(form)
-
-
 def activation_failed(request):
     # Get uidb64 from the request's GET parameters
     uidb64 = request.GET.get("uidb64")
     return render(request, "profiles/activation_failed.html", {"uidb64": uidb64})
 
 
-class CustomPasswordResetView(FormView):
-    form_class = CustomPasswordResetForm
-    template_name = "account/password/password_reset_form.html"
-
-    def form_valid(self, form):
-        form.save(self.request)
-        return super().form_valid(form)
-
-
-def send_test_email(to_email):
-    try:
-        logging.debug(f"Starting test email send to {to_email}")
-        logging.debug(f"SMTP Settings:")
-        logging.debug(f"Host: {settings.EMAIL_HOST}")
-        logging.debug(f"Port: {settings.EMAIL_PORT}")
-        logging.debug(f"User: {settings.EMAIL_HOST_USER}")
-        logging.debug(f"SSL: {settings.EMAIL_USE_SSL}")
-
-        # Create connection with explicit auth
-        connection = get_connection()
-        connection.open()
-
-        # Force authentication
-        if not connection.connection.has_extn("auth"):
-            logging.error("SMTP server does not support authentication")
-            return False
-
-        try:
-            connection.connection.login(
-                settings.EMAIL_HOST_USER, settings.EMAIL_HOST_PASSWORD
-            )
-            logging.debug("SMTP authentication successful")
-        except Exception as e:
-            logging.error(f"SMTP authentication failed: {str(e)}")
-            return False
-
-        email = EmailMessage(
-            "Test Email",
-            "This is a test email.",
-            settings.DEFAULT_FROM_EMAIL,
-            [to_email],
-            connection=connection,
-        )
-
-        email.send()
-        logging.debug("Test email sent successfully")
-        connection.close()
-        return True
-
-    except Exception as e:
-        logging.error(f"Email error: {str(e)}")
-        if hasattr(e, "smtp_code"):
-            logging.error(f"SMTP Code: {e.smtp_code}")
-        if hasattr(e, "smtp_error"):
-            logging.error(f"SMTP Error: {e.smtp_error}")
-        return False
-
-
-def test_email_settings():
-    import smtplib
-    from django.conf import settings
-
-    try:
-        print(f"Attempting to connect to {settings.EMAIL_HOST}:{settings.EMAIL_PORT}")
-        print(f"Using username: {settings.EMAIL_HOST_USER}")
-
-        # Create SMTP connection using SSL
-        server = smtplib.SMTP_SSL(
-            settings.EMAIL_HOST, settings.EMAIL_PORT
-        )  # Changed back to SMTP_SSL for port 465
-        server.set_debuglevel(1)  # Enable debug output
-
-        print("Connection established, attempting login...")
-        # Try to login
-        server.login(settings.EMAIL_HOST_USER, settings.EMAIL_HOST_PASSWORD)
-
-        print("Login successful, closing connection...")
-        # Close the connection
-        server.quit()
-        return True, "SMTP connection successful"
-    except Exception as e:
-        error_msg = f"SMTP connection failed: {str(e)}"
-        print(error_msg)
-        return False, error_msg
-
 @login_required
+@require_http_methods(["GET"])
 def get_video_progress(request, lesson_id):
+    """
+    Retrieve saved video progress for a specific lesson.
+    """
+    logger.debug(f'Retrieving video progress - User: {request.user.id}, Lesson: {lesson_id}')
+    
     try:
-        progress = VideoProgress.objects.get(
+        progress = VideoProgress.objects.filter(
             user=request.user,
             lesson_id=lesson_id
-        )
+        ).first()
+
+        if progress:
+            logger.debug(f'Found existing progress - Time: {progress.current_time}')
+            return JsonResponse({
+                'current_time': progress.current_time,
+                'is_completed': progress.is_completed
+            })
+        
+        logger.debug('No existing progress found')
         return JsonResponse({
-            'current_time': progress.current_time,
-            'is_completed': progress.is_completed
+            'current_time': 0,
+            'is_completed': False
         })
-    except VideoProgress.DoesNotExist:
-        return JsonResponse({'current_time': 0, 'is_completed': False})
+
+    except Exception as e:
+        logger.error(f'Error retrieving video progress: {str(e)}', exc_info=True)
+        return JsonResponse({
+            'status': 'error',
+            'message': 'Error retrieving progress',
+            'current_time': 0,
+            'is_completed': False
+        }, status=500)
+
+
+@login_required
+@require_http_methods(["POST"])
+def mark_video_watched(request, lesson_id):
+    """
+    Handle video progress updates from the frontend.
+    Expects JSON data with current_time and is_completed fields.
+    """
+    logger.info(f'Video progress update requested - User: {request.user.id}, Lesson: {lesson_id}')
+    
+    try:
+        # Validate request
+        if not request.headers.get('X-Requested-With') == 'XMLHttpRequest':
+            logger.warning('Non-AJAX request received')
+            return JsonResponse({
+                'status': 'error',
+                'message': 'AJAX requests required'
+            }, status=400)
+
+        # Parse JSON data
+        try:
+            data = json.loads(request.body)
+            current_time = int(float(data.get('current_time', 0)))
+            is_completed = bool(data.get('is_completed', False))
+            
+            logger.debug(f'Parsed progress data - Time: {current_time}, Completed: {is_completed}')
+            
+            # Basic validation
+            if current_time < 0:
+                raise ValidationError('Current time cannot be negative')
+                
+        except (json.JSONDecodeError, ValueError, TypeError) as e:
+            logger.error(f'Data parsing error: {str(e)}')
+            return JsonResponse({
+                'status': 'error',
+                'message': 'Invalid data format'
+            }, status=400)
+
+        # Get lesson and validate access
+        lesson = get_object_or_404(Lesson, id=lesson_id)
+        logger.debug(f'Found lesson: {lesson.title}')
+
+        with transaction.atomic():
+            # Update or create progress record
+            progress, created = VideoProgress.objects.update_or_create(
+                user=request.user,
+                lesson=lesson,
+                defaults={
+                    'current_time': current_time,
+                    'is_completed': is_completed
+                }
+            )
+            logger.info(f'Progress record {"created" if created else "updated"}: {progress.id}')
+
+            # Update profile watched videos if needed
+            profile = request.user.profile
+            if lesson not in profile.watched_videos.all():
+                profile.watched_videos.add(lesson)
+                profile.last_watched_lesson = lesson
+                profile.save()
+                logger.debug(f'Updated profile watched videos for user {request.user.id}')
+
+            # Calculate progress metrics
+            watched_count = profile.get_watched_videos_count()
+            course_progress = profile.get_course_completion_percentage(lesson.course)
+            
+            response_data = {
+                'status': 'success',
+                'watched_count': watched_count,
+                'course_progress': course_progress,
+                'message': 'Progress saved successfully'
+            }
+            
+            logger.info(f'Progress update successful - Course progress: {course_progress}%')
+            return JsonResponse(response_data)
+
+    except ValidationError as e:
+        logger.error(f'Validation error: {str(e)}')
+        return JsonResponse({
+            'status': 'error',
+            'message': str(e)
+        }, status=400)
+        
+    except Exception as e:
+        logger.error(f'Unexpected error in mark_video_watched: {str(e)}', exc_info=True)
+        return JsonResponse({
+            'status': 'error',
+            'message': 'An unexpected error occurred'
+        }, status=500)
