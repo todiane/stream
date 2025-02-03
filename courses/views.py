@@ -65,65 +65,42 @@ def enrol_course(request, course_slug):
 
 
 def lesson_detail_view(request, course_slug=None, lesson_slug=None, *args, **kwargs):
-    logger.info(f'Lesson view accessed: {course_slug}/{lesson_slug}')
-    logger.debug(f'Request user: {request.user}, is authenticated: {request.user.is_authenticated}')
-    # First try to get the course
     try:
         course = Course.objects.get(slug=course_slug, status="publish")
+        lesson_obj = Lesson.objects.get(
+            course=course, 
+            slug=lesson_slug, 
+            status__in=["publish", "soon"]
+        )
+        
+        context = {
+            "object": lesson_obj,
+            "course": lesson_obj.course,
+            "lessons_queryset": services.get_course_lessons(lesson_obj.course)
+        }
+
+        if lesson_obj.youtube_url:
+            if 'youtube.com/watch?v=' in lesson_obj.youtube_url:
+                video_id = lesson_obj.youtube_url.split('v=')[1].split('&')[0]
+            elif 'youtu.be/' in lesson_obj.youtube_url:
+                video_id = lesson_obj.youtube_url.split('/')[-1]
+            else:
+                video_id = None
+                
+            if video_id:
+                context["video_embed"] = f"https://www.youtube.com/embed/{video_id}?enablejsapi=1"
+            
+        return render(request, "courses/lesson.html", context)
+        
     except Course.DoesNotExist:
         return redirect("courses:course_list")
-
-    # Try to get the lesson, if it doesn't exist, redirect to course page
-    try:
-        lesson_obj = Lesson.objects.get(
-            course=course, slug=lesson_slug, status__in=["publish", "soon"]
-        )
     except Lesson.DoesNotExist:
         return redirect("courses:course_detail", course_slug=course_slug)
-
-    # Check if email verification is required
-    email_id_exists = request.session.get("email_id")
-    if lesson_obj.requires_email and not email_id_exists and not request.user.is_active:
-        request.session["next_url"] = request.path
-        return render(request, "courses/email-required.html", {})
-
-    lessons_queryset = services.get_course_lessons(lesson_obj.course)
-    lesson_list = list(lessons_queryset)
-    current_index = lesson_list.index(lesson_obj)
-    previous_lesson = lesson_list[current_index - 1] if current_index > 0 else None
-    next_lesson = (
-        lesson_list[current_index + 1] if current_index < len(lesson_list) - 1 else None
-    )
-
-    template_name = "courses/lesson-coming-soon.html"
-    context = {
-        "object": lesson_obj,
-        "course": lesson_obj.course,
-        "lesson_item": lesson_obj,  # Keeping lesson_item
-        "lessons_queryset": lessons_queryset,
-        "previous_lesson": previous_lesson,
-        "next_lesson": next_lesson,
-    }
-
-    if not lesson_obj.is_coming_soon and lesson_obj.has_video:
-        template_name = "courses/lesson.html"
-    if lesson_obj.youtube_url:
-        video_id = lesson_obj.youtube_url.split("v=")[-1]
-        context["video_embed"] = f"https://www.youtube.com/embed/{video_id}?rel=0"
-    elif lesson_obj.video:
-        video_url = lesson_obj.video.url
-        context[
-            "video_embed"
-        ] = f"""
-            <video width="1250" controls>
-                <source src="{video_url}" type="video/mp4">
-                Your browser does not support the video tag.
-            </video>
-        """
-
-    return render(request, template_name, context)
-
-
+    except Exception as e:
+        logger.error(f'Error in lesson_detail_view: {str(e)}', exc_info=True)
+        return redirect("courses:course_list")
+ 
+    
 def course_detail_view(request, course_slug=None, *args, **kwargs):
     course_obj = get_object_or_404(Course, status="publish", slug=course_slug)
     lessons_queryset = services.get_course_lessons(course_obj)
