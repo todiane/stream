@@ -45,6 +45,19 @@ class Hero(models.Model):
         verbose_name = "Hero Section"
         verbose_name_plural = "Hero Section"
 
+    def get_youtube_video_id(self):
+        """Extract YouTube video ID from URL."""
+        if not self.video_url:
+            return None
+            
+        # Handle regular YouTube URLs
+        if 'youtube.com/watch?v=' in self.video_url:
+            return self.video_url.split('v=')[1].split('&')[0]
+        # Handle shortened youtu.be URLs
+        elif 'youtu.be/' in self.video_url:
+            return self.video_url.split('/')[-1].split('?')[0]
+        return None
+
 
 class HeroBanner(models.Model):
     text = models.CharField(max_length=200, default="New Videos Available!")
@@ -59,6 +72,7 @@ class HeroBanner(models.Model):
 
     def __str__(self):
         return self.text
+
 
 
 class Page(SEOFields):
