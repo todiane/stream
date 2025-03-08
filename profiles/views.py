@@ -4,9 +4,9 @@ from django.db import transaction
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth import login, authenticate, logout
-from django.contrib.auth.views import PasswordResetView
 from django.contrib.auth.forms import AuthenticationForm
 from django.contrib.auth.models import User
+from django.conf import settings
 from django.contrib.sites.shortcuts import get_current_site
 from django.core.exceptions import ValidationError
 from django.core.mail import send_mail, EmailMultiAlternatives
@@ -18,17 +18,15 @@ from django.utils.http import urlsafe_base64_encode, urlsafe_base64_decode
 from django.http import JsonResponse
 from django.views.decorators.http import require_http_methods
 from django.conf import settings
-from django.views.generic.edit import FormView
-from django.core.mail import get_connection
+
 # app imports
 from profiles.models import Profile, VideoProgress
-from profiles.utils import check_email_throttle, send_admin_notification, send_welcome_activated_email
+from profiles.utils import send_admin_notification, send_welcome_activated_email
 from profiles.forms import UserRegisterForm, UserUpdateForm, ProfileUpdateForm
 from profiles.forms import ContactForm
-from profiles.forms import CustomPasswordResetForm
 from profiles.tokens import account_activation_token
 from courses.models import Course, Lesson
-from email.message import EmailMessage
+
 # library imports
 import json
 import logging
@@ -490,83 +488,59 @@ def activation_failed(request):
 
 
 @login_required
-@require_http_methods(["GET"])
-def get_video_progress(request, lesson_id):
-    """
-    Retrieve saved video progress for a specific lesson.
-    """
-    logger.debug(f'Retrieving video progress - User: {request.user.id}, Lesson: {lesson_id}')
-    
-    try:
-        progress = VideoProgress.objects.filter(
-            user=request.user,
-            lesson_id=lesson_id
-        ).first()
-
-        if progress:
-            logger.debug(f'Found existing progress - Time: {progress.current_time}')
-            return JsonResponse({
-                'current_time': progress.current_time,
-                'is_completed': progress.is_completed
-            })
-        
-        logger.debug('No existing progress found')
-        return JsonResponse({
-            'current_time': 0,
-            'is_completed': False
-        })
-
-    except Exception as e:
-        logger.error(f'Error retrieving video progress: {str(e)}', exc_info=True)
-        return JsonResponse({
-            'status': 'error',
-            'message': 'Error retrieving progress',
-            'current_time': 0,
-            'is_completed': False
-        }, status=500)
-
-
-@login_required
 @require_http_methods(["POST"])
 def mark_video_watched(request, lesson_id):
     """
-    Handle video progress updates from the frontend.
-    Expects JSON data with current_time and is_completed fields.
+    Handle video progress updates from JavaScript tracking.
+    Processes AJAX requests to update the user's progress on a specific video lesson.
     """
-    logger.info(f'Video progress update requested - User: {request.user.id}, Lesson: {lesson_id}')
+    logger.info(f"Video progress update - User: {request.user.id}, Lesson: {lesson_id}")
+    
+    # Detailed request debugging for AJAX issues
+    logger.debug(f"Request method: {request.method}")
+    logger.debug(f"Content type: {request.content_type}")
+    logger.debug(f"Headers: {dict(request.headers)}")
+    
+    # Check if this is an AJAX request
+    is_ajax = request.headers.get('X-Requested-With') == 'XMLHttpRequest'
+    if not is_ajax:
+        logger.warning(f"Request rejected - not AJAX: {request.headers.get('X-Requested-With')}")
+        return JsonResponse({
+            'status': 'error',
+            'message': 'AJAX requests required'
+        }, status=400)
     
     try:
-        # Validate request
-        if not request.headers.get('X-Requested-With') == 'XMLHttpRequest':
-            logger.warning('Non-AJAX request received')
-            return JsonResponse({
-                'status': 'error',
-                'message': 'AJAX requests required'
-            }, status=400)
-
-        # Parse JSON data
+        # Parse the JSON request body
         try:
+            # Log the raw body for debugging
+            if settings.DEBUG:
+                logger.debug(f"Raw request body: {request.body.decode('utf-8', errors='replace')}")
+                
             data = json.loads(request.body)
             current_time = int(float(data.get('current_time', 0)))
             is_completed = bool(data.get('is_completed', False))
             
-            logger.debug(f'Parsed progress data - Time: {current_time}, Completed: {is_completed}')
-            
-            # Basic validation
-            if current_time < 0:
-                raise ValidationError('Current time cannot be negative')
-                
+            logger.debug(f"Parsed data: current_time={current_time}, is_completed={is_completed}")
         except (json.JSONDecodeError, ValueError, TypeError) as e:
-            logger.error(f'Data parsing error: {str(e)}')
+            logger.error(f"JSON parse error: {str(e)}")
             return JsonResponse({
                 'status': 'error',
-                'message': 'Invalid data format'
+                'message': f'Invalid JSON data: {str(e)}'
             }, status=400)
-
-        # Get lesson and validate access
-        lesson = get_object_or_404(Lesson, id=lesson_id)
-        logger.debug(f'Found lesson: {lesson.title}')
-
+        
+        # Get the lesson
+        try:
+            lesson = Lesson.objects.get(id=lesson_id)
+            logger.debug(f"Found lesson: {lesson.title}")
+        except Lesson.DoesNotExist:
+            logger.error(f"Lesson not found: {lesson_id}")
+            return JsonResponse({
+                'status': 'error',
+                'message': 'Lesson not found'
+            }, status=404)
+        
+        # Update progress in database
         with transaction.atomic():
             # Update or create progress record
             progress, created = VideoProgress.objects.update_or_create(
@@ -577,40 +551,67 @@ def mark_video_watched(request, lesson_id):
                     'is_completed': is_completed
                 }
             )
-            logger.info(f'Progress record {"created" if created else "updated"}: {progress.id}')
-
+            
+            logger.debug(f"Video progress {'created' if created else 'updated'}: {progress.id}")
+            
             # Update profile watched videos if needed
             profile = request.user.profile
             if lesson not in profile.watched_videos.all():
+                logger.debug(f"Adding lesson to watched videos for user {request.user.id}")
                 profile.watched_videos.add(lesson)
                 profile.last_watched_lesson = lesson
                 profile.save()
-                logger.debug(f'Updated profile watched videos for user {request.user.id}')
-
+            
             # Calculate progress metrics
-            watched_count = profile.get_watched_videos_count()
-            course_progress = profile.get_course_completion_percentage(lesson.course)
+            try:
+                course_progress = profile.get_course_completion_percentage(lesson.course)
+                watched_count = profile.get_watched_videos_count()
+                
+                logger.debug(f"Progress metrics: course_progress={course_progress}, watched_count={watched_count}")
+            except Exception as e:
+                logger.error(f"Error calculating progress metrics: {str(e)}")
+                course_progress = 0
+                watched_count = 0
             
-            response_data = {
+            return JsonResponse({
                 'status': 'success',
+                'message': 'Progress saved successfully',
                 'watched_count': watched_count,
-                'course_progress': course_progress,
-                'message': 'Progress saved successfully'
-            }
+                'course_progress': course_progress
+            })
             
-            logger.info(f'Progress update successful - Course progress: {course_progress}%')
-            return JsonResponse(response_data)
-
-    except ValidationError as e:
-        logger.error(f'Validation error: {str(e)}')
-        return JsonResponse({
-            'status': 'error',
-            'message': str(e)
-        }, status=400)
-        
     except Exception as e:
-        logger.error(f'Unexpected error in mark_video_watched: {str(e)}', exc_info=True)
+        logger.error(f"Unexpected error in mark_video_watched: {str(e)}", exc_info=True)
         return JsonResponse({
             'status': 'error',
-            'message': 'An unexpected error occurred'
+            'message': 'Server error processing video progress'
         }, status=500)
+
+
+@login_required
+def get_video_progress(request, lesson_id):
+    """Safely retrieve video progress"""
+    try:
+        progress = VideoProgress.objects.filter(
+            user=request.user,
+            lesson_id=lesson_id
+        ).first()
+
+        if progress:
+            return JsonResponse({
+                'current_time': progress.current_time,
+                'is_completed': progress.is_completed
+            })
+        
+        return JsonResponse({
+            'current_time': 0,
+            'is_completed': False
+        })
+
+    except Exception as e:
+        # Log error safely
+        logger.error("Error getting video progress: %s", str(e))
+        return JsonResponse({
+            'current_time': 0,
+            'is_completed': False
+        })

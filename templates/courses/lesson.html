@@ -8,12 +8,14 @@
    {{ object.get_video_schema|safe }}
 </script>
 {% endif %}
-<!-- Load YouTube API first -->
-<script src="https://www.youtube.com/iframe_api"></script>
-{% csrf_token %}
+<!-- Single source of CSRF token for JavaScript -->
+<script>
+    const CSRF_TOKEN = '{{ csrf_token }}';
+</script>
 {% endblock %}
 
 {% block content %}
+{% csrf_token %}  <!-- CSRF token for AJAX requests -->
 {% include "courses/components/breadcrumb.html" with course=course lesson=object %}
 
 <article class="gap-8 items-center py-8 px-4 mx-auto max-w-screen-xl xl:gap-16 sm:py-16 lg:px-6">
@@ -113,7 +115,9 @@
 
 <!-- Load video tracking script last -->
 {% if object.has_video %}
+<!-- Load YouTube API first -->
 <script src="https://www.youtube.com/iframe_api"></script>
+<!-- Then load our tracking script -->
 <script src="{% static 'js/video-tracking.js' %}" defer></script>
 {% endif %}
 {% endblock content %}

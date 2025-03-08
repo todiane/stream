@@ -1,37 +1,39 @@
 # logging_config.py
+
 import os
 from pathlib import Path
 
+# Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
 
 # Create logs directory if it doesn't exist
 logs_dir = BASE_DIR / "logs"
-if not os.path.exists(logs_dir):
-    os.makedirs(logs_dir)
+try:
+    if not logs_dir.exists():
+        logs_dir.mkdir(mode=0o755, parents=True, exist_ok=True)
+except Exception:
+    # Fallback to a safe location if we can't create/access the logs directory
+    logs_dir = Path('/tmp')
 
 LOGGING = {
     "version": 1,
     "disable_existing_loggers": False,
     "formatters": {
-        "verbose": {
-            "format": "[{asctime}] {levelname} {name} {message}",
-            "style": "{",
-        },
         "simple": {
-            "format": "[{asctime}] {levelname} {message}",
-            "style": "{",
-        },
+            "format": "[%(asctime)s] %(levelname)s %(message)s",
+            "style": "%"
+        }
     },
     "handlers": {
         "console": {
             "class": "logging.StreamHandler",
-            "formatter": "verbose",
+            "formatter": "simple",
             "level": "DEBUG",
         },
         "file": {
             "class": "logging.FileHandler",
-            "filename": os.path.join(BASE_DIR, "logs", "debug.log"),
-            "formatter": "verbose",
+            "filename": os.path.join(logs_dir, "debug.log"),
+            "formatter": "simple",
             "level": "DEBUG",
         },
     },
@@ -41,18 +43,18 @@ LOGGING = {
             "level": "INFO",
             "propagate": True,
         },
-        "profiles": {  # Add specific logger for profiles app
+        "profiles": {
             "handlers": ["console", "file"],
             "level": "DEBUG",
             "propagate": True,
         },
-        "courses": {  # Add specific logger for courses app
+        "courses": {
             "handlers": ["console", "file"],
             "level": "DEBUG",
             "propagate": True,
         },
     },
-    "root": {  # This will catch all loggers
+    "root": {
         "handlers": ["console", "file"],
         "level": "DEBUG",
     },

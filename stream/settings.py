@@ -45,7 +45,6 @@ ALLOWED_HOSTS = [
     "streamenglish.co.uk",
     "www.streamenglish.co.uk",
     "mail.streamenglish.co.uk",
-    "djangify.com"
     "localhost",
     "127.0.0.1",
 ]
@@ -53,7 +52,8 @@ ALLOWED_HOSTS = [
 CSRF_TRUSTED_ORIGINS = [
     "https://streamenglish.co.uk",
     "https://www.streamenglish.co.uk",
-    "https://djangify.com",
+    "http://streamenglish.co.uk",
+    "http://www.streamenglish.co.uk",
     "http://localhost",
     "http://127.0.0.1",
 ]
@@ -102,10 +102,10 @@ TEMPLATES = [
 MIDDLEWARE = [
     "django.middleware.security.SecurityMiddleware",
     "whitenoise.middleware.WhiteNoiseMiddleware",
-    "django.middleware.common.BrokenLinkEmailsMiddleware",
-    "django.contrib.sessions.middleware.SessionMiddleware",
+    "django.contrib.sessions.middleware.SessionMiddleware",  
     "django.middleware.common.CommonMiddleware",
-    "django.middleware.csrf.CsrfViewMiddleware",
+    "django.middleware.csrf.CsrfViewMiddleware",  
+    "stream.middleware.csrf_debug.CSRFDebugMiddleware",
     "django.contrib.auth.middleware.AuthenticationMiddleware",
     "django.contrib.messages.middleware.MessageMiddleware",
     "django.middleware.clickjacking.XFrameOptionsMiddleware",
@@ -119,6 +119,8 @@ SITE_ID = 1
 
 SITE_URL = "https://streamenglish.co.uk"
 
+SECURE_SSL_REDIRECT = True
+
 ROOT_URLCONF = "stream.urls"
 
 WSGI_APPLICATION = "stream.wsgi.application"
@@ -126,11 +128,11 @@ WSGI_APPLICATION = "stream.wsgi.application"
 # Security Settings
 SESSION_COOKIE_SECURE = True
 CSRF_COOKIE_SECURE = True
-CSRF_COOKIE_SAMESITE = 'Strict'
-CSRF_COOKIE_DOMAIN = ".streamenglish.co.uk"
-SECURE_PROXY_SSL_HEADER = ("HTTP_X_FORWARDED_PROTO", "https")
-USE_X_FORWARDED_HOST = True
-X_FRAME_OPTIONS = 'SAMEORIGIN'
+CSRF_COOKIE_SAMESITE = 'Lax'  
+CSRF_COOKIE_DOMAIN = None  
+CSRF_USE_SESSIONS = True   
+CSRF_COOKIE_HTTPONLY = False
+CSRF_FAILURE_VIEW = 'django.views.csrf.csrf_failure'  
 
 # IP Rate limiting settings
 IP_RATE_LIMIT_MAX_ATTEMPTS = 20  # Maximum attempts per IP
@@ -166,10 +168,6 @@ AUTHENTICATION_BACKENDS = [
     "django.contrib.auth.backends.ModelBackend",
 ]
 
-# Authentication
-AUTHENTICATION_BACKENDS = [
-    "django.contrib.auth.backends.ModelBackend",
-]
 
 # Login/logout settings
 LOGIN_REDIRECT_URL = "/profiles/profile/"
@@ -198,7 +196,6 @@ SHOP_SETTINGS = {
 }
 
 # Success URLs
-LOGIN_REDIRECT_URL = "/profiles/profile/"
 SHOP_SUCCESS_URL = "/shop/success/"
 SHOP_CANCEL_URL = "/shop/cancel/"
 
