@@ -111,7 +111,13 @@
         </div>
         <!-- Advertisement Section -->
         {% if post.ad_type == 'banner' and post.ad_image %}
-            <img src="{{ post.get_ad_image_url }}" alt="Advertisement" class="mx-auto max-w-full h-auto rounded-lg shadow-sm">
+            {% if post.ad_url %}
+                <a href="{{ post.ad_url }}" target="_blank" rel="noopener noreferrer">
+                    <img src="{{ post.get_ad_image_url }}" alt="Advertisement" class="mx-auto max-w-full h-auto rounded-lg shadow-sm">
+                </a>
+            {% else %}
+                <img src="{{ post.get_ad_image_url }}" alt="Advertisement" class="mx-auto max-w-full h-auto rounded-lg shadow-sm">
+            {% endif %}
         {% endif %}
     </div>
 </div>
