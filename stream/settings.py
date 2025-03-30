@@ -135,7 +135,7 @@ CSRF_COOKIE_HTTPONLY = False
 CSRF_FAILURE_VIEW = 'django.views.csrf.csrf_failure'  
 
 # IP Rate limiting settings
-IP_RATE_LIMIT_MAX_ATTEMPTS = 20  # Maximum attempts per IP
+IP_RATE_LIMIT_MAX_ATTEMPTS = 100  # Maximum attempts per IP
 IP_RATE_LIMIT_TIMEOUT = 300  # Reset after 5 minutes (in seconds)
 
 

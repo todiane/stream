@@ -70,11 +70,7 @@ class IPRateLimitMiddleware:
         return False
 
     def process_exception(self, request, exception):
-        # Log rate limit violations
-        if isinstance(exception, HttpResponse) and exception.status_code == 429:
-            logger = logging.getLogger('django.security.ratelimit')
-            logger.warning(
-                f"Rate limit exceeded for IP {self.get_client_ip(request)} "
-                f"on path {request.path}"
-            )
+    # Log exceptions
+        logger = logging.getLogger('django.security.ratelimit')
+        logger.error(f"Exception for IP {self.get_client_ip(request)} on path {request.path}: {str(exception)}")
         return None

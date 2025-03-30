@@ -1,4 +1,4 @@
-# profiles/views.py
+# stream english - profiles/views.py
 from django.shortcuts import render, redirect, get_object_or_404
 from django.db import transaction
 from django.contrib import messages
