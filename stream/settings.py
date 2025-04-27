@@ -11,7 +11,7 @@ logs_dir = BASE_DIR / "logs"
 env = environ.Env()
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = False
+DEBUG = True
 
 # Choose environment file
 ENV_FILE = ".env"
@@ -41,22 +41,17 @@ DATABASES = {
 }
 
 
-ALLOWED_HOSTS = [
-    "streamenglish.co.uk",
-    "www.streamenglish.co.uk",
-    "mail.streamenglish.co.uk",
-    "localhost",
-    "127.0.0.1",
-]
+
+DEBUG = True
+
+ALLOWED_HOSTS = ['localhost', '127.0.0.1', 'localhost:8000']
 
 CSRF_TRUSTED_ORIGINS = [
-    "https://streamenglish.co.uk",
-    "https://www.streamenglish.co.uk",
-    "http://streamenglish.co.uk",
-    "http://www.streamenglish.co.uk",
     "http://localhost",
     "http://127.0.0.1",
+    "http://localhost:8000",
 ]
+
 
 # Application definition
 INSTALLED_APPS = [
@@ -117,26 +112,12 @@ MIDDLEWARE = [
 
 SITE_ID = 1
 
-SITE_URL = "https://streamenglish.co.uk"
+# SITE_URL = "http://127.0.0.1:8000"
 
-SECURE_SSL_REDIRECT = True
 
 ROOT_URLCONF = "stream.urls"
 
 WSGI_APPLICATION = "stream.wsgi.application"
-
-# Security Settings
-SESSION_COOKIE_SECURE = True
-CSRF_COOKIE_SECURE = True
-CSRF_COOKIE_SAMESITE = 'Lax'  
-CSRF_COOKIE_DOMAIN = None  
-CSRF_USE_SESSIONS = True   
-CSRF_COOKIE_HTTPONLY = False
-CSRF_FAILURE_VIEW = 'django.views.csrf.csrf_failure'  
-
-# IP Rate limiting settings
-IP_RATE_LIMIT_MAX_ATTEMPTS = 100  # Maximum attempts per IP
-IP_RATE_LIMIT_TIMEOUT = 300  # Reset after 5 minutes (in seconds)
 
 
 # email settings to be implemented:
@@ -235,11 +216,6 @@ STORAGES = {
         "BACKEND": "whitenoise.storage.CompressedManifestStaticFilesStorage",
     }
 }
-
-# Serving Configuration
-X_FRAME_OPTIONS = 'SAMEORIGIN'
-SECURE_PROXY_SSL_HEADER = ('HTTP_X_FORWARDED_PROTO', 'https')
-USE_X_FORWARDED_HOST = True
 
 # Cache Control Headers for Media Files
 MEDIA_FILE_STORAGE_HEADERS = {
@@ -350,9 +326,5 @@ USE_TZ = True
 DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
 
 
-# Provider specific settings
-SOCIALACCOUNT_PROVIDERS = {
-    # Add social providers here if needed
-}
 
 
