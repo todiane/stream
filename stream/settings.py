@@ -112,7 +112,13 @@ MIDDLEWARE = [
 
 SITE_ID = 1
 
-# SITE_URL = "http://127.0.0.1:8000"
+SITE_URL = "http://127.0.0.1:8000"
+
+# How many tries before we throttle
+IP_RATE_LIMIT_MAX_ATTEMPTS = 1000
+
+# How long (in seconds) to block an IP once it exceeds the max
+IP_RATE_LIMIT_TIMEOUT = 300000
 
 
 ROOT_URLCONF = "stream.urls"
