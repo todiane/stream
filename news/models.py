@@ -1,7 +1,7 @@
 from django.db import models
 from django.urls import reverse
 from django.utils.text import slugify
-from stream.storage import secure_storage, public_storage
+from stream.storage import public_storage
 from django.utils import timezone
 from ckeditor_uploader.fields import RichTextUploadingField  # type: ignore
 
@@ -72,9 +72,7 @@ class Post(models.Model):
     thumbnail = models.ImageField(
         upload_to="news/thumbnails/", null=True, blank=True, storage=public_storage
     )
-    resource = models.FileField(
-        upload_to="news/resources/", null=True, blank=True, storage=secure_storage
-    )
+    resource = models.FileField(upload_to="news/resources/", null=True, blank=True)
 
     resource_title = models.CharField(
         max_length=200, blank=True, help_text="Name of the downloadable resource"
@@ -102,14 +100,6 @@ class Post(models.Model):
             if self.ad_image:
                 return self.ad_image.url.replace("/media/public/", "/media/")
             return None
-        except Exception:
-            return None
-    
-
-    def get_thumbnail_url(self):
-        """Get the thumbnail URL - falls back to main image if no thumbnail"""
-        try:
-            return self.thumbnail.url if self.thumbnail else self.get_image_url()
         except Exception:
             return None
 
