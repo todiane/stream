@@ -1,6 +1,5 @@
 # shop/views.py
-from .models import OrderItem, Product
-from shop.models import Order, OrderItem
+from .models import Category, GuestDetails, Product, Order, OrderItem
 from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib.auth.decorators import login_required
 from django.contrib import messages
@@ -17,14 +16,12 @@ import mimetypes
 from wsgiref.util import FileWrapper
 from shop.forms import GuestDetailsForm, ProductReviewForm
 from .emails import send_order_confirmation_email, send_download_link_email
-from .models import Category, GuestDetails, Product, Order, OrderItem
 from .cart import Cart
 
 stripe.api_key = settings.STRIPE_SECRET_KEY
 
 # Set up logger
-logger = logging.getLogger("shop.stripe")
-logger = logging.getLogger('django')
+logger = logging.getLogger("shop")
 
 
 def product_list(request):
@@ -52,7 +49,6 @@ def product_detail(request, slug):
     product = get_object_or_404(
         Product, slug=slug, is_active=True, status__in=["publish", "soon", "full"]
     )
-    
 
     related_products = Product.objects.filter(
         category=product.category,
@@ -62,17 +58,13 @@ def product_detail(request, slug):
 
     has_purchased = False
     order_item = None
-    show_review_form = False
     review_form = None
-    can_review_result = False  
 
     if request.user.is_authenticated:
         order_item = OrderItem.objects.filter(
-            order__user=request.user,
-            order__paid=True,
-            product=product
+            order__user=request.user, order__paid=True, product=product
         ).first()
-        
+
         has_purchased = bool(order_item)
         review_form = ProductReviewForm() if product.can_review(request.user) else None
 
@@ -156,17 +148,10 @@ def checkout(request):
 
     try:
         total_price = cart.get_total_price()
-        logger.debug(f"Cart total price: {total_price}")
 
         if total_price <= 0:
             messages.error(request, "Invalid cart total")
             return redirect("shop:cart_detail")
-
-        # Log Stripe key info before creating payment intent
-        logger.debug(
-            f"Stripe publishable key being used: {settings.STRIPE_PUBLISHABLE_KEY[:8]}..."
-        )
-        logger.debug(f"Creating payment intent for amount: {int(total_price * 100)}")
 
         payment_intent_data = {
             "amount": int(total_price * 100),
@@ -180,8 +165,6 @@ def checkout(request):
             },
         }
 
-        logger.debug(f"Creating payment intent with data: {payment_intent_data}")
-
         if request.user.is_authenticated:
             payment_intent_data["receipt_email"] = request.user.email
         elif "guest_details" in request.session:
@@ -190,7 +173,6 @@ def checkout(request):
             ]
 
         intent = stripe.PaymentIntent.create(**payment_intent_data)
-        logger.debug(f"Payment intent created: {intent.id}")
 
         context = {
             "client_secret": intent.client_secret,
@@ -200,8 +182,6 @@ def checkout(request):
             "is_guest": not request.user.is_authenticated,
             "payment_intent_id": intent.id,
         }
-
-        logger.debug(f"Rendering checkout with context: {context}")
 
         return render(request, "shop/checkout.html", context)
 
@@ -267,14 +247,14 @@ def payment_success(request):
 
         # Create order items and send download emails
         for item in cart:
-            order_item = OrderItem.objects.create(
+            OrderItem.objects.create(
                 order=order,
                 product=item["product"],
                 price_paid_pence=int(item["price"] * 100),
                 quantity=item["quantity"],
                 downloads_remaining=item["product"].download_limit,
             )
-            
+
             # Increment purchase count for the product
             product = item["product"]
             product.purchase_count += item["quantity"]
@@ -309,8 +289,6 @@ def payment_success(request):
         logger.error(f"Unexpected error in payment success: {str(e)}")
         messages.error(request, "There was an error processing your order.")
         return redirect("shop:cart_detail")
-
-
 
 
 def payment_cancel(request):
@@ -419,8 +397,10 @@ def stripe_webhook(request):
             payload, sig_header, settings.STRIPE_WEBHOOK_SECRET
         )
     except ValueError as e:
+        logger.error(f"Something failed: {str(e)}")
         return HttpResponse(status=400)
     except stripe.error.SignatureVerificationError as e:
+        logger.error(f"Something failed: {str(e)}")
         return HttpResponse(status=400)
 
     if event.type == "payment_intent.succeeded":
@@ -454,6 +434,7 @@ def handle_failed_payment(payment_intent):
         order.status = "failed"
         order.save()
 
+
 @login_required
 @require_http_methods(["GET"])
 def secure_download(request, order_item_id):
@@ -467,7 +448,7 @@ def secure_download(request, order_item_id):
     if order_item.product.product_type == "download":
         if order_item.download_count >= order_item.downloads_remaining:
             raise PermissionDenied("Download limit exceeded")
-        
+
         # Decrement downloads_remaining and increment download_count
         order_item.downloads_remaining -= 1
         order_item.download_count += 1
@@ -486,8 +467,12 @@ def secure_download(request, order_item_id):
     content_type = content_type or "application/octet-stream"
 
     # Open the file
-    file_obj = open(file_path, "rb")
-    response = FileResponse(FileWrapper(file_obj), content_type=content_type)
+    with open(file_path, "rb") as file_obj:
+        response = FileResponse(FileWrapper(file_obj), content_type=content_type)
+        response["Content-Disposition"] = (
+            f'attachment; filename="{os.path.basename(file_path)}"'
+        )
+        return response
 
     # Set content disposition
     response["Content-Disposition"] = (
@@ -496,27 +481,28 @@ def secure_download(request, order_item_id):
 
     return response
 
+
 @login_required
 def add_review(request, product_id):
     product = get_object_or_404(Product, id=product_id)
-    
+
     # Allow superusers to review without purchase verification
     if not request.user.is_superuser:
         if not product.can_review(request.user):
-            messages.error(request, 'You can only review products you have purchased.')
-            return redirect('shop:product_detail', slug=product.slug)
+            messages.error(request, "You can only review products you have purchased.")
+            return redirect("shop:product_detail", slug=product.slug)
 
-    if request.method == 'POST':
+    if request.method == "POST":
         form = ProductReviewForm(request.POST)
         if form.is_valid():
             review = form.save(commit=False)
             review.product = product
             review.user = request.user
-            review.verified_purchase = True  
+            review.verified_purchase = True
             review.save()
-            messages.success(request, 'Your review has been added.')
-            return redirect('shop:product_detail', slug=product.slug)
+            messages.success(request, "Your review has been added.")
+            return redirect("shop:product_detail", slug=product.slug)
     else:
         form = ProductReviewForm()
 
-    return render(request, 'shop/add_review.html', {'form': form, 'product': product})
+    return render(request, "shop/add_review.html", {"form": form, "product": product})

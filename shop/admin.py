@@ -44,7 +44,7 @@ class ProductAdmin(admin.ModelAdmin):
                     "category",
                     "description",
                     "product_type",
-                    "number_of_pages",  
+                    "number_of_pages",
                     "status",
                     "is_active",
                 )
@@ -179,13 +179,6 @@ class ProductAdmin(admin.ModelAdmin):
 
         return url
 
-    def save_model(self, request, obj, form, change):
-        if "external_image_url" in form.changed_data:
-            obj.external_image_url = self.clean_external_image_url(
-                obj.external_image_url
-            )
-        super().save_model(request, obj, form, change)
-
 
 class OrderItemInline(admin.TabularInline):
     model = OrderItem
@@ -245,9 +238,10 @@ class OrderAdmin(admin.ModelAdmin):
         ),
     )
 
+
 @admin.register(ProductReview)
 class ProductReviewAdmin(admin.ModelAdmin):
-    list_display = ['product', 'user', 'rating', 'verified_purchase', 'created']
-    list_filter = ['rating', 'verified_purchase', 'created']
-    search_fields = ['product__title', 'user__username', 'comment']
-    readonly_fields = ['verified_purchase']
+    list_display = ["product", "user", "rating", "verified_purchase", "created"]
+    list_filter = ["rating", "verified_purchase", "created"]
+    search_fields = ["product__title", "user__username", "comment"]
+    readonly_fields = ["verified_purchase"]

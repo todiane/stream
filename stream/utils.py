@@ -9,7 +9,6 @@ def sanitize_text(text):
 
     replacements = {
         '"': '"',  # Smart quotes to straight quotes
-        '"': '"',
         """: "'",  # Smart apostrophes to straight
         """: "'",
         "…": "...",  # Ellipsis
@@ -17,7 +16,7 @@ def sanitize_text(text):
         "—": "-",  # Em dash
         "•": "*",  # Bullet
         ",": ",",  # Standard comma
-        "\u201A": ",",  # Single low-9 quotation mark (looks like comma)
+        "\u201a": ",",  # Single low-9 quotation mark (looks like comma)
         "\u2039": ",",  # Single left-pointing angle quotation mark
     }
 
