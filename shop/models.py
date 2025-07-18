@@ -4,6 +4,7 @@ from django.utils.text import slugify
 from django.conf import settings
 from stream.storage import secure_storage, public_storage
 import uuid
+from decimal import Decimal
 from stream.utils import custom_slugify
 from ckeditor_uploader.fields import RichTextUploadingField  # type: ignore
 
@@ -53,9 +54,7 @@ class Product(models.Model):
         max_length=20, choices=PRODUCT_TYPES, default="download"
     )
     number_of_pages = models.PositiveIntegerField(
-        null=True, 
-        blank=True,
-        help_text="Number of pages for digital downloads"
+        null=True, blank=True, help_text="Number of pages for digital downloads"
     )
     status = models.CharField(max_length=10, choices=STATUS_CHOICES, default="draft")
     external_image_url = models.URLField(
@@ -153,13 +152,13 @@ class Product(models.Model):
     @property
     def price(self):
         """Return price in pounds"""
-        return self.price_pence / 100
+        return Decimal(self.price_pence) / 100
 
     @property
     def sale_price(self):
         """Return sale price in pounds if it exists"""
         if self.sale_price_pence:
-            return self.sale_price_pence / 100
+            return Decimal(self.sale_price_pence) / 100
         return None
 
     @property
@@ -196,12 +195,10 @@ class Product(models.Model):
         # Superusers can always review
         if user.is_superuser:
             return True
-            
+
         # For regular users, check purchase and review status
         has_purchased = OrderItem.objects.filter(
-            order__user=user,
-            product=self,
-            order__status='completed'
+            order__user=user, product=self, order__status="completed"
         ).exists()
         has_reviewed = self.reviews.filter(user=user).exists()
         return has_purchased and not has_reviewed
@@ -295,15 +292,18 @@ class OrderItem(models.Model):
     def price(self):
         return self.get_price_in_pounds()
 
+
 class ProductReview(models.Model):
     RATING_CHOICES = [
-        (1, '1'),
-        (2, '2'),
-        (3, '3'),
-        (4, '4'),
-        (5, '5'),
+        (1, "1"),
+        (2, "2"),
+        (3, "3"),
+        (4, "4"),
+        (5, "5"),
     ]
-    product = models.ForeignKey(Product, on_delete=models.CASCADE, related_name='reviews')
+    product = models.ForeignKey(
+        Product, on_delete=models.CASCADE, related_name="reviews"
+    )
     user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE)
     rating = models.IntegerField(choices=RATING_CHOICES)
     comment = models.TextField()
@@ -311,17 +311,15 @@ class ProductReview(models.Model):
     verified_purchase = models.BooleanField(default=False)
 
     class Meta:
-        ordering = ['-created']
+        ordering = ["-created"]
         # Ensure one review per user per product
-        unique_together = ('product', 'user')
+        unique_together = ("product", "user")
 
     def __str__(self):
-        return f'Review by {self.user.username} on {self.product.title}'
+        return f"Review by {self.user.username} on {self.product.title}"
 
     @property
     def is_verified_purchase(self):
         return OrderItem.objects.filter(
-            order__user=self.user,
-            product=self.product,
-            order__status='completed'
+            order__user=self.user, product=self.product, order__status="completed"
         ).exists()
