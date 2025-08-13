@@ -6,8 +6,4 @@ Disallow: /admin/
 Disallow: /profiles/
 Disallow: /ckeditor/
 Disallow: /redirects/
-Disallow: /*/tag/
-Disallow: /*?*
-Disallow: /*/category/*/feed/
-Disallow: /feed/
 Disallow: /shop/secure-download/
