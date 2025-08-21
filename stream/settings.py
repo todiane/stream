@@ -2,7 +2,6 @@ from pathlib import Path
 import environ
 import os
 import sys
-from .logging_config import LOGGING
 
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
@@ -11,7 +10,7 @@ logs_dir = BASE_DIR / "logs"
 env = environ.Env()
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = True
+DEBUG = False
 
 # Choose environment file
 ENV_FILE = ".env"
@@ -41,10 +40,9 @@ DATABASES = {
 }
 
 
-
 DEBUG = True
 
-ALLOWED_HOSTS = ['localhost', '127.0.0.1', 'localhost:8000']
+ALLOWED_HOSTS = ["localhost", "127.0.0.1", "localhost:8000"]
 
 CSRF_TRUSTED_ORIGINS = [
     "http://localhost",
@@ -97,9 +95,9 @@ TEMPLATES = [
 MIDDLEWARE = [
     "django.middleware.security.SecurityMiddleware",
     "whitenoise.middleware.WhiteNoiseMiddleware",
-    "django.contrib.sessions.middleware.SessionMiddleware",  
+    "django.contrib.sessions.middleware.SessionMiddleware",
     "django.middleware.common.CommonMiddleware",
-    "django.middleware.csrf.CsrfViewMiddleware",  
+    "django.middleware.csrf.CsrfViewMiddleware",
     "stream.middleware.csrf_debug.CSRFDebugMiddleware",
     "django.contrib.auth.middleware.AuthenticationMiddleware",
     "django.contrib.messages.middleware.MessageMiddleware",
@@ -115,10 +113,10 @@ SITE_ID = 1
 SITE_URL = "http://127.0.0.1:8000"
 
 # How many tries before we throttle
-IP_RATE_LIMIT_MAX_ATTEMPTS = 1000
+# IP_RATE_LIMIT_MAX_ATTEMPTS = 1000
 
 # How long (in seconds) to block an IP once it exceeds the max
-IP_RATE_LIMIT_TIMEOUT = 300000
+# IP_RATE_LIMIT_TIMEOUT = 300000
 
 
 ROOT_URLCONF = "stream.urls"
@@ -128,15 +126,15 @@ WSGI_APPLICATION = "stream.wsgi.application"
 
 # email settings to be implemented:
 
-EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
-EMAIL_HOST = 'localhost'  # Using local mail server
+EMAIL_BACKEND = "django.core.mail.backends.smtp.EmailBackend"
+EMAIL_HOST = "localhost"  # Using local mail server
 EMAIL_PORT = 25  # Standard SMTP port
 EMAIL_USE_TLS = False
 EMAIL_USE_SSL = False
-EMAIL_HOST_USER = env('EMAIL_HOST_USER')
-EMAIL_HOST_PASSWORD = env('EMAIL_HOST_PASSWORD')
-DEFAULT_FROM_EMAIL = env('DEFAULT_FROM_EMAIL')
-CONTACT_EMAIL = env('CONTACT_EMAIL')
+EMAIL_HOST_USER = env("EMAIL_HOST_USER")
+EMAIL_HOST_PASSWORD = env("EMAIL_HOST_PASSWORD")
+DEFAULT_FROM_EMAIL = env("DEFAULT_FROM_EMAIL")
+CONTACT_EMAIL = env("CONTACT_EMAIL")
 
 # Add these explicit settings
 
@@ -192,15 +190,15 @@ ADMINS = [
 ]
 
 # Media and Storage Configuration
-MEDIA_URL = '/media/'
+MEDIA_URL = "/media/"
 MEDIA_ROOT = os.path.join(BASE_DIR, "media")
 PUBLIC_MEDIA_ROOT = os.path.join(MEDIA_ROOT, "public")
 SECURE_MEDIA_ROOT = os.path.join(MEDIA_ROOT, "secure_downloads")
 MEDIA_PREFIX = "public/"
 
 MEDIA_FILE_SERVE_HEADERS = {
-    'Access-Control-Allow-Origin': '*',
-    'Cache-Control': 'no-cache, must-revalidate'
+    "Access-Control-Allow-Origin": "*",
+    "Cache-Control": "no-cache, must-revalidate",
 }
 
 # File Permissions
@@ -220,14 +218,14 @@ STORAGES = {
     },
     "staticfiles": {
         "BACKEND": "whitenoise.storage.CompressedManifestStaticFilesStorage",
-    }
+    },
 }
 
 # Cache Control Headers for Media Files
 MEDIA_FILE_STORAGE_HEADERS = {
-    'Cache-Control': 'no-cache, no-store, must-revalidate',
-    'Pragma': 'no-cache',
-    'Expires': '0'
+    "Cache-Control": "no-cache, no-store, must-revalidate",
+    "Pragma": "no-cache",
+    "Expires": "0",
 }
 
 # Create directories if they don't exist
@@ -253,7 +251,7 @@ WHITENOISE_MANIFEST_STRICT = False
 # Ensure consistent handling of URLs
 CKEDITOR_UPLOAD_SLUGIFY_FILENAME = True
 CKEDITOR_JQUERY_URL = None
-CKEDITOR_FILENAME_GENERATOR = 'utils.get_filename_generator'
+CKEDITOR_FILENAME_GENERATOR = "utils.get_filename_generator"
 
 CKEDITOR_UPLOAD_PATH = "uploads/"
 CKEDITOR_ALLOW_NONIMAGE_FILES = True
@@ -330,7 +328,3 @@ USE_TZ = True
 # https://docs.djangoproject.com/en/5.1/ref/settings/#default-auto-field
 
 DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
-
-
-
-
