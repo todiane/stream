@@ -10,7 +10,7 @@ logs_dir = BASE_DIR / "logs"
 env = environ.Env()
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = False
+DEBUG = True
 
 # Choose environment file
 ENV_FILE = ".env"
@@ -113,10 +113,10 @@ SITE_ID = 1
 SITE_URL = "http://127.0.0.1:8000"
 
 # How many tries before we throttle
-# IP_RATE_LIMIT_MAX_ATTEMPTS = 1000
+IP_RATE_LIMIT_MAX_ATTEMPTS = 100000
 
 # How long (in seconds) to block an IP once it exceeds the max
-# IP_RATE_LIMIT_TIMEOUT = 300000
+IP_RATE_LIMIT_TIMEOUT = 30
 
 
 ROOT_URLCONF = "stream.urls"

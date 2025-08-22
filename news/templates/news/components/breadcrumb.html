@@ -1,0 +1,27 @@
+{% comment %}news/templates/news/components/breadcrumb.html{% endcomment %}
+
+<nav class="mb-4 mt-8 px-8" aria-label="Breadcrumb">
+  <ol class="flex flex-wrap items-center gap-2 text-sm text-text">
+    <!-- Home -->
+    <li>
+      <a href="/" class="hover:text-accent transition-colors">Home</a>
+    </li>
+
+    <!-- › separator -->
+    <li aria-hidden="true" class="text-gray-400 select-none">›</li>
+
+    <!-- Blog -->
+    <li>
+      <a href="{% url 'news:list' %}" class="hover:text-accent transition-colors">Blog</a>
+    </li>
+
+    {% if post.category %}
+      <li aria-hidden="true" class="text-gray-400 select-none">›</li>
+      <li>
+        <a href="{% url 'news:category' post.category.slug %}" class="hover:text-accent transition-colors">
+          {{ post.category.name }}
+        </a>
+      </li>
+    {% endif %}
+  </ol>
+</nav>
