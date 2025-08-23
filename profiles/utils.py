@@ -1,6 +1,6 @@
 # profiles/utils.py
 from django.contrib.sites.shortcuts import get_current_site
-from django.core.mail import EmailMultiAlternatives, send_mail
+from django.core.mail import EmailMultiAlternatives
 from django.template.loader import render_to_string
 from django.urls import reverse
 from django.utils.encoding import force_bytes
@@ -13,6 +13,7 @@ from .tokens import account_activation_token
 import logging
 
 logger = logging.getLogger(__name__)
+
 
 def get_email_context(request, user, token=None):
     """Generate common context for email templates"""
@@ -40,33 +41,41 @@ def get_email_context(request, user, token=None):
 
     return context
 
+
 def send_activation_email(request, user):
     """Enhanced secure activation email"""
     try:
         check_email_throttle(user.id, "activation")
-        
+
         # Generate secure token
         token = account_activation_token.make_token(user)
         logger.debug(f"Generated activation token for {user.username}: {token}")
 
         # Get context with security headers
         email_context = get_email_context(request, user, token)
-        email_context.update({
-            "expiry_date": datetime.now() + timedelta(days=settings.ACCOUNT_ACTIVATION_DAYS),
-            "ip_address": request.META.get("REMOTE_ADDR"),
-            "user_agent": request.META.get("HTTP_USER_AGENT"),
-        })
+        email_context.update(
+            {
+                "expiry_date": datetime.now()
+                + timedelta(days=settings.ACCOUNT_ACTIVATION_DAYS),
+                "ip_address": request.META.get("REMOTE_ADDR"),
+                "user_agent": request.META.get("HTTP_USER_AGENT"),
+            }
+        )
 
         # Render email content
-        text_content = render_to_string("account/email/account_activation_email.txt", email_context)
-        html_content = render_to_string("account/email/account_activation_email.html", email_context)
+        text_content = render_to_string(
+            "account/email/account_activation_email.txt", email_context
+        )
+        html_content = render_to_string(
+            "account/email/account_activation_email.html", email_context
+        )
 
         # Create and send email
         msg = EmailMultiAlternatives(
             "Activate your Stream English account",
             text_content,
             settings.DEFAULT_FROM_EMAIL,
-            [user.email]
+            [user.email],
         )
         msg.attach_alternative(html_content, "text/html")
         msg.send()
@@ -75,6 +84,7 @@ def send_activation_email(request, user):
     except Exception as e:
         logger.error(f"Failed to send activation email to {user.email}: {str(e)}")
         raise
+
 
 def send_welcome_activated_email(request, user):
     """Send welcome email after successful account activation"""
@@ -87,7 +97,7 @@ def send_welcome_activated_email(request, user):
             "Welcome to Stream English!",
             text_content,
             settings.DEFAULT_FROM_EMAIL,
-            [user.email]
+            [user.email],
         )
         msg.attach_alternative(html_content, "text/html")
         msg.send()
@@ -96,20 +106,25 @@ def send_welcome_activated_email(request, user):
         logger.error(f"Failed to send welcome email to {user.email}: {str(e)}")
         raise
 
+
 def send_password_reset_email(request, user, token, uid):
     """Send password reset email"""
     try:
         context = get_email_context(request, user)
         context.update({"token": token, "uid": uid})
-        
-        text_content = render_to_string("account/email/password_reset_email.txt", context)
-        html_content = render_to_string("account/email/password_reset_email.html", context)
+
+        text_content = render_to_string(
+            "account/email/password_reset_email.txt", context
+        )
+        html_content = render_to_string(
+            "account/email/password_reset_email.html", context
+        )
 
         msg = EmailMultiAlternatives(
             "Reset your Stream English password",
             text_content,
             settings.DEFAULT_FROM_EMAIL,
-            [user.email]
+            [user.email],
         )
         msg.attach_alternative(html_content, "text/html")
         msg.send()
@@ -118,9 +133,11 @@ def send_password_reset_email(request, user, token, uid):
         logger.error(f"Failed to send password reset email to {user.email}: {str(e)}")
         raise
 
+
 # Cache utilities
 def get_cache_key(user_id, action):
     return f"email_attempt_{action}_{user_id}"
+
 
 def check_email_throttle(user_id, action, max_attempts=3, timeout=300):
     """Prevent email spam by limiting attempts"""
@@ -129,34 +146,7 @@ def check_email_throttle(user_id, action, max_attempts=3, timeout=300):
 
     if attempts >= max_attempts:
         raise ValidationError(
-            f"Too many {action} attempts. Please wait {timeout//60} minutes before trying again."
+            f"Too many {action} attempts. Please wait {timeout // 60} minutes before trying again."
         )
 
     cache.set(cache_key, attempts + 1, timeout)
-
-def send_admin_notification(subject, message):
-    """Send a simple notification email to admin"""
-    try:
-        logger.debug(f"Attempting to send admin notification to {settings.CONTACT_EMAIL}")
-        result = send_mail(
-            subject,
-            message,
-            settings.DEFAULT_FROM_EMAIL,
-            [settings.CONTACT_EMAIL],
-            fail_silently=False,
-        )
-
-        if result:
-            send_mail(
-                subject,
-                message,
-                settings.DEFAULT_FROM_EMAIL,
-                ["info@streamenglish.co.uk"],
-                fail_silently=True,
-            )
-
-        logger.info(f"Admin notification sent successfully: {subject}")
-        return True
-    except Exception as e:
-        logger.error(f"Failed to send admin notification: {str(e)}")
-        return False
