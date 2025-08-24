@@ -41,14 +41,14 @@
             <label for="first_name" class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">First Name</label>
             <input type="text" name="first_name" id="first_name" 
                    class="bg-gray-50 border border-gray-300 text-gray-900 sm:text-sm rounded-lg focus:ring-primary-600 focus:border-primary-600 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500"
-                   placeholder="Joshua" required value="{{ form.first_name.value|default:'' }}"/>
+                   placeholder="Joshua*" required value="{{ form.first_name.value|default:'' }}"/>
           </div>
 
           <div>
             <label for="username" class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Username</label>
             <input type="text" name="username" id="username" 
                    class="bg-gray-50 border border-gray-300 text-gray-900 sm:text-sm rounded-lg focus:ring-primary-600 focus:border-primary-600 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500"
-                   placeholder="joshuajones" required value="{{ form.username.value|default:'' }}"/>
+                   placeholder="joshuajones*" required value="{{ form.username.value|default:'' }}"/>
           </div>
 
           <div>
@@ -102,6 +102,10 @@
                class="font-medium text-blue-600 hover:underline dark:text-blue-500">
               Log in
             </a>
+          </p>
+          <p class="text-sm font-light text-gray-500 dark:text-gray-400">
+            *Accounts created with random character names (e.g. “lzavgqssdok”) may be treated as bots by our system and automatically removed. To avoid this use your real first name and a clear username. 
+            
           </p>
         </form>
       </div>
