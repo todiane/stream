@@ -3,7 +3,6 @@ from django import forms
 from django.contrib.auth.models import User
 from django.contrib.auth.forms import UserCreationForm
 from .models import Profile
-from django.urls import reverse
 from .utils import send_password_reset_email
 from django.core.exceptions import ValidationError
 from django.contrib.auth.forms import PasswordResetForm
@@ -11,6 +10,7 @@ from django.contrib.sites.shortcuts import get_current_site
 from django.utils.encoding import force_bytes
 from django.utils.http import urlsafe_base64_encode
 from django.contrib.auth.tokens import default_token_generator
+from .models import ContactSubmission
 
 
 class BaseForm:
@@ -41,6 +41,7 @@ class UserRegisterForm(UserCreationForm):
             }
         ),
     )
+    website = forms.CharField(required=False, widget=forms.HiddenInput(), label="")
     first_name = forms.CharField(
         max_length=30,
         required=True,
@@ -61,6 +62,12 @@ class UserRegisterForm(UserCreationForm):
         if User.objects.filter(email=email).exists():
             raise ValidationError("This email address is already in use.")
         return email
+
+    def clean_website(self):
+        value = self.cleaned_data.get("website")
+        if value:
+            raise ValidationError("Invalid submission.")
+        return value
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
@@ -112,10 +119,6 @@ class ProfileUpdateForm(BaseForm, forms.ModelForm):
     class Meta:
         model = Profile
         fields = ["first_name", "bio"]
-
-
-from django import forms
-from .models import ContactSubmission
 
 
 class ContactForm(forms.ModelForm):

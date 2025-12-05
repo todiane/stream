@@ -4,6 +4,6 @@ Sitemap: {{ request.scheme }}://{{ request.get_host }}/sitemap.xml
 
 Disallow: /admin/
 Disallow: /profiles/
-Disallow: /ckeditor/
+Disallow: /tinymce/
 Disallow: /redirects/
 Disallow: /shop/secure-download/

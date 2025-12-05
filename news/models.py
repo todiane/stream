@@ -3,7 +3,7 @@ from django.urls import reverse
 from django.utils.text import slugify
 from stream.storage import public_storage
 from django.utils import timezone
-from ckeditor_uploader.fields import RichTextUploadingField  # type: ignore
+from tinymce.models import HTMLField  # type: ignore
 
 
 class Category(models.Model):
@@ -42,7 +42,7 @@ class Post(models.Model):
     # Basic fields
     title = models.CharField(max_length=200)
     slug = models.SlugField(unique=True)
-    content = RichTextUploadingField("Content", config_name="default")
+    content = HTMLField("Content")
     category = models.ForeignKey(Category, on_delete=models.PROTECT)
     status = models.CharField(max_length=10, choices=STATUS_CHOICES, default="draft")
 

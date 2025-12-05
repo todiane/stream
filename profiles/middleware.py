@@ -23,8 +23,6 @@ class IPRateLimitMiddleware:
             "/admin/",
             "/admin/login/",
             "/admin/logout/",
-            # CKEditor paths (since it has file upload capabilities)
-            "/ckeditor/upload/",
             # Other sensitive endpoints
             "/shop/checkout/",
             "/shop/payment/",

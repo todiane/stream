@@ -31,7 +31,6 @@ sitemaps = {
 urlpatterns = [
     path("", include("pages.urls")),
     path("admin/", admin.site.urls),
-    path("ckeditor/", include("ckeditor_uploader.urls")),
     path("profiles/", include("profiles.urls", namespace="profiles")),
     path("courses/", include("courses.urls", namespace="courses")),
     path("news/", include("news.urls", namespace="news")),

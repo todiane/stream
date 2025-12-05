@@ -2,7 +2,7 @@
 from django.db import models
 from django.urls import reverse
 from django.utils import timezone
-from ckeditor_uploader.fields import RichTextUploadingField
+from tinymce.models import HTMLField
 from simple_history.models import HistoricalRecords  # type: ignore
 from stream.storage import public_storage
 
@@ -49,13 +49,13 @@ class Hero(models.Model):
         """Extract YouTube video ID from URL."""
         if not self.video_url:
             return None
-            
+
         # Handle regular YouTube URLs
-        if 'youtube.com/watch?v=' in self.video_url:
-            return self.video_url.split('v=')[1].split('&')[0]
+        if "youtube.com/watch?v=" in self.video_url:
+            return self.video_url.split("v=")[1].split("&")[0]
         # Handle shortened youtu.be URLs
-        elif 'youtu.be/' in self.video_url:
-            return self.video_url.split('/')[-1].split('?')[0]
+        elif "youtu.be/" in self.video_url:
+            return self.video_url.split("/")[-1].split("?")[0]
         return None
 
 
@@ -74,7 +74,6 @@ class HeroBanner(models.Model):
         return self.text
 
 
-
 class Page(SEOFields):
     TEMPLATE_CHOICES = (
         ("home", "Homepage"),
@@ -84,13 +83,13 @@ class Page(SEOFields):
 
     title = models.CharField(max_length=200)
     slug = models.SlugField(unique=True)
-    content = RichTextUploadingField()
+    content = HTMLField()
     template = models.CharField(max_length=20, choices=TEMPLATE_CHOICES)
     is_active = models.BooleanField(default=True)
     publish_date = models.DateTimeField(default=timezone.now)
     history = HistoricalRecords()
-    second_content = RichTextUploadingField(blank=True, null=True)
-    third_content = RichTextUploadingField(blank=True, null=True)
+    second_content = HTMLField(blank=True, null=True)
+    third_content = HTMLField(blank=True, null=True)
 
     class Meta:
         ordering = ["title"]
@@ -114,9 +113,7 @@ class Page(SEOFields):
 
 class AboutMe(models.Model):
     title = models.CharField(max_length=200, default="About Me")
-    description = RichTextUploadingField(
-        help_text="Introduction paragraph about yourself"
-    )
+    description = HTMLField(help_text="Introduction paragraph about yourself")
     is_active = models.BooleanField(default=True)
 
     class Meta:
@@ -126,9 +123,9 @@ class AboutMe(models.Model):
 
 class AboutMeColumns(models.Model):
     title = models.CharField(max_length=200)
-    description = RichTextUploadingField()
+    description = HTMLField()
     second_title = models.CharField(max_length=200)
-    second_description = RichTextUploadingField()
+    second_description = HTMLField()
     is_active = models.BooleanField(default=True)
 
     class Meta:
@@ -138,7 +135,7 @@ class AboutMeColumns(models.Model):
 
 class AboutCourses(models.Model):
     title = models.CharField(max_length=200, default="Take A Look At My Latest Courses")
-    description = RichTextUploadingField()
+    description = HTMLField()
     show_courses_section = models.BooleanField(default=True)
     button_text = models.CharField(max_length=50, default="View All Courses")
     is_active = models.BooleanField(default=True)

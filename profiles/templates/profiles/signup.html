@@ -36,7 +36,7 @@
 
         <form class="space-y-4 md:space-y-6" method="POST">
           {% csrf_token %}
-
+          {{ form.website }}   <!-- HONEYPOT GOES HERE -->
           <div>
             <label for="first_name" class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">First Name</label>
             <input type="text" name="first_name" id="first_name" 

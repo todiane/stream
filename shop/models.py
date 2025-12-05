@@ -6,7 +6,7 @@ from stream.storage import secure_storage, public_storage
 import uuid
 from decimal import Decimal
 from stream.utils import custom_slugify
-from ckeditor_uploader.fields import RichTextUploadingField  # type: ignore
+from tinymce.models import HTMLField  # type: ignore
 
 
 def generate_public_id(instance, *args, **kwargs):
@@ -49,7 +49,7 @@ class Product(models.Model):
     title = models.CharField(max_length=200)
     slug = models.SlugField(unique=True)
     category = models.ForeignKey(Category, on_delete=models.PROTECT)
-    description = RichTextUploadingField()
+    description = HTMLField()
     product_type = models.CharField(
         max_length=20, choices=PRODUCT_TYPES, default="download"
     )

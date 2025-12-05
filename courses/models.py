@@ -2,8 +2,8 @@ import uuid
 from django.db import models
 from django.urls import reverse
 from django.utils.text import slugify
-from stream.storage import secure_storage, public_storage
-from ckeditor_uploader.fields import RichTextUploadingField  # type: ignore
+from stream.storage import public_storage
+from tinymce.models import HTMLField  # type: ignore
 from django.core.exceptions import ValidationError
 from .utils import sanitize_text
 from stream.utils import custom_slugify
@@ -78,7 +78,7 @@ def generate_public_id(instance, *args, **kwargs):
 class Course(models.Model):
     title = models.CharField(max_length=120)
     slug = models.SlugField(unique=True, null=True, blank=True)
-    description = RichTextUploadingField(blank=True, null=True)
+    description = HTMLField(blank=True, null=True)
     category = models.ForeignKey(
         Category,
         on_delete=models.CASCADE,
@@ -159,7 +159,7 @@ class Lesson(models.Model):
     public_id = models.CharField(max_length=130, blank=True, null=True, db_index=True)
     title = models.CharField(max_length=120)
     slug = models.SlugField(max_length=150, blank=True)
-    description = RichTextUploadingField(blank=True, null=True)
+    description = HTMLField(blank=True, null=True)
     thumbnail = models.ImageField(
         upload_to="lessons/thumbnails/", null=True, blank=True, storage=public_storage
     )
@@ -278,10 +278,10 @@ class Lesson(models.Model):
         """Generate VideoObject schema"""
         if not self.youtube_url and not self.video:
             return None
-            
+
         video_url = self.youtube_url if self.youtube_url else self.get_video_url()
         thumbnail_url = self.get_thumbnail_url()
-        
+
         return {
             "@context": "https://schema.org",
             "@type": "VideoObject",
@@ -292,8 +292,5 @@ class Lesson(models.Model):
             "duration": self.get_video_duration(),
             "contentUrl": video_url,
             "embedUrl": self.get_youtube_embed_url() if self.youtube_url else video_url,
-            "author": {
-                "@type": "Organization",
-                "name": "Stream English"
-            }
+            "author": {"@type": "Organization", "name": "Stream English"},
         }
