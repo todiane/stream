@@ -10,6 +10,9 @@ media
 staticfiles/
 settings/local.py
 local.py
+*.sql
+*.sqlite3
+*.db
 
 # Django.Python Stack #
 *.py[cod]
