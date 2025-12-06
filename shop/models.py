@@ -68,7 +68,6 @@ class Product(models.Model):
         blank=True,
         null=True,
         help_text="External URL for preview file (PDF only)",
-        db_collation="latin1_swedish_ci",
     )
     is_active = models.BooleanField(default=True)
 

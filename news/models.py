@@ -60,7 +60,6 @@ class Post(models.Model):
         blank=True,
         null=True,
         help_text="External URL for product image (jpg/png only)",
-        db_collation="latin1_swedish_ci",
     )
     youtube_url = models.URLField(blank=True, null=True)
     thumbnail = models.ImageField(
