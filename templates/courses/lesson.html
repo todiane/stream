@@ -26,16 +26,13 @@
     </header>
 
     <!-- Video Container -->
-    {% if object.youtube_url %}
+    {% if video_id %}
         <div class="video-container my-8 relative w-full" style="aspect-ratio: 16/9;">
-            <iframe id="youtube-player" 
-                    data-lesson-id="{{ object.id }}"
-                    src="{{ video_embed }}"
-                    class="absolute top-0 left-0 w-full h-full"
-                    frameborder="0"
-                    allowfullscreen
-                    allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture">
-            </iframe>
+            <div id="youtube-player" 
+                 data-lesson-id="{{ object.id }}"
+                 data-video-id="{{ video_id }}"
+                 class="absolute top-0 left-0 w-full h-full">
+            </div>
         </div>
     {% elif video_embed %}
         <div class="video-container my-8">
@@ -114,10 +111,7 @@
 </section>
 
 <!-- Load video tracking script last -->
-{% if object.has_video %}
-<!-- Load YouTube API first -->
-<script src="https://www.youtube.com/iframe_api"></script>
-<!-- Then load our tracking script -->
-<script src="{% static 'js/video-tracking.js' %}" defer></script>
+{% if video_id or video_embed %}
+<!-- video-tracking.js is already loaded in base.html -->
 {% endif %}
 {% endblock content %}

@@ -1,8 +1,7 @@
 from django.shortcuts import render, get_object_or_404
 from django.core.paginator import Paginator
-
+from django.conf import settings
 from shop.cart import Cart
-from stream import settings
 from .models import Post, Category
 from django.utils import timezone
 
@@ -30,9 +29,7 @@ def category_list(request, slug):
     category = get_object_or_404(Category, slug=slug)
     posts = Post.objects.filter(
         category=category, status="published", publish_date__lte=timezone.now()
-    ).order_by(
-        "-publish_date"
-    )  # Add explicit ordering
+    ).order_by("-publish_date")  # Add explicit ordering
 
     paginator = Paginator(posts, 12)
     page = request.GET.get("page")

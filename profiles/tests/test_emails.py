@@ -19,7 +19,7 @@ class EmailTestCase(TestCase):
         # Create a test user
         self.user = User.objects.create_user(
             username="testuser",
-            email="info@streamenglish.co.uk",
+            email="streamenglish@outlook.com",
             password="testpass123",
         )
         self.user.is_active = True
@@ -50,7 +50,7 @@ class EmailTestCase(TestCase):
 
         # Verify the email
         email = mail.outbox[0]
-        self.assertEqual(email.to, ["info@streamenglish.co.uk"])
+        self.assertEqual(email.to, ["streamenglish@outlook.com"])
         self.assertTrue("Activate your Stream English account" in email.subject)
 
     def test_welcome_email(self):
@@ -62,7 +62,7 @@ class EmailTestCase(TestCase):
         self.assertEqual(len(mail.outbox), 1)
 
         email = mail.outbox[0]
-        self.assertEqual(email.to, ["info@streamenglish.co.uk"])
+        self.assertEqual(email.to, ["streamenglish@outlook.com"])
         self.assertTrue("Welcome to Stream English" in email.subject)
 
     def test_password_reset_email(self):
@@ -77,7 +77,7 @@ class EmailTestCase(TestCase):
         self.assertEqual(len(mail.outbox), 1)
 
         email = mail.outbox[0]
-        self.assertEqual(email.to, ["info@streamenglish.co.uk"])
+        self.assertEqual(email.to, ["streamenglish@outlook.com"])
         self.assertTrue("Reset your Stream English password" in email.subject)
 
     def test_contact_form_email(self):
@@ -102,7 +102,7 @@ class EmailTestCase(TestCase):
         self.assertEqual(len(mail.outbox), 1)
 
         email = mail.outbox[0]
-        self.assertEqual(email.to, ["info@streamenglish.co.uk"])
+        self.assertEqual(email.to, ["streamenglish@outlook.com"])
         self.assertTrue("New Contact Form Submission" in email.subject)
 
     def test_multiple_emails_sequence(self):

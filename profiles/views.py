@@ -7,26 +7,20 @@ from django.contrib.auth import login, authenticate, logout
 from django.contrib.auth.forms import AuthenticationForm
 from django.contrib.auth.models import User
 from django.conf import settings
-from django.contrib.sites.shortcuts import get_current_site
-from django.core.mail import send_mail, EmailMultiAlternatives
-from django.template.loader import render_to_string
 from django.urls import reverse
+from django.http import HttpResponse
 from django.utils import timezone
-from django.utils.encoding import force_bytes, force_str
-from django.utils.http import urlsafe_base64_encode, urlsafe_base64_decode
+from django.utils.encoding import force_str
+from django.utils.http import urlsafe_base64_decode
 from django.http import JsonResponse
+
 from django.views.decorators.http import require_http_methods
-
-
-# app imports
 from profiles.models import Profile, VideoProgress
-from profiles.utils import send_welcome_activated_email
 from profiles.forms import UserRegisterForm, UserUpdateForm, ProfileUpdateForm
 from profiles.forms import ContactForm
 from profiles.tokens import account_activation_token
 from courses.models import Course, Lesson
-
-# library imports
+from django.core.mail import send_mail
 import json
 import logging
 
@@ -37,79 +31,27 @@ def signup_view(request):
     if request.method == "POST":
         form = UserRegisterForm(request.POST)
         if form.is_valid():
-            try:
-                # Create user first
-                user = form.save(commit=False)
-                user.is_active = True
-                user.save()
+            # Create user first
+            user = form.save(commit=False)
+            user.is_active = True
+            user.save()
 
-                # Create or update profile
-                profile, created = Profile.objects.get_or_create(user=user)
-                profile.first_name = form.cleaned_data.get("first_name")
-                profile.email_verified = False
-                profile.save()
+            # Create or update profile
+            profile, created = Profile.objects.get_or_create(user=user)
+            profile.first_name = form.cleaned_data.get("first_name")
+            profile.email_verified = False
+            profile.save()
 
-                # Try to send activation email
-                try:
-                    current_site = get_current_site(request)  # noqa: F841
-                    subject = "Activate your Stream English Account"
-                    unsubscribe_uid = urlsafe_base64_encode(force_bytes(user.pk))
+            # TEMPORARY: disable activation emails
+            messages.info(
+                request,
+                "Registration successful. Email verification is currently disabled.",
+            )
 
-                    token = account_activation_token.make_token(user)
-                    token = account_activation_token.make_token(user)
-                    logger.info(
-                        f"[Token Debug] Generated signup token for {user.username}: {token}"
-                    )
-                    context = {
-                        "user": user,
-                        "domain": "streamenglish.co.uk",
-                        "uid": urlsafe_base64_encode(force_bytes(user.pk)),
-                        "token": token,  # Use the same token we just generated
-                        "protocol": "https",
-                        "expiration_days": settings.ACCOUNT_ACTIVATION_DAYS,
-                        "email": user.email,
-                        "unsubscribe_url": f"https://streamenglish.co.uk{reverse('profiles:unsubscribe_email', kwargs={'uidb64': unsubscribe_uid})}",
-                    }
+            return redirect("profiles:login")
 
-                    html_message = render_to_string(
-                        "account/email/account_activation_email.html", context
-                    )
-                    text_message = render_to_string(
-                        "account/email/account_activation_email.txt", context
-                    )
-
-                    msg = EmailMultiAlternatives(
-                        subject, text_message, settings.DEFAULT_FROM_EMAIL, [user.email]
-                    )
-                    msg.attach_alternative(html_message, "text/html")
-                    msg.send()
-                    print("Activation email sent successfully!")
-
-                except Exception as e:
-                    # Log the specific email error but don't prevent registration
-                    logger.error(f"Failed to send activation email: {str(e)}")
-                    messages.warning(
-                        request,
-                        "Your account was created but there was an error sending the activation email. "
-                        "You can still log in, but you'll need to verify your email to access all features.",
-                    )
-                    return redirect("profiles:login")
-
-                messages.success(
-                    request,
-                    "Registration successful! Please check your email to activate your account. "
-                    "You can still log in, but some features require email verification.",
-                )
-                return redirect("profiles:login")
-
-            except Exception as e:
-                # Log any other errors during user creation
-                logger.error(f"Error during user registration: {str(e)}")
-                messages.error(
-                    request,
-                    "There was an error creating your account. Please try again.",
-                )
-                return render(request, "profiles/signup.html", {"form": form})
+        else:
+            messages.error(request, "Please correct the errors below.")
     else:
         form = UserRegisterForm()
 
@@ -284,63 +226,9 @@ def remove_course(request, course_slug):
 
 # Email activation views
 def send_activation_email(request, user):
-    from django.core.mail import get_connection
-    import time
-
-    current_site = get_current_site(request)
-    unsubscribe_uid = urlsafe_base64_encode(force_bytes(user.pk))
-    context = {
-        "user": user,
-        "domain": current_site.domain,
-        "uid": urlsafe_base64_encode(force_bytes(user.pk)),
-        "token": account_activation_token.make_token(user),
-        "protocol": "https" if request.is_secure() else "http",
-        "expiration_days": settings.ACCOUNT_ACTIVATION_DAYS,
-        "email": user.email,
-        "unsubscribe_url": f"{request.scheme}://{current_site.domain}{reverse('profiles:unsubscribe_email', kwargs={'uidb64': unsubscribe_uid})}",
-    }
-
-    html_content = render_to_string(
-        "account/email/account_activation_email.html", context
-    )
-    text_content = render_to_string(
-        "account/email/account_activation_email.txt", context
-    )
-
-    subject = "Activate your Stream English account"
-    from_email = settings.DEFAULT_FROM_EMAIL
-    to_email = user.email
-
-    # Create email message
-    msg = EmailMultiAlternatives(subject, text_content, from_email, [to_email])
-    msg.attach_alternative(html_content, "text/html")
-
-    # Attempt to send with retries
-    for attempt in range(settings.EMAIL_MAX_RETRIES):
-        try:
-            # Get a fresh connection for each attempt
-            connection = get_connection(fail_silently=False)
-            connection.open()
-
-            # Send email
-            msg.connection = connection
-            msg.send()
-
-            # Log success
-            logger.info(
-                f"Successfully sent activation email to {to_email} on attempt {attempt + 1}"
-            )
-            return True
-
-        except Exception as e:
-            logger.error(f"Attempt {attempt + 1} failed: {str(e)}")
-            if attempt < settings.EMAIL_MAX_RETRIES - 1:
-                time.sleep(settings.EMAIL_RETRY_DELAY)
-                continue
-            raise  # Re-raise the last exception if all retries failed
-
-        finally:
-            connection.close()
+    # TEMPORARY: disable activation emails
+    logger.warning(f"Activation email suppressed for user {user.email}")
+    return True
 
 
 # Activate account
@@ -355,12 +243,7 @@ def activate(request, uidb64, token):
                 user.profile.save()
                 login(request, user)
 
-                try:
-                    # Send welcome email after successful activation
-                    send_welcome_activated_email(request, user)
-
-                except Exception as e:
-                    logger.error(f"Error sending welcome/notification emails: {str(e)}")
+                logger.warning(f"Welcome email suppressed for {user.email}")
 
                 messages.success(
                     request, "Your account has been successfully activated!"
@@ -467,30 +350,6 @@ def contact_tutor(request):
 
         messages.error(request, "Please correct the errors below.")
     return redirect("profiles:profile")
-
-
-def unsubscribe_email(request, uidb64):
-    try:
-        uid = force_str(urlsafe_base64_decode(uidb64))
-        user = User.objects.get(pk=uid)
-
-        # Set user preference to not receive emails
-        user.profile.email_subscribed = False
-        user.profile.save()
-
-        messages.success(
-            request, "You have been successfully unsubscribed from our emails."
-        )
-        return redirect("pages:home")
-    except (TypeError, ValueError, OverflowError, User.DoesNotExist):
-        messages.error(request, "Invalid unsubscribe link.")
-        return redirect("pages:home")
-
-
-def activation_failed(request):
-    # Get uidb64 from the request's GET parameters
-    uidb64 = request.GET.get("uidb64")
-    return render(request, "profiles/activation_failed.html", {"uidb64": uidb64})
 
 
 @login_required
@@ -627,3 +486,11 @@ def get_video_progress(request, lesson_id):
         # Log error safely
         logger.error("Error getting video progress: %s", str(e))
         return JsonResponse({"current_time": 0, "is_completed": False})
+
+
+def unsubscribe_email(request, uidb64):
+    return HttpResponse("Unsubscribe page temporarily disabled.")
+
+
+def activation_failed(request):
+    return HttpResponse("Account activation failed.")

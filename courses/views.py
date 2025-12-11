@@ -11,7 +11,7 @@ from .models import Course, Lesson
 from . import services
 import logging
 
-logger = logging.getLogger('django')
+logger = logging.getLogger("django")
 
 
 def course_list_view(request):
@@ -68,39 +68,37 @@ def lesson_detail_view(request, course_slug=None, lesson_slug=None, *args, **kwa
     try:
         course = Course.objects.get(slug=course_slug, status="publish")
         lesson_obj = Lesson.objects.get(
-            course=course, 
-            slug=lesson_slug, 
-            status__in=["publish", "soon"]
+            course=course, slug=lesson_slug, status__in=["publish", "soon"]
         )
-        
+
         context = {
             "object": lesson_obj,
             "course": lesson_obj.course,
-            "lessons_queryset": services.get_course_lessons(lesson_obj.course)
+            "lessons_queryset": services.get_course_lessons(lesson_obj.course),
         }
 
         if lesson_obj.youtube_url:
-            if 'youtube.com/watch?v=' in lesson_obj.youtube_url:
-                video_id = lesson_obj.youtube_url.split('v=')[1].split('&')[0]
-            elif 'youtu.be/' in lesson_obj.youtube_url:
-                video_id = lesson_obj.youtube_url.split('/')[-1]
+            if "youtube.com/watch?v=" in lesson_obj.youtube_url:
+                video_id = lesson_obj.youtube_url.split("v=")[1].split("&")[0]
+            elif "youtu.be/" in lesson_obj.youtube_url:
+                video_id = lesson_obj.youtube_url.split("/")[-1]
             else:
                 video_id = None
-                
+
             if video_id:
-                context["video_embed"] = f"https://www.youtube.com/embed/{video_id}?enablejsapi=1"
-            
+                context["video_id"] = video_id
+
         return render(request, "courses/lesson.html", context)
-        
+
     except Course.DoesNotExist:
         return redirect("courses:course_list")
     except Lesson.DoesNotExist:
         return redirect("courses:course_detail", course_slug=course_slug)
     except Exception as e:
-        logger.error(f'Error in lesson_detail_view: {str(e)}', exc_info=True)
+        logger.error(f"Error in lesson_detail_view: {str(e)}", exc_info=True)
         return redirect("courses:course_list")
- 
-    
+
+
 def course_detail_view(request, course_slug=None, *args, **kwargs):
     course_obj = get_object_or_404(Course, status="publish", slug=course_slug)
     lessons_queryset = services.get_course_lessons(course_obj)

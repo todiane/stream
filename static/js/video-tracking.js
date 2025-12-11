@@ -159,12 +159,20 @@ function initializeYouTubePlayer() {
   }
 
   const lessonId = playerElement.dataset.lessonId;
+  const videoId = playerElement.dataset.videoId;
+
   if (!lessonId) {
     logError('YouTube player missing lesson ID attribute');
     return;
   }
 
+  if (!videoId) {
+    logError('YouTube player missing video ID attribute');
+    return;
+  }
+
   debugLog('Found YouTube player for lesson:', lessonId);
+  debugLog('Video ID:', videoId);
 
   // Make sure the YouTube API is loaded
   if (typeof YT === 'undefined' || typeof YT.Player === 'undefined') {
@@ -175,15 +183,18 @@ function initializeYouTubePlayer() {
 
   try {
     player = new YT.Player('youtube-player', {
+      videoId: videoId,
+      width: '100%',
+      height: '100%',
+      playerVars: {
+        'playsinline': 1,
+        'enablejsapi': 1,
+        'rel': 0
+      },
       events: {
         'onReady': (event) => onPlayerReady(event, lessonId),
         'onStateChange': (event) => onPlayerStateChange(event, lessonId),
         'onError': onPlayerError
-      },
-      playerVars: {
-        'playsinline': 1,
-        'enablejsapi': 1,
-        'origin': window.location.origin
       }
     });
 

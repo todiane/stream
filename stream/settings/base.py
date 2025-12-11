@@ -12,6 +12,8 @@ env.read_env(os.path.join(BASE_DIR, ".env"))
 # SECRET_KEY
 SECRET_KEY = env("SECRET_KEY")
 
+DEBUG = False
+
 # Application definition
 INSTALLED_APPS = [
     "django.contrib.admin",
@@ -120,6 +122,11 @@ SITE_ID = 1
 SESSION_COOKIE_AGE = 86400  # 24 hours
 SESSION_SAVE_EVERY_REQUEST = False
 SESSION_COOKIE_HTTPONLY = True
+
+
+# Rate limiting (login security)
+IP_RATE_LIMIT_TIMEOUT = 60  # seconds
+IP_RATE_LIMIT_MAX_ATTEMPTS = 5  # adjust based on your middleware
 
 # Authentication
 LOGIN_URL = "/profiles/login/"
