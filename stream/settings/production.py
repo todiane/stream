@@ -14,8 +14,6 @@ DEBUG = False
 ALLOWED_HOSTS = [
     "streamenglish.co.uk",
     "www.streamenglish.co.uk",
-    "stream.todiane.com",
-    "www.stream.todiane.com",
 ]
 
 
@@ -47,7 +45,6 @@ SECURE_HSTS_SECONDS = 31536000  # 1 year
 SECURE_HSTS_INCLUDE_SUBDOMAINS = True
 SECURE_HSTS_PRELOAD = True
 SECURE_CONTENT_TYPE_NOSNIFF = True
-SECURE_BROWSER_XSS_FILTER = True
 X_FRAME_OPTIONS = "DENY"
 
 # Media storage - could use Cloudinary or local with proper permissions

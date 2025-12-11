@@ -4,6 +4,8 @@ from django.urls import include, path
 from django.conf import settings
 from django.views.static import serve
 from django.contrib.sitemaps.views import sitemap
+from pages.views import home_view
+
 from . import views
 from .sitemaps import (
     StaticViewSitemap,
@@ -29,7 +31,7 @@ sitemaps = {
 }
 
 urlpatterns = [
-    path("", include("pages.urls")),
+    path("", include("pages.urls", namespace="pages")),
     path("admin/", admin.site.urls),
     path("profiles/", include("profiles.urls", namespace="profiles")),
     path("courses/", include("courses.urls", namespace="courses")),

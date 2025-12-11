@@ -5,17 +5,17 @@
 {{ block.super }}
 {% if object.has_video %}
 <script type="application/ld+json">
-   {{ object.get_video_schema|safe }}
+{{ object.get_video_schema|safe }}
 </script>
 {% endif %}
-<!-- Single source of CSRF token for JavaScript -->
+<!-- CSRF token for JavaScript -->
 <script>
     const CSRF_TOKEN = '{{ csrf_token }}';
 </script>
 {% endblock %}
 
 {% block content %}
-{% csrf_token %}  <!-- CSRF token for AJAX requests -->
+{% csrf_token %}
 {% include "courses/components/breadcrumb.html" with course=course lesson=object %}
 
 <article class="gap-8 items-center py-8 px-4 mx-auto max-w-screen-xl xl:gap-16 sm:py-16 lg:px-6">
@@ -25,83 +25,124 @@
         </h1>
     </header>
 
-    <!-- Video Container -->
+    <!-- Video Container - YouTube Only -->
     {% if video_id %}
-        <div class="video-container my-8 relative w-full" style="aspect-ratio: 16/9;">
+        <div class="video-container my-8 relative w-full bg-black rounded-lg overflow-hidden shadow-lg" style="aspect-ratio: 16/9;">
+            {% if use_thumbnail_loader %}
+            <!-- Lazy load: Show thumbnail, load player on click -->
+            <button id="video-thumbnail" 
+                    data-video-id="{{ video_id }}"
+                    data-lesson-id="{{ object.id }}"
+                    class="absolute inset-0 w-full h-full cursor-pointer group focus:outline-none focus:ring-4 focus:ring-blue-500 focus:ring-offset-2"
+                    aria-label="Play video: {{ object.title }}">
+                <!-- Thumbnail Image -->
+                <img src="https://img.youtube.com/vi/{{ video_id }}/maxresdefault.jpg"
+                     alt="{{ object.title }}"
+                     class="w-full h-full object-cover"
+                     onerror="this.src='https://img.youtube.com/vi/{{ video_id }}/hqdefault.jpg'">
+                
+                <!-- Play Button Overlay -->
+                <div class="absolute inset-0 flex items-center justify-center bg-black/30 group-hover:bg-black/40 transition-colors">
+                    <div class="w-20 h-20 bg-red-600 rounded-full flex items-center justify-center shadow-lg group-hover:bg-red-700 group-hover:scale-110 transition-all">
+                        <svg class="w-10 h-10 text-white ml-1" fill="currentColor" viewBox="0 0 24 24">
+                            <path d="M8 5v14l11-7z"/>
+                        </svg>
+                    </div>
+                </div>
+            </button>
+            {% else %}
+            <!-- Direct player load -->
             <div id="youtube-player" 
                  data-lesson-id="{{ object.id }}"
                  data-video-id="{{ video_id }}"
                  class="absolute top-0 left-0 w-full h-full">
             </div>
-        </div>
-    {% elif video_embed %}
-        <div class="video-container my-8">
-            <video id="html5-player" 
-                data-lesson-id="{{ object.id }}"
-                controls
-                class="w-full">
-                <source src="{{ video_embed }}" type="video/mp4">
-                Your browser does not support the video tag.
-            </video>
+            {% endif %}
         </div>
     {% else %}
-        <p>No video available for this lesson.</p>
+        <!-- No video message -->
+        <div class="my-8 bg-gray-100 rounded-lg p-12 text-center">
+            <svg class="mx-auto h-16 w-16 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M15 10l4.553-2.276A1 1 0 0121 8.618v6.764a1 1 0 01-1.447.894L15 14M5 18h8a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v8a2 2 0 002 2z" />
+            </svg>
+            <h3 class="mt-4 text-lg font-medium text-gray-900">No video available</h3>
+            <p class="mt-2 text-gray-500">This lesson doesn't have a video yet.</p>
+        </div>
     {% endif %}
+
     <!-- Description -->
-    <div class="mt-4 prose max-w-none text-gray-700">
+    {% if object.description %}
+    <div class="mt-8 prose prose-lg max-w-none text-gray-700">
         {{ object.description|safe }}
     </div>
+    {% endif %}
 
-    <!-- Navigation -->
-    <div class="flex justify-between mt-8">
+    <!-- Lesson Navigation -->
+    <nav class="flex justify-between items-center mt-12 pt-8 border-t border-gray-200" aria-label="Lesson navigation">
         {% if previous_lesson %}
         <a href="{{ previous_lesson.get_absolute_url }}" 
-           class="text-blue-500 hover:underline">Previous Lesson</a>
+           class="inline-flex items-center px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-lg hover:bg-gray-50 hover:text-blue-600 transition-colors">
+            <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"/>
+            </svg>
+            Previous Lesson
+        </a>
+        {% else %}
+        <div></div>
         {% endif %}
+
         {% if next_lesson %}
         <a href="{{ next_lesson.get_absolute_url }}" 
-           class="text-blue-500 hover:underline">Next Lesson</a>
+           class="inline-flex items-center px-4 py-2 text-sm font-medium text-white bg-blue-600 rounded-lg hover:bg-blue-700 transition-colors">
+            Next Lesson
+            <svg class="w-5 h-5 ml-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/>
+            </svg>
+        </a>
         {% endif %}
-    </div>
+    </nav>
 </article>
 
 <!-- Other Lessons Section -->
-<section class="section bg-gray-100 py-8">
+<section class="bg-gray-50 py-12">
     <div class="mx-auto max-w-screen-xl px-4">
         <h2 class="mb-8 text-2xl font-bold text-center text-gray-900">
             Other Lessons in This Course
         </h2>
-        <div class="grid gap-8 md:grid-cols-2 lg:grid-cols-3">
+        <div class="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
             {% for lesson in lessons_queryset %} 
             {% if lesson.id != object.id %}
-            <div class="bg-white rounded-lg shadow-md overflow-hidden">
+            <div class="bg-white rounded-lg shadow-md overflow-hidden hover:shadow-lg transition-shadow">
                 {% if lesson.get_thumbnail_url %}
-                <a href="{{ lesson.get_absolute_url }}">
+                <a href="{{ lesson.get_absolute_url }}" class="block overflow-hidden">
                     <img src="{{ lesson.get_thumbnail_url }}"
                          alt="{{ lesson.title }}"
-                         class="w-full h-48 object-cover transition-all duration-300 hover:scale-105"
+                         class="w-full h-48 object-cover transition-transform duration-300 hover:scale-105"
+                         loading="lazy"
                     />
                 </a>
                 {% endif %}
-                <div class="p-4">
+                <div class="p-5">
                     <h3 class="mb-2 text-xl font-bold tracking-tight text-gray-900">
-                        <a href="{{ lesson.get_absolute_url }}">{{ lesson.title }}</a>
+                        <a href="{{ lesson.get_absolute_url }}" class="hover:text-blue-600 transition-colors">
+                            {{ lesson.title }}
+                        </a>
                     </h3>
                     {% if lesson.is_coming_soon %}
-                    <span class="text-sm text-gray-500">Coming Soon</span>
-                    {% endif %}
+                    <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-yellow-100 text-yellow-800">
+                        Coming Soon
+                    </span>
+                    {% else %}
                     <a href="{{ lesson.get_absolute_url }}"
-                       class="inline-flex items-center mt-3 font-medium text-blue-600 hover:underline">
+                       class="inline-flex items-center mt-3 text-sm font-medium text-blue-600 hover:text-blue-800 hover:underline">
                         View Lesson
-                        <svg class="ml-2 w-4 h-4"
-                             fill="currentColor"
-                             viewBox="0 0 20 20"
-                             xmlns="http://www.w3.org/2000/svg">
+                        <svg class="ml-1.5 w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
                             <path fill-rule="evenodd"
                                   d="M10.293 3.293a1 1 0 011.414 0l6 6a1 1 0 010 1.414l-6 6a1 1 0 01-1.414-1.414L14.586 11H3a1 1 0 110-2h11.586l-4.293-4.293a1 1 0 010-1.414z"
                                   clip-rule="evenodd" />
                         </svg>
                     </a>
+                    {% endif %}
                 </div>
             </div>
             {% endif %} 
@@ -109,9 +150,4 @@
         </div>
     </div>
 </section>
-
-<!-- Load video tracking script last -->
-{% if video_id or video_embed %}
-<!-- video-tracking.js is already loaded in base.html -->
-{% endif %}
 {% endblock content %}

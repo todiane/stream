@@ -1,3 +1,6 @@
+# courses/models.py
+
+import re
 import uuid
 from django.db import models
 from django.urls import reverse
@@ -7,6 +10,7 @@ from tinymce.models import HTMLField  # type: ignore
 from django.core.exceptions import ValidationError
 from .utils import sanitize_text
 from stream.utils import custom_slugify
+
 
 # Define choices as module-level constants
 PUBLISH_STATUS_CHOICES = [
@@ -51,18 +55,6 @@ class Category(models.Model):
 
     def __str__(self):
         return f"{self.name} ({self.exam_board})"
-
-    def clean(self):
-        # Sanitize the name and description before validation
-        if self.name:
-            sanitized_name = sanitize_text(self.name)
-            if sanitized_name != self.name:
-                raise ValidationError(
-                    {
-                        "name": f'Special characters have been removed or replaced in the name: "{self.name}" → "{sanitized_name}"'
-                    }
-                )
-            self.name = sanitized_name
 
 
 def generate_public_id(instance, *args, **kwargs):
@@ -163,6 +155,7 @@ class Lesson(models.Model):
     thumbnail = models.ImageField(
         upload_to="lessons/thumbnails/", null=True, blank=True, storage=public_storage
     )
+    # Note: video field kept for backwards compatibility but no longer used
     video = models.FileField(
         upload_to="lessons/videos/", null=True, blank=True, storage=public_storage
     )
@@ -207,38 +200,101 @@ class Lesson(models.Model):
 
         super().save(*args, **kwargs)
 
+    def __str__(self):
+        return self.title
+
     def get_absolute_url(self):
         return reverse(
             "courses:lesson_detail",
             kwargs={"course_slug": self.course.slug, "lesson_slug": self.slug},
         )
 
-    def get_video_url(self):
-        """Get video URL if it exists"""
-        try:
-            return self.video.url if self.video else None
-        except Exception:
+    @property
+    def has_video(self):
+        """Check if lesson has a YouTube video."""
+        return bool(self.youtube_url)
+
+    def get_video_id(self):
+        """Extract YouTube video ID from URL."""
+        if not self.youtube_url:
             return None
 
+        url = self.youtube_url
+
+        # Handle different YouTube URL formats
+        if "youtube.com/watch?v=" in url:
+            return url.split("v=")[1].split("&")[0]
+        elif "youtu.be/" in url:
+            return url.split("/")[-1].split("?")[0]
+        elif "youtube.com/embed/" in url:
+            return url.split("/embed/")[1].split("?")[0]
+
+        return None
+
+    def get_youtube_embed_url(self):
+        """Get privacy-enhanced YouTube embed URL."""
+        video_id = self.get_video_id()
+        if video_id:
+            return f"https://www.youtube-nocookie.com/embed/{video_id}"
+        return None
+
     def get_thumbnail_url(self):
-        """Get thumbnail URL with fallbacks"""
+        """
+        Get thumbnail URL with fallbacks:
+        1. External image URL
+        2. Uploaded thumbnail
+        3. YouTube video thumbnail
+        """
         try:
             if self.external_image_url:
                 return self.external_image_url
             if self.thumbnail:
                 return self.thumbnail.url
-            if self.youtube_url:
-                # Get YouTube thumbnail as fallback
-                if "youtu.be" in self.youtube_url:
-                    video_id = self.youtube_url.split("/")[-1]
-                elif "v=" in self.youtube_url:
-                    video_id = self.youtube_url.split("v=")[1].split("&")[0]
-                else:
-                    return None
+
+            # Fall back to YouTube thumbnail
+            video_id = self.get_video_id()
+            if video_id:
                 return f"https://img.youtube.com/vi/{video_id}/maxresdefault.jpg"
+
             return None
         except Exception:
             return None
+
+    def get_video_duration(self):
+        """
+        Return video duration in ISO 8601 format.
+        Default 10 minutes - could be stored as a field later.
+        """
+        return "PT10M"
+
+    def get_video_schema(self):
+        """Generate VideoObject schema for SEO."""
+        video_id = self.get_video_id()
+        if not video_id:
+            return None
+
+        thumbnail_url = self.get_thumbnail_url()
+
+        # Strip HTML from description for schema
+        clean_description = ""
+        if self.description:
+            clean_description = re.sub(r"<[^>]+>", "", self.description)
+
+        return {
+            "@context": "https://schema.org",
+            "@type": "VideoObject",
+            "name": self.title,
+            "description": clean_description[:200] if clean_description else self.title,
+            "thumbnailUrl": thumbnail_url,
+            "uploadDate": self.timestamp.strftime("%Y-%m-%d"),
+            "duration": self.get_video_duration(),
+            "contentUrl": self.youtube_url,
+            "embedUrl": self.get_youtube_embed_url(),
+            "author": {
+                "@type": "Organization",
+                "name": "Stream English",
+            },
+        }
 
     @property
     def requires_email(self):
@@ -250,47 +306,3 @@ class Lesson(models.Model):
     @property
     def is_coming_soon(self):
         return self.status == "soon"
-
-    @property
-    def has_video(self):
-        return self.video is not None or self.youtube_url is not None
-
-    def get_youtube_embed_url(self):
-        if self.youtube_url:
-            video_id = self.youtube_url.split("v=")[-1]
-            return f"https://www.youtube.com/embed/{video_id}"
-        return None
-
-    def get_video_duration(self):
-        """Placeholder for video duration - required for schema"""
-        return "PT10M"  # Default 10 minutes - you may want to make this a field
-
-    def get_video_id(self):
-        """Extract YouTube video ID"""
-        if self.youtube_url:
-            if "youtu.be" in self.youtube_url:
-                return self.youtube_url.split("/")[-1]
-            elif "v=" in self.youtube_url:
-                return self.youtube_url.split("v=")[1].split("&")[0]
-        return None
-
-    def get_video_schema(self):
-        """Generate VideoObject schema"""
-        if not self.youtube_url and not self.video:
-            return None
-
-        video_url = self.youtube_url if self.youtube_url else self.get_video_url()
-        thumbnail_url = self.get_thumbnail_url()
-
-        return {
-            "@context": "https://schema.org",
-            "@type": "VideoObject",
-            "name": self.title,
-            "description": self.description,
-            "thumbnailUrl": thumbnail_url,
-            "uploadDate": self.timestamp.strftime("%Y-%m-%d"),
-            "duration": self.get_video_duration(),
-            "contentUrl": video_url,
-            "embedUrl": self.get_youtube_embed_url() if self.youtube_url else video_url,
-            "author": {"@type": "Organization", "name": "Stream English"},
-        }

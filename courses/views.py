@@ -65,28 +65,56 @@ def enrol_course(request, course_slug):
 
 
 def lesson_detail_view(request, course_slug=None, lesson_slug=None, *args, **kwargs):
+    """
+    Display a lesson with YouTube video player.
+    Simplified to support YouTube videos only.
+    """
     try:
         course = Course.objects.get(slug=course_slug, status="publish")
         lesson_obj = Lesson.objects.get(
             course=course, slug=lesson_slug, status__in=["publish", "soon"]
         )
 
+        # Get all lessons for navigation
+        lessons = services.get_course_lessons(lesson_obj.course)
+        lessons_list = list(lessons)
+
+        # Find current position for prev/next navigation
+        current_index = None
+        for i, lesson in enumerate(lessons_list):
+            if lesson.id == lesson_obj.id:
+                current_index = i
+                break
+
         context = {
             "object": lesson_obj,
             "course": lesson_obj.course,
-            "lessons_queryset": services.get_course_lessons(lesson_obj.course),
+            "lessons_queryset": lessons_list,
+            "previous_lesson": lessons_list[current_index - 1]
+            if current_index and current_index > 0
+            else None,
+            "next_lesson": lessons_list[current_index + 1]
+            if current_index is not None and current_index < len(lessons_list) - 1
+            else None,
         }
 
+        # Extract YouTube video ID
         if lesson_obj.youtube_url:
-            if "youtube.com/watch?v=" in lesson_obj.youtube_url:
-                video_id = lesson_obj.youtube_url.split("v=")[1].split("&")[0]
-            elif "youtu.be/" in lesson_obj.youtube_url:
-                video_id = lesson_obj.youtube_url.split("/")[-1]
-            else:
-                video_id = None
+            video_id = None
+            url = lesson_obj.youtube_url
+
+            if "youtube.com/watch?v=" in url:
+                video_id = url.split("v=")[1].split("&")[0]
+            elif "youtu.be/" in url:
+                video_id = url.split("/")[-1].split("?")[0]
+            elif "youtube.com/embed/" in url:
+                video_id = url.split("/embed/")[1].split("?")[0]
 
             if video_id:
                 context["video_id"] = video_id
+                # Set to True for lazy-loading (thumbnail click to play)
+                # Set to False to load player immediately
+                context["use_thumbnail_loader"] = False
 
         return render(request, "courses/lesson.html", context)
 
@@ -95,7 +123,7 @@ def lesson_detail_view(request, course_slug=None, lesson_slug=None, *args, **kwa
     except Lesson.DoesNotExist:
         return redirect("courses:course_detail", course_slug=course_slug)
     except Exception as e:
-        logger.error(f"Error in lesson_detail_view: {str(e)}", exc_info=True)
+        logger.error(f"Error in lesson_detail_view: {str(e)}")
         return redirect("courses:course_list")
 
 

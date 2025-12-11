@@ -47,15 +47,33 @@ class Hero(models.Model):
 
     def get_youtube_video_id(self):
         """Extract YouTube video ID from URL."""
-        if not self.video_url:
+        if not self.youtube_url:
             return None
 
-        # Handle regular YouTube URLs
-        if "youtube.com/watch?v=" in self.video_url:
-            return self.video_url.split("v=")[1].split("&")[0]
-        # Handle shortened youtu.be URLs
-        elif "youtu.be/" in self.video_url:
-            return self.video_url.split("/")[-1].split("?")[0]
+        url = self.youtube_url
+
+        if "youtu.be" in url:
+            return url.split("/")[-1].split("?")[0]
+        elif "youtube.com/watch?v=" in url:
+            return url.split("v=")[1].split("&")[0]
+        elif "youtube.com/embed/" in url:
+            return url.split("/embed/")[1].split("?")[0]
+
+        return None
+
+    def get_youtube_thumbnail(self):
+        """Get YouTube video thumbnail URL."""
+        video_id = self.get_youtube_video_id()
+        if video_id:
+            return f"https://img.youtube.com/vi/{video_id}/maxresdefault.jpg"
+        return None
+
+    def get_youtube_embed_url(self):
+        """Get privacy-enhanced YouTube embed URL."""
+        video_id = self.get_youtube_video_id()
+        if video_id:
+            # Use youtube-nocookie.com for GDPR compliance
+            return f"https://www.youtube-nocookie.com/embed/{video_id}?rel=0&modestbranding=1"
         return None
 
 

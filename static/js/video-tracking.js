@@ -1,23 +1,30 @@
 /**
- * Video Progress Tracking Script - Production Version
+ * Video Progress Tracking Script - YouTube Only
  * For Stream English (https://streamenglish.co.uk)
  * 
- * This script tracks user progress through video lessons and
- * sends updates to the server via AJAX requests.
+ * Modern, simplified implementation for YouTube videos only.
+ * Tracks user progress and saves to server via AJAX.
+ * 
+ * Updated: 2025 - Removed HTML5/Cloudinary support
  */
 
 // Configuration
-const SAVE_INTERVAL = 30000; // Save progress every 30 seconds
-const DEBUG = true;          // Enable debugging (set to false in production after fixing issues)
+const CONFIG = {
+  saveInterval: 30000,  // Save progress every 30 seconds
+  debug: false,         // Set to true for development debugging
+};
 
-// State variables
-let progressInterval = null;
+// State
 let player = null;
-let isInitialized = false;
+let progressInterval = null;
+let currentLessonId = null;
 
-// Debugging helpers
-function debugLog(message, data = null) {
-  if (!DEBUG) return;
+// ============================================
+// Utility Functions
+// ============================================
+
+function log(message, data = null) {
+  if (!CONFIG.debug) return;
   console.log(`[VideoTracking] ${message}`, data || '');
 }
 
@@ -25,96 +32,68 @@ function logError(message, error = null) {
   console.error(`[VideoTracking Error] ${message}`, error || '');
 }
 
-// Get CSRF token - use global variable if available, fall back to cookie
 function getCSRFToken() {
-  // First try global variable set in the template
-  if (typeof CSRF_TOKEN !== 'undefined') {
-    debugLog('Using CSRF token from global variable');
+  // Try global variable first (set in template)
+  if (typeof CSRF_TOKEN !== 'undefined' && CSRF_TOKEN) {
     return CSRF_TOKEN;
   }
 
-  // Next try cookie
-  debugLog('Getting CSRF token from cookie');
+  // Try cookie
   const name = 'csrftoken';
-  let cookieValue = null;
-
-  if (document.cookie && document.cookie !== '') {
+  if (document.cookie) {
     const cookies = document.cookie.split(';');
-    for (let i = 0; i < cookies.length; i++) {
-      const cookie = cookies[i].trim();
-      if (cookie.substring(0, name.length + 1) === (name + '=')) {
-        cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
-        break;
+    for (const cookie of cookies) {
+      const trimmed = cookie.trim();
+      if (trimmed.startsWith(name + '=')) {
+        return decodeURIComponent(trimmed.substring(name.length + 1));
       }
     }
   }
 
-  if (cookieValue) {
-    debugLog('Found CSRF token in cookie');
-    return cookieValue;
-  }
-
-  // Last try - get from meta tag
+  // Try meta tag
   const metaTag = document.querySelector('meta[name="csrf-token"]');
   if (metaTag) {
-    debugLog('Found CSRF token in meta tag');
     return metaTag.getAttribute('content');
   }
 
-  // If we get here, we couldn't find a token
-  logError('No CSRF token found!');
+  logError('No CSRF token found');
   return '';
 }
 
-// Main function to save video progress via AJAX
-async function saveVideoProgress(lessonId, currentTime, isCompleted = false) {
+// ============================================
+// Progress Saving
+// ============================================
+
+async function saveProgress(lessonId, currentTime, isCompleted = false) {
   if (!lessonId) {
-    logError('Missing lesson ID for progress update');
+    logError('Missing lesson ID');
     return null;
   }
 
-  // Make sure we have valid numbers
   currentTime = Math.floor(parseFloat(currentTime) || 0);
-
-  debugLog('Saving progress:', { lessonId, currentTime, isCompleted });
+  log('Saving progress', { lessonId, currentTime, isCompleted });
 
   try {
-    const csrftoken = getCSRFToken();
-    if (!csrftoken) {
-      throw new Error('Could not get CSRF token');
-    }
-
-    const url = `/profiles/mark-video-watched/${lessonId}/`;
-    const requestData = {
-      current_time: currentTime,
-      is_completed: Boolean(isCompleted)
-    };
-
-    debugLog('Sending request to:', url);
-    debugLog('Request data:', requestData);
-    debugLog('Using CSRF token (first 5 chars):', csrftoken.substring(0, 5) + '...');
-
-    // Create the fetch request with proper headers
-    const response = await fetch(url, {
+    const response = await fetch(`/profiles/mark-video-watched/${lessonId}/`, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
         'X-Requested-With': 'XMLHttpRequest',
-        'X-CSRFToken': csrftoken
+        'X-CSRFToken': getCSRFToken(),
       },
       credentials: 'same-origin',
-      body: JSON.stringify(requestData)
+      body: JSON.stringify({
+        current_time: currentTime,
+        is_completed: Boolean(isCompleted),
+      }),
     });
 
-    debugLog('Response status:', response.status);
-
     if (!response.ok) {
-      const errorText = await response.text();
-      throw new Error(`HTTP error! Status: ${response.status}, Message: ${errorText}`);
+      throw new Error(`HTTP ${response.status}`);
     }
 
     const data = await response.json();
-    debugLog('Response data:', data);
+    log('Progress saved', data);
 
     if (data.status === 'success' && data.course_progress !== undefined) {
       updateProgressUI(data.course_progress);
@@ -122,62 +101,63 @@ async function saveVideoProgress(lessonId, currentTime, isCompleted = false) {
 
     return data;
   } catch (error) {
-    logError('Failed to save progress:', error);
+    logError('Failed to save progress', error);
     return null;
   }
 }
 
-// Update UI elements with progress information
-function updateProgressUI(progress) {
+async function loadSavedProgress(lessonId) {
   try {
-    const progressBars = document.querySelectorAll('.course-progress');
-    debugLog(`Updating ${progressBars.length} progress bars to ${progress}%`);
-
-    progressBars.forEach(bar => {
-      bar.style.width = `${progress}%`;
-      bar.setAttribute('aria-valuenow', progress);
-
-      // Update text if present
-      const textDisplay = bar.parentElement.querySelector('.progress-text');
-      if (textDisplay) {
-        textDisplay.textContent = `${Math.round(progress)}%`;
-      }
-    });
+    const response = await fetch(`/profiles/get-video-progress/${lessonId}/`);
+    if (!response.ok) {
+      throw new Error(`HTTP ${response.status}`);
+    }
+    return await response.json();
   } catch (error) {
-    logError('Error updating progress UI:', error);
+    logError('Failed to load progress', error);
+    return null;
   }
 }
 
-// YouTube integration
+function updateProgressUI(progress) {
+  const progressBars = document.querySelectorAll('.course-progress');
+  progressBars.forEach(bar => {
+    bar.style.width = `${progress}%`;
+    bar.setAttribute('aria-valuenow', progress);
+
+    const textDisplay = bar.parentElement?.querySelector('.progress-text');
+    if (textDisplay) {
+      textDisplay.textContent = `${Math.round(progress)}%`;
+    }
+  });
+}
+
+// ============================================
+// YouTube Player
+// ============================================
+
 function initializeYouTubePlayer() {
-  debugLog('Initializing YouTube player');
-
-  const playerElement = document.getElementById('youtube-player');
-  if (!playerElement) {
-    debugLog('No YouTube player element found');
+  const container = document.getElementById('youtube-player');
+  if (!container) {
+    log('No YouTube player container found');
     return;
   }
 
-  const lessonId = playerElement.dataset.lessonId;
-  const videoId = playerElement.dataset.videoId;
+  const lessonId = container.dataset.lessonId;
+  const videoId = container.dataset.videoId;
 
-  if (!lessonId) {
-    logError('YouTube player missing lesson ID attribute');
+  if (!lessonId || !videoId) {
+    logError('Missing lesson ID or video ID');
     return;
   }
 
-  if (!videoId) {
-    logError('YouTube player missing video ID attribute');
-    return;
-  }
+  currentLessonId = lessonId;
+  log('Initializing YouTube player', { lessonId, videoId });
 
-  debugLog('Found YouTube player for lesson:', lessonId);
-  debugLog('Video ID:', videoId);
-
-  // Make sure the YouTube API is loaded
+  // Check if YT API is ready
   if (typeof YT === 'undefined' || typeof YT.Player === 'undefined') {
-    debugLog('YouTube API not yet loaded, waiting...');
-    setTimeout(initializeYouTubePlayer, 1000);
+    log('YouTube API not ready, waiting...');
+    setTimeout(initializeYouTubePlayer, 500);
     return;
   }
 
@@ -186,214 +166,199 @@ function initializeYouTubePlayer() {
       videoId: videoId,
       width: '100%',
       height: '100%',
+      host: 'https://www.youtube-nocookie.com', // Privacy-enhanced mode
       playerVars: {
-        'playsinline': 1,
-        'enablejsapi': 1,
-        'rel': 0
+        playsinline: 1,
+        enablejsapi: 1,
+        rel: 0,
+        modestbranding: 1,
+        origin: window.location.origin,
       },
       events: {
-        'onReady': (event) => onPlayerReady(event, lessonId),
-        'onStateChange': (event) => onPlayerStateChange(event, lessonId),
-        'onError': onPlayerError
-      }
+        onReady: onPlayerReady,
+        onStateChange: onPlayerStateChange,
+        onError: onPlayerError,
+      },
     });
 
-    isInitialized = true;
-    debugLog('YouTube player initialized successfully');
+    log('YouTube player created');
   } catch (error) {
-    logError('Failed to initialize YouTube player:', error);
+    logError('Failed to create YouTube player', error);
   }
 }
 
-// Load saved progress when player is ready
-async function onPlayerReady(event, lessonId) {
-  debugLog('YouTube player ready for lesson:', lessonId);
+async function onPlayerReady(event) {
+  log('Player ready');
 
-  try {
-    // Load saved progress
-    const response = await fetch(`/profiles/get-video-progress/${lessonId}/`);
-
-    if (!response.ok) {
-      throw new Error(`Failed to load progress: ${response.status}`);
-    }
-
-    const data = await response.json();
-    debugLog('Retrieved saved progress:', data);
-
-    // Seek to saved position if available
-    if (data.current_time && data.current_time > 0) {
-      debugLog('Seeking to saved position:', data.current_time);
-      event.target.seekTo(data.current_time);
-    }
-  } catch (error) {
-    logError('Error loading saved progress:', error);
+  // Load and restore saved progress
+  const savedData = await loadSavedProgress(currentLessonId);
+  if (savedData?.current_time > 0) {
+    log('Restoring position', savedData.current_time);
+    event.target.seekTo(savedData.current_time);
   }
 }
 
-// Handle player state changes
-function onPlayerStateChange(event, lessonId) {
-  const stateNames = {
-    '-1': 'unstarted',
-    '0': 'ended',
-    '1': 'playing',
-    '2': 'paused',
-    '3': 'buffering',
-    '5': 'video cued'
+function onPlayerStateChange(event) {
+  const states = {
+    [-1]: 'unstarted',
+    [0]: 'ended',
+    [1]: 'playing',
+    [2]: 'paused',
+    [3]: 'buffering',
+    [5]: 'cued',
   };
 
-  debugLog(`Player state changed to ${stateNames[event.data] || event.data}`, { lessonId });
+  log(`State changed: ${states[event.data] || event.data}`);
 
-  // Clear existing interval if any
+  // Clear existing interval
   if (progressInterval) {
     clearInterval(progressInterval);
     progressInterval = null;
   }
 
-  // Handle different states
   switch (event.data) {
     case YT.PlayerState.PLAYING:
-      debugLog('Video playing - starting progress tracking');
+      // Start periodic saving
       progressInterval = setInterval(() => {
-        if (player && typeof player.getCurrentTime === 'function') {
-          saveVideoProgress(lessonId, player.getCurrentTime());
+        if (player?.getCurrentTime) {
+          saveProgress(currentLessonId, player.getCurrentTime());
         }
-      }, SAVE_INTERVAL);
+      }, CONFIG.saveInterval);
       break;
 
     case YT.PlayerState.PAUSED:
-      debugLog('Video paused - saving current progress');
-      if (player && typeof player.getCurrentTime === 'function') {
-        saveVideoProgress(lessonId, player.getCurrentTime());
+      // Save immediately on pause
+      if (player?.getCurrentTime) {
+        saveProgress(currentLessonId, player.getCurrentTime());
       }
       break;
 
     case YT.PlayerState.ENDED:
-      debugLog('Video ended - marking as completed');
-      if (player && typeof player.getCurrentTime === 'function') {
-        saveVideoProgress(lessonId, player.getDuration(), true);
+      // Mark as completed
+      if (player?.getDuration) {
+        saveProgress(currentLessonId, player.getDuration(), true);
       }
       break;
   }
 }
 
-// Handle player errors
 function onPlayerError(event) {
-  const errorMessages = {
-    2: 'Invalid parameter',
+  const errors = {
+    2: 'Invalid video ID',
     5: 'HTML5 player error',
     100: 'Video not found or private',
-    101: 'Embedding not allowed',
-    150: 'Embedding not allowed'
+    101: 'Embedding disabled by owner',
+    150: 'Embedding disabled by owner',
   };
 
-  const errorMessage = errorMessages[event.data] || `Unknown error code ${event.data}`;
-  logError(`YouTube player error: ${errorMessage}`);
+  logError(`YouTube error: ${errors[event.data] || `Code ${event.data}`}`);
+
+  // Show user-friendly error message
+  const container = document.getElementById('youtube-player');
+  if (container) {
+    container.innerHTML = `
+      <div class="flex items-center justify-center h-full bg-gray-100 rounded-lg">
+        <div class="text-center p-8">
+          <svg class="mx-auto h-12 w-12 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 10l4.553-2.276A1 1 0 0121 8.618v6.764a1 1 0 01-1.447.894L15 14M5 18h8a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v8a2 2 0 002 2z" />
+          </svg>
+          <h3 class="mt-2 text-sm font-medium text-gray-900">Video unavailable</h3>
+          <p class="mt-1 text-sm text-gray-500">This video cannot be played at the moment.</p>
+        </div>
+      </div>
+    `;
+  }
 }
 
-// HTML5 video integration
-function initializeHTML5Video() {
-  const videoElement = document.getElementById('html5-player');
-  if (!videoElement) {
-    return; // No HTML5 video on this page
-  }
+// ============================================
+// Thumbnail Click-to-Load (Lazy Loading)
+// ============================================
 
-  const lessonId = videoElement.dataset.lessonId;
-  if (!lessonId) {
-    logError('HTML5 video player missing lesson ID attribute');
-    return;
-  }
+function initializeThumbnailPlayer() {
+  const thumbnail = document.getElementById('video-thumbnail');
+  if (!thumbnail) return;
 
-  debugLog('Found HTML5 video for lesson:', lessonId);
+  thumbnail.addEventListener('click', () => {
+    const container = thumbnail.closest('.video-container');
+    const videoId = thumbnail.dataset.videoId;
+    const lessonId = thumbnail.dataset.lessonId;
 
-  // Load saved progress
-  fetch(`/profiles/get-video-progress/${lessonId}/`)
-    .then(response => {
-      if (!response.ok) {
-        throw new Error(`Failed to load progress: ${response.status}`);
+    if (!container || !videoId) return;
+
+    // Replace thumbnail with player div
+    container.innerHTML = `
+      <div id="youtube-player" 
+           data-lesson-id="${lessonId}"
+           data-video-id="${videoId}"
+           class="absolute top-0 left-0 w-full h-full">
+      </div>
+    `;
+
+    // Initialize player
+    initializeYouTubePlayer();
+
+    // Auto-play after initialization
+    const checkAndPlay = setInterval(() => {
+      if (player?.playVideo) {
+        player.playVideo();
+        clearInterval(checkAndPlay);
       }
-      return response.json();
-    })
-    .then(data => {
-      // Seek to saved position if available
-      if (data.current_time && data.current_time > 0) {
-        debugLog('Seeking HTML5 video to saved position:', data.current_time);
-        videoElement.currentTime = data.current_time;
-      }
-    })
-    .catch(error => {
-      logError('Error loading HTML5 video progress:', error);
-    });
+    }, 100);
 
-  // Set up event listeners
-  videoElement.addEventListener('play', function () {
-    debugLog('HTML5 video started playing');
-    if (progressInterval) clearInterval(progressInterval);
-
-    progressInterval = setInterval(() => {
-      saveVideoProgress(lessonId, this.currentTime);
-    }, SAVE_INTERVAL);
-  });
-
-  videoElement.addEventListener('pause', function () {
-    debugLog('HTML5 video paused');
-    if (progressInterval) clearInterval(progressInterval);
-    saveVideoProgress(lessonId, this.currentTime);
-  });
-
-  videoElement.addEventListener('ended', function () {
-    debugLog('HTML5 video ended - marking as completed');
-    if (progressInterval) clearInterval(progressInterval);
-    saveVideoProgress(lessonId, this.duration, true);
-  });
-
-  videoElement.addEventListener('error', function (e) {
-    const errorMessages = [
-      'MEDIA_ERR_ABORTED',
-      'MEDIA_ERR_NETWORK',
-      'MEDIA_ERR_DECODE',
-      'MEDIA_ERR_SRC_NOT_SUPPORTED'
-    ];
-
-    const errorCode = this.error ? this.error.code : 0;
-    const errorMessage = errorMessages[errorCode - 1] || 'Unknown error';
-    logError(`HTML5 video error: ${errorMessage}`);
+    // Timeout after 5 seconds
+    setTimeout(() => clearInterval(checkAndPlay), 5000);
   });
 }
 
-// YouTube API callback
+// ============================================
+// YouTube API Callback & Initialization
+// ============================================
+
 window.onYouTubeIframeAPIReady = function () {
-  debugLog('YouTube IFrame API Ready');
+  log('YouTube IFrame API Ready');
   initializeYouTubePlayer();
 };
 
-// Initialization
-document.addEventListener('DOMContentLoaded', function () {
-  debugLog('DOM Content Loaded - Starting video tracking initialization');
+document.addEventListener('DOMContentLoaded', () => {
+  log('DOM loaded - initializing video tracking');
 
-  // Check for video elements
-  const hasYouTubeVideo = !!document.getElementById('youtube-player');
-  const hasHTML5Video = !!document.getElementById('html5-player');
+  const hasPlayer = document.getElementById('youtube-player');
+  const hasThumbnail = document.getElementById('video-thumbnail');
 
-  if (hasYouTubeVideo) {
-    debugLog('Found YouTube video - loading API');
-    // Load YouTube API if not already loaded
-    if (typeof YT === 'undefined' || typeof YT.Player === 'undefined') {
+  if (hasPlayer) {
+    // Load YouTube API if needed
+    if (typeof YT === 'undefined') {
       const tag = document.createElement('script');
-      tag.src = "https://www.youtube.com/iframe_api";
-      const firstScriptTag = document.getElementsByTagName('script')[0];
-      firstScriptTag.parentNode.insertBefore(tag, firstScriptTag);
-      debugLog('YouTube API script added to page');
+      tag.src = 'https://www.youtube.com/iframe_api';
+      document.head.appendChild(tag);
+      log('Loading YouTube API');
     } else {
       initializeYouTubePlayer();
     }
+  } else if (hasThumbnail) {
+    // Set up click-to-load
+    initializeThumbnailPlayer();
+    log('Thumbnail click-to-load ready');
+  } else {
+    log('No video elements on this page');
   }
+});
 
-  if (hasHTML5Video) {
-    debugLog('Found HTML5 video - initializing');
-    initializeHTML5Video();
+// Cleanup on page unload
+window.addEventListener('beforeunload', () => {
+  if (progressInterval) {
+    clearInterval(progressInterval);
   }
-
-  if (!hasYouTubeVideo && !hasHTML5Video) {
-    debugLog('No video elements found on this page');
+  // Final save attempt
+  if (player?.getCurrentTime && currentLessonId) {
+    // Use sendBeacon for reliability during unload
+    const data = JSON.stringify({
+      current_time: Math.floor(player.getCurrentTime()),
+      is_completed: false,
+    });
+    navigator.sendBeacon?.(
+      `/profiles/mark-video-watched/${currentLessonId}/`,
+      new Blob([data], { type: 'application/json' })
+    );
   }
 });
