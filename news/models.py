@@ -62,9 +62,7 @@ class Post(models.Model):
         help_text="External URL for product image (jpg/png only)",
     )
     youtube_url = models.URLField(blank=True, null=True)
-    thumbnail = models.ImageField(
-        upload_to="news/thumbnails/", null=True, blank=True, storage=public_storage
-    )
+
     resource_type = models.CharField(
         max_length=20, choices=RESOURCE_TYPES, default="none"
     )
@@ -140,63 +138,43 @@ class Post(models.Model):
         super().save(*args, **kwargs)
 
     def get_display_image(self):
-        """Get image URL from either uploaded image, thumbnail, or YouTube video"""
-        if self.image:
-            return self.image.build_url()
-        elif self.thumbnail:
-            return self.thumbnail.build_url()
-        elif self.youtube_url:
-            # Extract video ID and return YouTube thumbnail
-            if "youtu.be" in self.youtube_url:
-                video_id = self.youtube_url.split("/")[-1]
-            elif "v=" in self.youtube_url:
-                video_id = self.youtube_url.split("v=")[1].split("&")[0]
-            else:
-                return None
-            return f"https://img.youtube.com/vi/{video_id}/maxresdefault.jpg"
-        return None
+        """
+        Get image URL from uploaded image, thumbnail, or YouTube video thumbnail.
+        Order:
+        1. Uploaded image
+        2. Local thumbnail
+        3. YouTube thumbnail (if video URL exists)
+        """
 
-    def get_thumbnail_url(self):
-        """Get the thumbnail URL - falls back to main image if no thumbnail"""
+        # 1. Uploaded main image
+        if self.image:
+            return self.image.url
+
+        # 2. Thumbnail (local stored image)
         if self.thumbnail:
             return self.thumbnail.url
-        elif self.image:
-            return self.image.url
-        return None
 
-    def get_youtube_video_id(self):
-        """Extract YouTube video ID from URL"""
-        if not self.youtube_url:
-            return None
-
-        if "youtu.be" in self.youtube_url:
-            return self.youtube_url.split("/")[-1]
-        elif "v=" in self.youtube_url:
-            return self.youtube_url.split("v=")[1].split("&")[0]
-
-        return None
-
-    def get_youtube_thumbnail(self):
-        """Get YouTube video thumbnail URL"""
+        # 3. YouTube video thumbnail
         if self.youtube_url:
-            # Extract video ID from different possible YouTube URL formats
-            if "youtu.be" in self.youtube_url:
-                video_id = self.youtube_url.split("/")[-1]
-            elif "v=" in self.youtube_url:
-                video_id = self.youtube_url.split("v=")[1].split("&")[0]
+            url = self.youtube_url.strip()
+
+            # youtu.be short links
+            if "youtu.be" in url:
+                video_id = url.split("/")[-1]
+
+            # standard watch?v= links
+            elif "watch?v=" in url:
+                video_id = url.split("watch?v=")[1].split("&")[0]
+
+            # embed links
+            elif "/embed/" in url:
+                video_id = url.split("/embed/")[1].split("?")[0]
+
+            # fallback attempt
             else:
                 return None
-            return f"https://img.youtube.com/vi/{video_id}/maxresdefault.jpg"
-        return None
 
-    def get_youtube_embed_url(self):
-        """Get YouTube video embed URL"""
-        if self.youtube_url:
-            if "youtu.be" in self.youtube_url:
-                video_id = self.youtube_url.split("/")[-1]
-            elif "v=" in self.youtube_url:
-                video_id = self.youtube_url.split("v=")[1].split("&")[0]
-            else:
-                return None
-            return f"https://www.youtube.com/embed/{video_id}"
+            return f"https://img.youtube.com/vi/{video_id}/hqdefault.jpg"
+
+        # Nothing found
         return None

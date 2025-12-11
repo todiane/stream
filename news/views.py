@@ -79,6 +79,7 @@ def post_detail(request, slug):
         )
         .exclude(id=post.id)
         .select_related("category")[:2]
+        .order_by("-publish_date")[:2]
     )
 
     context = {

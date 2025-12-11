@@ -9,7 +9,7 @@
         <article class="bg-white rounded-lg shadow-lg overflow-hidden">
             <a href="{{ post.get_absolute_url }}" class="block">
                 <div class="w-full h-48 overflow-hidden">
-                    <div class="w-full h-48 overflow-hidden">
+                    
                         {% if post.external_image_url %}
                             <img src="{{ post.external_image_url }}" 
                                 alt="{{ post.title }}" 
@@ -24,7 +24,7 @@
                                  class="w-full h-full object-cover"
                                  onerror="this.onerror=null; this.src='https://img.youtube.com/vi/{{ post.get_youtube_video_id }}/hqdefault.jpg';">
                         {% endif %}
-                    </div>
+                    
                 </div>
                 <div class="p-6">
                     <h2 class="text-xl font-bold text-gray-900 mb-2">{{ post.title }}</h2>
