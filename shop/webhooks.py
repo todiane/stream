@@ -5,7 +5,7 @@ from django.http import HttpResponse
 from django.views.decorators.csrf import csrf_exempt
 from django.views.decorators.http import require_POST
 from .models import Order
-from .emails import send_download_link_email
+from .emails import send_download_link_email, send_order_confirmation_email
 
 logger = logging.getLogger(__name__)
 
@@ -20,48 +20,62 @@ def stripe_webhook(request):
         event = stripe.Webhook.construct_event(
             payload, sig_header, settings.STRIPE_WEBHOOK_SECRET
         )
-    except (ValueError, stripe.error.SignatureVerificationError) as e:
-        logger.error(f"Stripe webhook error: {str(e)}")
+    except Exception as e:
+        logger.error(f"Webhook error: {str(e)}")
         return HttpResponse(status=400)
 
     event_type = event["type"]
-    payment_intent = event["data"]["object"]
+    data = event["data"]["object"]
 
     if event_type == "payment_intent.succeeded":
-        handle_payment_intent_succeeded(payment_intent)
+        _handle_payment_intent_succeeded(data)
+
     elif event_type == "payment_intent.payment_failed":
-        handle_payment_intent_failed(payment_intent)
+        _handle_payment_intent_failed(data)
 
     return HttpResponse(status=200)
 
 
-def handle_payment_intent_succeeded(payment_intent):
-    order = Order.objects.filter(
-        payment_intent_id=payment_intent.id, status="pending"
-    ).first()
+def _handle_payment_intent_succeeded(payment_intent):
+    payment_intent_id = payment_intent.id
 
-    if order:
-        order.status = "completed"
-        order.paid = True
-        order.save()
+    order = Order.objects.filter(payment_intent_id=payment_intent_id).first()
+    if not order:
+        logger.error(f"Order not found for PaymentIntent {payment_intent_id}")
+        return
 
-        for order_item in order.items.all():
-            product = order_item.product
-            product.purchase_count += order_item.quantity
-            product.save()
+    if order.paid:
+        logger.info(f"Order {order.order_id} already completed. Skipping.")
+        return
 
-        try:
-            for order_item in order.items.all():
-                send_download_link_email(order_item)
-        except Exception as e:
-            logger.error(f"Error sending download emails in webhook: {str(e)}")
+    logger.info(f"Completing order {order.order_id}")
+
+    order.paid = True
+    order.status = "completed"
+    order.save()
+
+    # Fulfil products
+    try:
+        for item in order.items.all():
+            item.product.purchase_count += item.quantity
+            item.product.save()
+            send_download_link_email(item)
+    except Exception as e:
+        logger.error(f"Download email error: {str(e)}")
+
+    # Confirmation email
+    try:
+        send_order_confirmation_email(order)
+    except Exception as e:
+        logger.error(f"Order confirmation email error: {str(e)}")
 
 
-def handle_payment_intent_failed(payment_intent):
-    order = Order.objects.filter(
-        payment_intent_id=payment_intent.id, status="pending"
-    ).first()
+def _handle_payment_intent_failed(payment_intent):
+    payment_intent_id = payment_intent.id
 
-    if order:
-        order.status = "failed"
-        order.save()
+    order = Order.objects.filter(payment_intent_id=payment_intent_id).first()
+    if not order:
+        return
+
+    order.status = "failed"
+    order.save()

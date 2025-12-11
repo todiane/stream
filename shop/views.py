@@ -1,21 +1,21 @@
 # shop/views.py
-from .models import Category, GuestDetails, Product, Order, OrderItem
+from .models import Category, Product, Order, OrderItem
 from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib.auth.decorators import login_required
 from django.contrib import messages
 from django.conf import settings
 from django.core.exceptions import PermissionDenied
-from django.http import HttpResponse, HttpResponseBadRequest, FileResponse, Http404
+from django.http import FileResponse, Http404
 from django.views.decorators.http import require_POST, require_http_methods
+from .emails import send_download_link_email
 from django.core.paginator import Paginator
-from django.views.decorators.csrf import csrf_exempt
 import stripe
 import os
 import logging
 import mimetypes
 from wsgiref.util import FileWrapper
-from shop.forms import GuestDetailsForm, ProductReviewForm
-from .emails import send_order_confirmation_email, send_download_link_email
+from shop.forms import ProductReviewForm
+
 from .cart import Cart
 
 stripe.api_key = settings.STRIPE_SECRET_KEY
@@ -124,128 +124,46 @@ def cart_update(request, product_id):
     return redirect("shop:cart_detail")
 
 
+@login_required
 def checkout(request):
     cart = Cart(request)
+
     if len(cart) == 0:
         messages.error(request, "Your cart is empty.")
         return redirect("shop:cart_detail")
 
-    guest_form = None
-    if not request.user.is_authenticated:
-        if request.method == "POST":
-            guest_form = GuestDetailsForm(request.POST)
-            if guest_form.is_valid():
-                request.session["guest_details"] = {
-                    "first_name": guest_form.cleaned_data["first_name"],
-                    "last_name": guest_form.cleaned_data["last_name"],
-                    "email": guest_form.cleaned_data["email"],
-                    "phone": guest_form.cleaned_data["phone"],
-                }
-            else:
-                return HttpResponseBadRequest("Invalid form data")
-        else:
-            guest_form = GuestDetailsForm()
-
     try:
         total_price = cart.get_total_price()
-
         if total_price <= 0:
-            messages.error(request, "Invalid cart total")
+            messages.error(request, "Invalid cart total.")
             return redirect("shop:cart_detail")
 
+        # Always use logged-in user's email
+        email = request.user.email
+
+        # Create PaymentIntent
         payment_intent_data = {
             "amount": int(total_price * 100),
             "currency": "gbp",
             "payment_method_types": ["card"],
             "metadata": {
-                "user_id": (
-                    str(request.user.id) if request.user.is_authenticated else "guest"
-                ),
-                "is_guest": str(not request.user.is_authenticated),
+                "user_id": str(request.user.id),
             },
+            "receipt_email": email,
         }
-
-        if request.user.is_authenticated:
-            payment_intent_data["receipt_email"] = request.user.email
-        elif "guest_details" in request.session:
-            payment_intent_data["receipt_email"] = request.session["guest_details"][
-                "email"
-            ]
 
         intent = stripe.PaymentIntent.create(**payment_intent_data)
 
-        context = {
-            "client_secret": intent.client_secret,
-            "stripe_publishable_key": settings.STRIPE_PUBLISHABLE_KEY,
-            "cart": cart,
-            "guest_form": guest_form,
-            "is_guest": not request.user.is_authenticated,
-            "payment_intent_id": intent.id,
-        }
-
-        return render(request, "shop/checkout.html", context)
-
-    except stripe.error.StripeError as e:
-        logger.error(f"Stripe error: {str(e)}")
-        messages.error(request, f"Payment processing error: {str(e)}")
-        return redirect("shop:cart_detail")
-    except Exception as e:
-        logger.error(f"Checkout error: {str(e)}")
-        messages.error(request, "An error occurred during checkout. Please try again.")
-        return redirect("shop:cart_detail")
-
-
-def payment_success(request):
-    payment_intent_id = request.GET.get("payment_intent")
-    if not payment_intent_id:
-        messages.error(request, "No payment information found.")
-        return redirect("shop:cart_detail")
-
-    try:
-        # Verify payment with Stripe
-        payment_intent = stripe.PaymentIntent.retrieve(payment_intent_id)
-        if payment_intent.status != "succeeded":
-            logger.warning(f"Payment intent {payment_intent_id} not succeeded")
-            messages.error(request, "Payment was not successful.")
-            return redirect("shop:cart_detail")
-
-        cart = Cart(request)
-        guest_details = request.session.get("guest_details", {})
-
-        # Get email safely
-        email = None
-        if request.user.is_authenticated:
-            email = request.user.email
-        elif guest_details:
-            email = guest_details.get("email")
-
-        if not email:
-            logger.error("No email found for order creation")
-            messages.error(request, "User email not found.")
-            return redirect("shop:cart_detail")
-
-        # Create order
+        # Create order immediately (pending)
         order = Order.objects.create(
-            user=request.user if request.user.is_authenticated else None,
+            user=request.user,
             email=email,
-            payment_intent_id=payment_intent_id,
-            paid=True,
-            status="completed",
+            payment_intent_id=intent.id,
+            paid=False,
+            status="pending",
         )
-        logger.info(f"Order {order.order_id} created successfully")
 
-        # Handle guest details
-        if not request.user.is_authenticated and guest_details:
-            GuestDetails.objects.create(
-                order=order,
-                first_name=guest_details.get("first_name", ""),
-                last_name=guest_details.get("last_name", ""),
-                email=guest_details.get("email", ""),
-                phone=guest_details.get("phone", ""),
-            )
-            request.session.pop("guest_details", None)
-
-        # Create order items and send download emails
+        # Add items to order
         for item in cart:
             OrderItem.objects.create(
                 order=order,
@@ -255,39 +173,50 @@ def payment_success(request):
                 downloads_remaining=item["product"].download_limit,
             )
 
-            # Increment purchase count for the product
-            product = item["product"]
-            product.purchase_count += item["quantity"]
-            product.save()
+        context = {
+            "client_secret": intent.client_secret,
+            "stripe_publishable_key": settings.STRIPE_PUBLISHABLE_KEY,
+            "cart": cart,
+        }
 
-            logger.info(
-                f"Order item created for product {item['product'].title} in order {order.order_id}"
-            )
+        return render(request, "shop/checkout.html", context)
 
-        # Send order confirmation email
-        try:
-            send_order_confirmation_email(order)
-        except Exception as e:
-            logger.error(
-                f"Failed to send order confirmation email for order {order.order_id}: {str(e)}"
-            )
+    except Exception as e:
+        logger.error(f"Checkout error: {str(e)}")
+        messages.error(request, "An error occurred during checkout. Please try again.")
+        return redirect("shop:cart_detail")
 
+
+@login_required
+def payment_success(request):
+    payment_intent_id = request.GET.get("payment_intent")
+    if not payment_intent_id:
+        messages.error(request, "No payment information found.")
+        return redirect("shop:cart_detail")
+
+    try:
+        # Get the order created during checkout
+        order = Order.objects.filter(
+            payment_intent_id=payment_intent_id, user=request.user
+        ).first()
+
+        if not order:
+            messages.error(request, "Order not found.")
+            return redirect("shop:cart_detail")
+
+        # Clear cart
+        cart = Cart(request)
         cart.clear()
-        logger.info(f"Order {order.order_id} completed successfully")
 
         return render(
             request,
             "shop/success.html",
-            {"order": order, "is_guest": not request.user.is_authenticated},
+            {"order": order, "is_guest": False},
         )
 
-    except stripe.error.StripeError as e:
-        logger.error(f"Stripe error processing payment: {str(e)}")
-        messages.error(request, f"Error processing payment: {str(e)}")
-        return redirect("shop:cart_detail")
     except Exception as e:
-        logger.error(f"Unexpected error in payment success: {str(e)}")
-        messages.error(request, "There was an error processing your order.")
+        logger.error(f"Payment success error: {str(e)}")
+        messages.error(request, "Error displaying your order.")
         return redirect("shop:cart_detail")
 
 
@@ -299,44 +228,39 @@ def payment_cancel(request):
 @login_required
 def download_product(request, product_id):
     product = get_object_or_404(Product, id=product_id)
+
+    # Ensure the logged-in user purchased this product
     order_item = OrderItem.objects.filter(
-        order__user=request.user, product=product
+        order__user=request.user,
+        product=product,
+        order__status="completed",
     ).first()
 
     if not order_item:
         messages.error(request, "You have not purchased this product.")
         return redirect("shop:product_detail", slug=product.slug)
 
-    if order_item.download_count >= settings.MAX_DOWNLOAD_LIMIT:
-        messages.error(request, "You have reached the download limit for this product.")
-        return redirect("shop:purchases")
+    # Enforce download limit for digital products only
+    if product.product_type == "download":
+        if order_item.download_count >= order_item.downloads_remaining:
+            messages.error(
+                request, "You have reached the download limit for this product."
+            )
+            return redirect("shop:purchases")
 
-    # Increment download count
-    order_item.download_count += 1
-    order_item.save()
+        # Increment download count
+        order_item.download_count += 1
+        order_item.save()
 
-    # Send download link email
+    # Email user the download link (optional)
     try:
-        context = {
-            "order_item": order_item,
-            "product": order_item.product,
-            "site_url": settings.SITE_URL,
-            "downloads_remaining": order_item.downloads_remaining,
-            "user": order_item.order.user,
-            "email": (
-                order_item.order.user.email
-                if order_item.order.user
-                else order_item.order.guest_details.email
-            ),
-            "unsubscribe_url": f"{settings.SITE_URL}/profiles/email-preferences/",
-        }
-        send_download_link_email(order_item, context)
+        send_download_link_email(order_item)
     except Exception as e:
         logger.error(
             f"Failed to send download email for order item {order_item.id}: {str(e)}"
         )
 
-    # Get download URL
+    # Get direct download URL
     download_url = product.get_download_url()
     if not download_url:
         messages.error(request, "Download URL not available.")
@@ -384,55 +308,6 @@ def order_history(request):
 def order_detail(request, order_id):
     order = get_object_or_404(Order, order_id=order_id, user=request.user)
     return render(request, "shop/order_detail.html", {"order": order})
-
-
-@csrf_exempt
-@require_POST
-def stripe_webhook(request):
-    payload = request.body
-    sig_header = request.META.get("HTTP_STRIPE_SIGNATURE")
-
-    try:
-        event = stripe.Webhook.construct_event(
-            payload, sig_header, settings.STRIPE_WEBHOOK_SECRET
-        )
-    except ValueError as e:
-        logger.error(f"Something failed: {str(e)}")
-        return HttpResponse(status=400)
-    except stripe.error.SignatureVerificationError as e:
-        logger.error(f"Something failed: {str(e)}")
-        return HttpResponse(status=400)
-
-    if event.type == "payment_intent.succeeded":
-        payment_intent = event.data.object
-        handle_successful_payment(payment_intent)
-    elif event.type == "payment_intent.payment_failed":
-        payment_intent = event.data.object
-        handle_failed_payment(payment_intent)
-
-    return HttpResponse(status=200)
-
-
-def handle_successful_payment(payment_intent):
-    order = Order.objects.filter(payment_intent_id=payment_intent.id).first()
-    if order and not order.paid:
-        order.paid = True
-        order.status = "completed"
-        order.save()
-
-        # Send emails for each order item
-        try:
-            for order_item in order.items.all():
-                send_download_link_email(order_item)
-        except Exception as e:
-            print(f"Error sending download emails in webhook: {str(e)}")
-
-
-def handle_failed_payment(payment_intent):
-    order = Order.objects.filter(payment_intent_id=payment_intent.id).first()
-    if order:
-        order.status = "failed"
-        order.save()
 
 
 @login_required

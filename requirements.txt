@@ -18,7 +18,6 @@ protobuf
 
 python-http-client
 requests
-sendgrid
 starkbank-ecdsa
 stripe
 urllib3

@@ -30,6 +30,8 @@ INSTALLED_APPS = [
     "news",
     "pages",
     "redirects",
+    "widget_tweaks",
+    "tinymce",
 ]
 
 MIDDLEWARE = [
@@ -125,8 +127,8 @@ SESSION_COOKIE_HTTPONLY = True
 
 
 # Rate limiting (login security)
-IP_RATE_LIMIT_TIMEOUT = 60  # seconds
-IP_RATE_LIMIT_MAX_ATTEMPTS = 5  # adjust based on your middleware
+IP_RATE_LIMIT_TIMEOUT = 120
+IP_RATE_LIMIT_MAX_ATTEMPTS = 10  # adjust based on your middleware
 
 # Authentication
 LOGIN_URL = "/profiles/login/"

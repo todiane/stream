@@ -47,10 +47,10 @@ class Hero(models.Model):
 
     def get_youtube_video_id(self):
         """Extract YouTube video ID from URL."""
-        if not self.youtube_url:
+        if not self.video_url:  # Changed from youtube_url
             return None
 
-        url = self.youtube_url
+        url = self.video_url  # Changed from youtube_url
 
         if "youtu.be" in url:
             return url.split("/")[-1].split("?")[0]

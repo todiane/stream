@@ -34,27 +34,62 @@
                 </div>
                 {% endif %}
             </div>
-
             <!-- Video Container -->
-            <div class="w-full lg:w-1/2">
-                <div class="relative w-full" style="padding-bottom: 56.25%;">
-                    {% if hero.video_url %}
-                        {% with video_id=hero.get_youtube_video_id %}
-                        {% if video_id %}
-                            <iframe 
-                                class="absolute top-0 left-0 w-full h-full rounded-lg shadow-lg"
-                                src="https://www.youtube-nocookie.com/embed/{{ video_id }}?rel=0&modestbranding=1&playsinline=1"
-                                title="{{ hero.title }}"
-                                frameborder="0"
-                                loading="lazy"
-                                allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
-                                allowfullscreen>
-                            </iframe>
-                        {% endif %}
-                        {% endwith %}
+            <div class="w-full lg:w-1/2 max-w-2xl mx-auto">
+                <div class="relative w-full max-w-2xl mx-auto" style="padding-bottom: 56.25%;">
+                    {% with video_id=hero.get_youtube_video_id %}
+                    {% if video_id %}
+
+                    <!-- Thumbnail first -->
+                    <button id="hero-video-thumbnail"
+                            data-video-id="{{ video_id }}"
+                            class="absolute inset-0 w-full h-full group cursor-pointer">
+                        
+                        <img src="https://img.youtube.com/vi/{{ video_id }}/maxresdefault.jpg"
+                            alt="{{ hero.title }}"
+                            class="w-full h-full object-cover rounded-lg shadow-lg">
+
+                        <div class="absolute inset-0 flex items-center justify-center bg-black/30 group-hover:bg-black/40 transition">
+                            <div class="w-20 h-20 bg-red-600 rounded-full flex items-center justify-center shadow-lg group-hover:bg-red-700 group-hover:scale-110 transition-all">
+                                <svg class="w-10 h-10 text-white ml-1" fill="currentColor" viewBox="0 0 24 24">
+                                    <path d="M8 5v14l11-7z"/>
+                                </svg>
+                            </div>
+                        </div>
+                    </button>
+
+                    <div id="hero-youtube-player"
+                        data-video-id="{{ video_id }}"
+                        class="absolute top-0 left-0 w-full h-full hidden">
+                    </div>
+
                     {% endif %}
+                    {% endwith %}
                 </div>
             </div>
+
+            <script>
+            document.addEventListener("DOMContentLoaded", () => {
+                const thumb = document.getElementById("hero-video-thumbnail");
+                const player = document.getElementById("hero-youtube-player");
+
+                if (thumb && player) {
+                    thumb.addEventListener("click", () => {
+                        const videoId = thumb.dataset.videoId;
+                        thumb.classList.add("hidden");
+                        player.classList.remove("hidden");
+                        player.innerHTML = `
+                            <iframe class="w-full h-full rounded-lg shadow-lg"
+                                    src="https://www.youtube-nocookie.com/embed/${videoId}?rel=0&modestbranding=1&autoplay=1"
+                                    frameborder="0"
+                                    allow="autoplay; encrypted-media"
+                                    allowfullscreen>
+                            </iframe>`;
+                    });
+                }
+            });
+            </script>
+
         </div>
     </div>
 </section>
