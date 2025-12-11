@@ -71,14 +71,15 @@ def post_detail(request, slug):
         .order_by("-publish_date")
         .first()
     )
-
     # Get related posts from same category
     related_posts = (
         Post.objects.filter(
-            status="published", publish_date__lte=timezone.now(), category=post.category
+            status="published",
+            publish_date__lte=timezone.now(),
+            category=post.category,
         )
         .exclude(id=post.id)
-        .select_related("category")[:2]
+        .select_related("category")
         .order_by("-publish_date")[:2]
     )
 
