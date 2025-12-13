@@ -8,7 +8,7 @@ from .base import *
 import os
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = True
+DEBUG = False
 
 
 ALLOWED_HOSTS = [
@@ -16,7 +16,7 @@ ALLOWED_HOSTS = [
     "www.streamenglish.co.uk",
 ]
 
-SITE_ID = 1
+SITE_ID = 2
 
 
 # Email configuration - production SMTP
@@ -90,4 +90,10 @@ LOGGING = {
             "propagate": False,
         },
     },
+}
+
+CACHES = {
+    "default": {
+        "BACKEND": "django.core.cache.backends.locmem.LocMemCache",
+    }
 }
