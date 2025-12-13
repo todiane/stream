@@ -12,7 +12,6 @@ env.read_env(os.path.join(BASE_DIR, ".env"))
 # SECRET_KEY
 SECRET_KEY = env("SECRET_KEY")
 
-DEBUG = False
 
 # Application definition
 INSTALLED_APPS = [
@@ -39,6 +38,7 @@ MIDDLEWARE = [
     "django.contrib.sessions.middleware.SessionMiddleware",
     "django.middleware.common.CommonMiddleware",
     "django.middleware.csrf.CsrfViewMiddleware",
+    "django.contrib.sites.middleware.CurrentSiteMiddleware",
     "django.contrib.auth.middleware.AuthenticationMiddleware",
     "django.contrib.messages.middleware.MessageMiddleware",
     "django.middleware.clickjacking.XFrameOptionsMiddleware",

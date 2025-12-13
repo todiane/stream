@@ -8,13 +8,15 @@ from .base import *
 import os
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = False
+DEBUG = True
 
 
 ALLOWED_HOSTS = [
     "streamenglish.co.uk",
     "www.streamenglish.co.uk",
 ]
+
+SITE_ID = 1
 
 
 # Email configuration - production SMTP
@@ -26,8 +28,8 @@ EMAIL_USE_TLS = True
 EMAIL_HOST_USER = os.environ.get("EMAIL_HOST_USER")
 EMAIL_HOST_PASSWORD = os.environ.get("EMAIL_HOST_PASSWORD")
 
-DEFAULT_FROM_EMAIL = "Stream English <corriettediane@gmail.com>"
-SERVER_EMAIL = "corriettediane@gmail.com"
+DEFAULT_FROM_EMAIL = "Stream English <streamenglish25@gmail.com>"
+SERVER_EMAIL = "streamenglish25@gmail.com"
 
 # Stripe - live keys
 STRIPE_PUBLISHABLE_KEY = os.environ.get("STRIPE_PUBLISHABLE_KEY")
@@ -88,12 +90,4 @@ LOGGING = {
             "propagate": False,
         },
     },
-}
-
-# Cache configuration (optional but recommended for production)
-CACHES = {
-    "default": {
-        "BACKEND": "django.core.cache.backends.db.DatabaseCache",
-        "LOCATION": "cache_table",
-    }
 }
