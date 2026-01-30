@@ -5,6 +5,7 @@ from django.conf import settings
 from django.views.static import serve
 from django.contrib.sitemaps.views import sitemap
 from pages.views import home_view
+from django.conf.urls.static import static
 
 from . import views
 from .sitemaps import (
@@ -60,3 +61,13 @@ urlpatterns = [
         },
     ),
 ]
+
+
+# Static/Media in development
+if settings.DEBUG:
+    urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
+
+# Admin customization
+admin.site.site_header = "Stream English"
+admin.site.site_title = "Djangify eBuilder"
+admin.site.index_title = "Admin Area - Stream English"

@@ -1,4 +1,4 @@
-Django==6.0
+Django==5.2.9
 asgiref
 django-environ
 django-js-asset
@@ -8,7 +8,6 @@ django-widget-tweaks
 django-tinymce
 whitenoise
 gunicorn
-psycopg[binary]
 certifi
 charset-normalizer
 idna
