@@ -9,22 +9,42 @@ import environ
 # -----------------------------------------------------------------------------
 BASE_DIR = Path(__file__).resolve().parent.parent
 
-env = environ.Env()
-
-# Always read .env if present
-env.read_env(os.path.join(BASE_DIR, ".env"))
-
-# Optionally read .env.local (only if it exists)
-_dotenv_local = os.path.join(BASE_DIR, ".env.local")
-if os.path.exists(_dotenv_local):
-    env.read_env(_dotenv_local, overwrite=True)
-
+# Environment setup
+env = environ.Env(
+    DEBUG=(bool, False),
+    ALLOWED_HOSTS=(list, []),
+    CSRF_TRUSTED_ORIGINS=(list, []),
+    CORS_ALLOWED_ORIGINS=(list, []),
+)
+env.read_env(str(BASE_DIR / ".env"))
 # -----------------------------------------------------------------------------
 # Core
 # -----------------------------------------------------------------------------
-SECRET_KEY = env("SECRET_KEY")
+SECRET_KEY = env("SECRET_KEY", default="unsafe-secret-key-change-in-production")
+DEBUG = env("DEBUG")
+SITE_URL = env("SITE_URL", default="http://localhost:8000")
 
-DEBUG = env.bool("DEBUG", default=False)
+
+# CSRF and CORS - read from environment with sensible defaults
+CSRF_TRUSTED_ORIGINS = env.list(
+    "CSRF_TRUSTED_ORIGINS",
+    default=[
+        "http://localhost:8000",
+        "http://127.0.0.1:8000",
+        "https://streamenglish.co.uk",
+        "https://www.streamenglish.co.uk",
+    ],
+)
+
+
+CORS_ALLOWED_ORIGINS = env.list(
+    "CORS_ALLOWED_ORIGINS",
+    default=[
+        "https://streamenglish.co.uk",
+        "https://www.streamenglish.co.uk",
+    ],
+)
+
 
 ALLOWED_HOSTS = [
     "streamenglish.co.uk",
@@ -168,44 +188,20 @@ DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
 # -----------------------------------------------------------------------------
 # Sessions
 # -----------------------------------------------------------------------------
-SESSION_ENGINE = "django.contrib.sessions.backends.db"
-SESSION_COOKIE_NAME = "sessionid"
-SESSION_COOKIE_AGE = 60 * 60 * 24 * 7  # 1 week
-SESSION_SAVE_EVERY_REQUEST = True
-SESSION_COOKIE_PATH = "/"
+# SESSION_ENGINE = "django.contrib.sessions.backends.db"
+# SESSION_COOKIE_NAME = "sessionid"
+# SESSION_COOKIE_AGE = 60 * 60 * 24 * 7  # 1 week
+# SESSION_SAVE_EVERY_REQUEST = True
+# SESSION_COOKIE_PATH = "/"
 
-if DEBUG:
-    SESSION_COOKIE_SAMESITE = "Lax"
-    SESSION_COOKIE_SECURE = False
-    SESSION_COOKIE_HTTPONLY = True
-else:
-    SESSION_COOKIE_SECURE = True
-    SESSION_COOKIE_HTTPONLY = True
+# if DEBUG:
+#     SESSION_COOKIE_SAMESITE = "Lax"
+#     SESSION_COOKIE_SECURE = False
+#     SESSION_COOKIE_HTTPONLY = True
+# else:
+#     SESSION_COOKIE_SECURE = True
+#     SESSION_COOKIE_HTTPONLY = True
 
-# -----------------------------------------------------------------------------
-# CSRF / CORS
-# -----------------------------------------------------------------------------
-if DEBUG:
-    CSRF_TRUSTED_ORIGINS = [
-        "http://localhost:8000",
-        "http://127.0.0.1:8000",
-    ]
-    CSRF_COOKIE_SECURE = False
-    CSRF_COOKIE_SAMESITE = "Lax"
-    CSRF_COOKIE_HTTPONLY = True
-else:
-    CSRF_TRUSTED_ORIGINS = [
-        "https://streamenglish.co.uk",
-        "https://www.streamenglish.co.uk",
-        "https://65.108.89.200",
-        "http://localhost",
-        "http://127.0.0.1",
-    ]
-    CSRF_COOKIE_SECURE = True
-    CSRF_COOKIE_SAMESITE = "None"
-    CSRF_COOKIE_HTTPONLY = False
-
-CORS_SUPPORT_CREDENTIALS = True
 
 # Site configuration
 SITE_ID = 2
@@ -213,21 +209,21 @@ SITE_ID = 2
 # -----------------------------------------------------------------------------
 # Security (production)
 # -----------------------------------------------------------------------------
-if not DEBUG:
-    SECURE_PROXY_SSL_HEADER = ("HTTP_X_FORWARDED_PROTO", "https")
-    SECURE_SSL_REDIRECT = True
-    SECURE_HSTS_SECONDS = 31536000
-    SECURE_HSTS_INCLUDE_SUBDOMAINS = True
-    SECURE_HSTS_PRELOAD = True
-    SECURE_CONTENT_TYPE_NOSNIFF = True
-    SECURE_BROWSER_XSS_FILTER = True
-    X_FRAME_OPTIONS = "DENY"
-    USE_X_FORWARDED_HOST = True
-    USE_X_FORWARDED_PORT = True
+# if not DEBUG:
+#     SECURE_PROXY_SSL_HEADER = ("HTTP_X_FORWARDED_PROTO", "https")
+#     SECURE_SSL_REDIRECT = True
+#     SECURE_HSTS_SECONDS = 31536000
+#     SECURE_HSTS_INCLUDE_SUBDOMAINS = True
+#     SECURE_HSTS_PRELOAD = True
+#     SECURE_CONTENT_TYPE_NOSNIFF = True
+#     SECURE_BROWSER_XSS_FILTER = True
+#     X_FRAME_OPTIONS = "DENY"
+#     USE_X_FORWARDED_HOST = True
+#     USE_X_FORWARDED_PORT = True
 
-# Rate limiting (login security)
-IP_RATE_LIMIT_TIMEOUT = 120
-IP_RATE_LIMIT_MAX_ATTEMPTS = 10  # adjust based on your middleware
+# # Rate limiting (login security)
+# IP_RATE_LIMIT_TIMEOUT = 120
+# IP_RATE_LIMIT_MAX_ATTEMPTS = 10  # adjust based on your middleware
 
 # -----------------------------------------------------------------------------
 # Site / shop
