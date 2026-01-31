@@ -1,55 +1,102 @@
 {% extends 'base.html' %}
 {% load static %}
-{% block head_title %}About Stream English Platform{% endblock head_title %}
+
+{% block head_title %}{{ page.meta_title|default:"About Stream English" }}{% endblock head_title %}
 
 {% block content %}
-<section id="about" class="py-8 bg-white dark:bg-gray-800 p-6">
-    <div class="container prose mx-auto">
+<main id="main-content" class="bg-white dark:bg-gray-800">
+  <!-- About header -->
+  <header aria-labelledby="about-title" class="px-4 pt-8 pb-4 lg:pt-12 lg:pb-6">
+    <div class="mx-auto w-full max-w-5xl">
+      {% if page %}
+        <h1 id="about-title" class="text-center text-3xl font-extrabold tracking-tight text-gray-900 dark:text-white sm:text-4xl">
+          {{ page.title }}
+        </h1>
+      {% else %}
+        <h1 id="about-title" class="text-center text-3xl font-extrabold tracking-tight text-gray-900 dark:text-white sm:text-4xl">
+          About Stream English
+        </h1>
+      {% endif %}
+    </div>
+  </header>
+
+  <!-- Hero image + intro copy -->
+  <section aria-labelledby="about-intro" class="px-4 pb-8 lg:pb-10">
+    <div class="mx-auto grid w-full max-w-5xl items-start gap-6 lg:grid-cols-12 lg:gap-10">
+      <!-- Image -->
+      <figure class="lg:col-span-5">
+        <img
+          src="{% static 'img/mrs-wear-stream-english.webp' %}"
+          alt="Mrs Ware, Stream English tutor"
+          class="w-full rounded-2xl object-cover shadow-sm ring-1 ring-gray-200 dark:ring-white/10"
+          loading="lazy"
+          decoding="async"
+        />
+        <figcaption class="sr-only">Mrs Ware, Stream English tutor</figcaption>
+      </figure>
+
+      <!-- Copy -->
+      <div class="lg:col-span-7">
+        <h2 id="about-intro" class="sr-only">About Mrs Ware</h2>
 
         {% if page %}
-        <div class="text-center mb-12">
-            <h1 class="text-4xl font-bold text-gray-900 mb-4">{{ page.title }}</h1>
-                      <!-- Image -->
-                <img src="https://res.cloudinary.com/dehgeciaw/image/upload/v1735722921/about-mrs-wear-stream-english_knkivk.png" class="w-full" alt="Mrs wear Stream English">
-            {{ page.content|safe }}
+          <div class="mx-auto max-w-4xl">
+            <div class="prose prose-lg dark:prose-invert max-w-none">
+              {{ page.content|safe }}
+            </div>
+
             {% if page.second_content %}
+              <div class="mt-6 prose prose-lg dark:prose-invert max-w-none">
                 {{ page.second_content|safe }}
+              </div>
             {% endif %}
-        </div>
+          </div>
+        {% else %}
+          <p class="text-base leading-relaxed text-gray-700 dark:text-gray-200">
+            Stream English helps students improve confidence and results through clear, structured GCSE support.
+          </p>
         {% endif %}
+      </div>
     </div>
-    {% if object_list %}
-    <section class="section bg-slate-50 dark:bg-gray-800 py-12">
-        <div class="container mx-auto px-4">
-            {% if about_courses %}
-                <h2 class="text-3xl font-extrabold text-center mb-4 text-gray-900 dark:text-white">
-                    {{ about_courses.title }}
-                </h2>
-                {% if about_courses.description %}
-                    <div class="prose prose-lg mx-auto text-center mb-8 text-gray-600 dark:text-gray-400">
-                        {{ about_courses.description|safe }}
-                    </div>
-                {% endif %}
-            {% else %}
-                <h2 class="text-3xl font-extrabold text-center mb-8 text-gray-900 dark:text-white">
-                    Register for Online Lessons
-                </h2>
-            {% endif %}
-    
-            <div id="course-list">
-                {% include 'courses/snippets/list-display.html' with queryset=object_list %}
+  </section>
+
+  <!-- Courses CTA section -->
+  {% if object_list %}
+    <section aria-labelledby="register-title" class="bg-slate-50 dark:bg-gray-900 px-4 py-10 lg:py-12">
+      <div class="mx-auto w-full max-w-6xl">
+        {% if about_courses %}
+          <h2 id="register-title" class="text-center text-2xl font-extrabold text-gray-900 dark:text-white sm:text-3xl">
+            {{ about_courses.title }}
+          </h2>
+
+          {% if about_courses.description %}
+            <div class="mx-auto mt-3 max-w-3xl text-center">
+              <div class="prose prose-lg dark:prose-invert max-w-none text-gray-600 dark:text-gray-300">
+                {{ about_courses.description|safe }}
+              </div>
             </div>
-    
-            <div class="text-center mt-8">
-                <a href="{% url 'courses:course_list' %}" 
-                   class="inline-flex items-center px-5 py-3 text-base font-medium text-white bg-blue-600 rounded-lg hover:bg-blue-700">
-                   {{ about_courses.button_text|default:"View All Lessons" }}
-                </a>
-            </div>
+          {% endif %}
+        {% else %}
+          <h2 id="register-title" class="text-center text-2xl font-extrabold text-gray-900 dark:text-white sm:text-3xl">
+            Register for Online Lessons
+          </h2>
+        {% endif %}
+
+        <div id="course-list" class="mt-8" aria-label="Available courses">
+          {% include 'courses/snippets/list-display.html' with queryset=object_list %}
         </div>
+
+        <div class="mt-8 text-center">
+          <a
+            href="{% url 'courses:course_list' %}"
+            class="inline-flex items-center justify-center rounded-lg bg-blue-600 px-5 py-3 text-base font-medium text-white hover:bg-blue-700 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:ring-offset-2 focus-visible:ring-offset-slate-50 dark:focus-visible:ring-offset-gray-900"
+            aria-label="{{ about_courses.button_text|default:'View all lessons' }}"
+          >
+            {{ about_courses.button_text|default:"View All Lessons" }}
+          </a>
+        </div>
+      </div>
     </section>
-    {% endif %}
-
-
-
+  {% endif %}
+</main>
 {% endblock content %}
