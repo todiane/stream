@@ -1,95 +1,138 @@
-<!-- templates/pages/snippets/hero.html -->
-<!-- Updated with privacy-enhanced YouTube embed -->
+{% with video_id=hero.get_youtube_video_id %}
+<section class="bg-slate-50 dark:bg-gray-900 px-4 py-16 sm:py-20 lg:py-24">
+  <div class="mx-auto max-w-7xl">
 
-<section class="bg-slate-50 dark:bg-gray-900">
-    <div class="max-w-7xl mx-auto px-4 py-8">
-        <div class="flex flex-col lg:flex-row items-center lg:items-start lg:justify-between gap-8">
-            <!-- Text Content -->
-            <div class="w-full lg:w-1/2 text-center lg:pt-8">
-                <h1 class="text-4xl mb-4 font-extrabold text-gray-900 dark:text-white">
-                    {{ hero.title }}
-                </h1>
-                
-                {% if hero.subtitle %}
-                <p class="text-lg text-gray-500 mb-4 dark:text-gray-400">
-                    {{ hero.subtitle }}
-                </p>
-                {% endif %}
-                
-                {% if hero.description %}
-                <p class="text-lg text-gray-500 mb-6">
-                    {{ hero.description }}
-                </p>
-                {% endif %}
-                
-                {% if hero.cta_link %}
-                <div class="mb-8 lg:mb-0">
-                    <a href="{{ hero.cta_link }}" 
-                       class="inline-flex items-center px-5 py-3 text-white bg-blue-600 rounded-lg hover:bg-blue-700 transition-colors">
-                        {{ hero.cta_text|default:"Register Here" }}
-                        <svg class="w-5 h-5 ml-2" fill="currentColor" viewBox="0 0 20 20">
-                            <path fill-rule="evenodd" d="M10.293 3.293a1 1 0 011.414 0l6 6a1 1 0 010 1.414l-6 6a1 1 0 01-1.414-1.414L14.586 11H3a1 1 0 110-2h11.586l-4.293-4.293a1 1 0 010-1.414z"/>
-                        </svg>
-                    </a>
-                </div>
-                {% endif %}
-            </div>
-            <!-- Video Container -->
-            <div class="w-full lg:w-1/2 max-w-2xl mx-auto">
-                <div class="relative w-full max-w-2xl mx-auto" style="padding-bottom: 56.25%;">
-                    {% with video_id=hero.get_youtube_video_id %}
-                    {% if video_id %}
+    <div
+      class="grid items-center gap-12 lg:gap-14
+             {% if video_id %}
+               lg:grid-cols-2
+             {% else %}
+               grid-cols-1
+             {% endif %}"
+    >
 
-                    <!-- Thumbnail first -->
-                    <button id="hero-video-thumbnail"
-                            data-video-id="{{ video_id }}"
-                            class="absolute inset-0 w-full h-full group cursor-pointer">
-                        
-                        <img src="https://img.youtube.com/vi/{{ video_id }}/maxresdefault.jpg"
-                            alt="{{ hero.title }}"
-                            class="w-full h-full object-cover rounded-lg shadow-lg">
+      <!-- HERO TEXT -->
+      <div class="{% if not video_id %}mx-auto max-w-5xl text-center{% endif %}">
+        {% if hero.title %}
+          <h1 class="font-extrabold tracking-tight text-gray-900 dark:text-white">
 
-                        <div class="absolute inset-0 flex items-center justify-center bg-black/30 group-hover:bg-black/40 transition">
-                            <div class="w-20 h-20 bg-red-600 rounded-full flex items-center justify-center shadow-lg group-hover:bg-red-700 group-hover:scale-110 transition-all">
-                                <svg class="w-10 h-10 text-white ml-1" fill="currentColor" viewBox="0 0 24 24">
-                                    <path d="M8 5v14l11-7z"/>
-                                </svg>
-                            </div>
-                        </div>
-                    </button>
+            {{ hero.title }}
+          </h1>
+        {% endif %}
 
-                    <div id="hero-youtube-player"
-                        data-video-id="{{ video_id }}"
-                        class="absolute top-0 left-0 w-full h-full hidden">
-                    </div>
+        {% if hero.subtitle %}
+          <p class="mt-6  leading-relaxed text-gray-700 dark:text-gray-200 sm:text-xl">
+            {{ hero.subtitle }}
+          </p>
+        {% endif %}
 
-                    {% endif %}
-                    {% endwith %}
-                </div>
-            </div>
+        {% if hero.description %}
+          <p class="mt-6  leading-relaxed text-gray-600 dark:text-gray-300 sm:text-xl">
+            {{ hero.description }}
+          </p>
+        {% endif %}
 
-            <script>
-            document.addEventListener("DOMContentLoaded", () => {
-                const thumb = document.getElementById("hero-video-thumbnail");
-                const player = document.getElementById("hero-youtube-player");
+        {% if hero.cta_link and hero.cta_text %}
+          <div class="mt-10 {% if not video_id %}flex justify-center{% endif %}">
+            <a
+              href="{{ hero.cta_link }}"
+              class="inline-flex items-center rounded-xl bg-blue-600 px-7 py-4
+                     text-base font-semibold text-white shadow-sm
+                     hover:bg-blue-700 focus-visible:outline-none focus-visible:ring-2
+                     focus-visible:ring-blue-500 focus-visible:ring-offset-2
+                     focus-visible:ring-offset-slate-50 dark:focus-visible:ring-offset-gray-900"
+              aria-label="{{ hero.cta_text }}"
+            >
+              {{ hero.cta_text }}
+              <span aria-hidden="true" class="ml-2">→</span>
+            </a>
+          </div>
+        {% endif %}
 
-                if (thumb && player) {
-                    thumb.addEventListener("click", () => {
-                        const videoId = thumb.dataset.videoId;
-                        thumb.classList.add("hidden");
-                        player.classList.remove("hidden");
-                        player.innerHTML = `
-                            <iframe class="w-full h-full rounded-lg shadow-lg"
-                                    src="https://www.youtube-nocookie.com/embed/${videoId}?rel=0&modestbranding=1&autoplay=1"
-                                    frameborder="0"
-                                    allow="autoplay; encrypted-media"
-                                    allowfullscreen>
-                            </iframe>`;
-                    });
-                }
-            });
-            </script>
+        <!-- Extra breathing room below CTA so it never feels on the edge -->
+        <div class="h-4 sm:h-6"></div>
+      </div>
 
-        </div>
+      {% if video_id %}
+      <!-- HERO VIDEO (only when video exists) -->
+      <div class="relative aspect-video w-full overflow-hidden rounded-2xl shadow-lg ring-1 ring-black/5 dark:ring-white/10">
+        <button
+          id="hero-video-thumb"
+          type="button"
+          data-video-id="{{ video_id }}"
+          aria-label="Play introduction video"
+          class="absolute inset-0 h-full w-full group focus:outline-none focus-visible:ring-4 focus-visible:ring-blue-500"
+        >
+          <img
+            src="https://img.youtube.com/vi/{{ video_id }}/hqdefault.jpg"
+            alt="Play introduction video"
+            class="absolute inset-0 h-full w-full object-cover"
+            loading="lazy"
+            decoding="async"
+          />
+
+          <span class="absolute inset-0 flex items-center justify-center bg-black/25 transition group-hover:bg-black/35">
+            <span class="flex h-16 w-16 items-center justify-center rounded-full bg-red-600 text-white shadow-lg transition group-hover:scale-110 group-hover:bg-red-700">
+              <svg class="h-10 w-10 ml-1" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
+                <path d="M8 5v14l11-7z"></path>
+              </svg>
+            </span>
+          </span>
+        </button>
+
+        <div
+          id="hero-video-player"
+          class="absolute inset-0 hidden"
+          aria-live="polite"
+        ></div>
+      </div>
+      {% endif %}
+
     </div>
+  </div>
 </section>
+
+{% if video_id %}
+<script>
+  document.addEventListener("DOMContentLoaded", () => {
+    const thumb = document.getElementById("hero-video-thumb");
+    const player = document.getElementById("hero-video-player");
+    if (!thumb || !player) return;
+
+    thumb.addEventListener("click", () => {
+      const videoId = thumb.dataset.videoId;
+      const embedUrl = `https://www.youtube-nocookie.com/embed/${videoId}?autoplay=1&rel=0&modestbranding=1`;
+      const watchUrl = `https://www.youtube.com/watch?v=${videoId}`;
+
+      thumb.classList.add("hidden");
+      player.classList.remove("hidden");
+
+      player.innerHTML = `
+        <iframe
+          class="w-full h-full"
+          src="${embedUrl}"
+          title="Stream English introduction video"
+          frameborder="0"
+          loading="lazy"
+          referrerpolicy="strict-origin-when-cross-origin"
+          allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
+          allowfullscreen>
+        </iframe>
+        <div class="mt-3 text-center">
+          <a
+            href="${watchUrl}"
+            target="_blank"
+            rel="noopener noreferrer"
+            class="text-sm font-medium text-blue-600 hover:text-blue-700
+                   focus-visible:outline-none focus-visible:ring-2
+                   focus-visible:ring-blue-500 focus-visible:ring-offset-2"
+          >
+            If the video does not play here, watch it on YouTube
+          </a>
+        </div>
+      `;
+    });
+  });
+</script>
+{% endif %}
+{% endwith %}
