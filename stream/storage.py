@@ -23,11 +23,7 @@ class PublicMediaStorage(FileSystemStorage):
         )
 
     def url(self, name):
-        url = super().url(name)
-        from django.utils.timezone import now
-
-        timestamp = int(now().timestamp())
-        return f"{url}?v={timestamp}"
+        return super().url(name)
 
 
 secure_storage = SecureFileStorage()
