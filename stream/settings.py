@@ -55,9 +55,9 @@ ALLOWED_HOSTS = [
 ]
 
 
-# -----------------------------------------------------------------------------
+# ------------------------------------------------------------
 # Database (SQLite)
-# -----------------------------------------------------------------------------
+# ------------------------------------------------------------
 # Database
 DATABASES = {
     "default": {
@@ -67,9 +67,9 @@ DATABASES = {
 }
 
 
-# -----------------------------------------------------------------------------
+# ----------------------------------------------------------
 # Apps
-# -----------------------------------------------------------------------------
+# ----------------------------------------------------------
 
 # Application definition
 INSTALLED_APPS = [
@@ -107,9 +107,9 @@ MIDDLEWARE = [
 ROOT_URLCONF = "stream.urls"
 WSGI_APPLICATION = "stream.wsgi.application"
 
-# -----------------------------------------------------------------------------
+# ---------------------------------------------------------------
 # Auth
-# -----------------------------------------------------------------------------
+# ----------------------------------------------------------
 
 LOGIN_URL = "/profiles/login/"
 LOGIN_REDIRECT_URL = "/profiles/dashboard/"
@@ -120,9 +120,9 @@ AUTHENTICATION_BACKENDS = [
 ]
 
 
-# -----------------------------------------------------------------------------
+# -------------------------------------------------------
 # Templates
-# -----------------------------------------------------------------------------
+# --------------------------------------------------------
 TEMPLATES = [
     {
         "BACKEND": "django.template.backends.django.DjangoTemplates",
@@ -152,18 +152,18 @@ AUTH_PASSWORD_VALIDATORS = [
     {"NAME": "django.contrib.auth.password_validation.NumericPasswordValidator"},
 ]
 
-# -----------------------------------------------------------------------------
+# -------------------------------------------------------
 # Internationalization
-# -----------------------------------------------------------------------------
+# ---------------------------------------------------------
 
 LANGUAGE_CODE = "en-gb"
 TIME_ZONE = "Europe/London"
 USE_I18N = True
 USE_TZ = True
 
-# -----------------------------------------------------------------------------
+# -----------------------------------------------------------
 # Static / Media
-# -----------------------------------------------------------------------------
+# ------------------------------------------------------------
 STATIC_URL = "/static/"
 STATICFILES_DIRS = [os.path.join(BASE_DIR, "static")]
 STATIC_ROOT = os.path.join(BASE_DIR, "staticfiles")
@@ -183,49 +183,19 @@ MEDIA_ROOT = os.path.join(BASE_DIR, "media")
 
 DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
 
-# -----------------------------------------------------------------------------
-# Sessions
-# -----------------------------------------------------------------------------
-# SESSION_ENGINE = "django.contrib.sessions.backends.db"
-# SESSION_COOKIE_NAME = "sessionid"
-# SESSION_COOKIE_AGE = 60 * 60 * 24 * 7  # 1 week
-# SESSION_SAVE_EVERY_REQUEST = True
-# SESSION_COOKIE_PATH = "/"
 
-# if DEBUG:
-#     SESSION_COOKIE_SAMESITE = "Lax"
-#     SESSION_COOKIE_SECURE = False
-#     SESSION_COOKIE_HTTPONLY = True
-# else:
-#     SESSION_COOKIE_SECURE = True
-#     SESSION_COOKIE_HTTPONLY = True
-
+SESSION_COOKIE_SAMESITE = "Lax"
+SESSION_COOKIE_SECURE = False
+SESSION_COOKIE_HTTPONLY = True
 
 # Site configuration
 SITE_ID = 2
 
-# -----------------------------------------------------------------------------
-# Security (production)
-# -----------------------------------------------------------------------------
-# if not DEBUG:
-#     SECURE_PROXY_SSL_HEADER = ("HTTP_X_FORWARDED_PROTO", "https")
-#     SECURE_SSL_REDIRECT = True
-#     SECURE_HSTS_SECONDS = 31536000
-#     SECURE_HSTS_INCLUDE_SUBDOMAINS = True
-#     SECURE_HSTS_PRELOAD = True
-#     SECURE_CONTENT_TYPE_NOSNIFF = True
-#     SECURE_BROWSER_XSS_FILTER = True
-#     X_FRAME_OPTIONS = "DENY"
-#     USE_X_FORWARDED_HOST = True
-#     USE_X_FORWARDED_PORT = True
+SECURE_SSL_REDIRECT = True
 
-# # Rate limiting (login security)
-# IP_RATE_LIMIT_TIMEOUT = 120
-# IP_RATE_LIMIT_MAX_ATTEMPTS = 10  # adjust based on your middleware
-
-# -----------------------------------------------------------------------------
+# ----------------------------------------------------------
 # Site / shop
-# -----------------------------------------------------------------------------
+# --------------------------------------------------------
 SITE_NAME = "Stream English"
 SITE_URL = env(
     "SITE_URL",
@@ -234,16 +204,16 @@ SITE_URL = env(
 
 CART_SESSION_ID = "cart"
 
-# -----------------------------------------------------------------------------
+# -------------------------------------------------------
 # Stripe
-# -----------------------------------------------------------------------------
+# --------------------------------------------------------
 STRIPE_PUBLISHABLE_KEY = env("STRIPE_PUBLISHABLE_KEY", default="pk_test_placeholder")
 STRIPE_SECRET_KEY = env("STRIPE_SECRET_KEY", default="sk_test_placeholder")
 STRIPE_WEBHOOK_SECRET = env("STRIPE_WEBHOOK_SECRET", default="whsec_placeholder")
 
-# -----------------------------------------------------------------------------
+# --------------------------------------------------------------
 # Email + verification
-# -----------------------------------------------------------------------------
+# -------------------------------------------------------------
 EMAIL_HOST = env("EMAIL_HOST", default="")
 EMAIL_PORT = env("EMAIL_PORT", default=587)
 EMAIL_HOST_USER = env("EMAIL_HOST_USER", default="")
@@ -261,9 +231,9 @@ EMAIL_VERIFICATION_TOKEN_EXPIRY = 36  # hours
 PASSWORD_RESET_TIMEOUT = 3600
 
 
-# ================================================================
+# ======================================================
 # TINYMCE CONFIGURATION (Self-hosted, FREE plugins only)
-# ==================================================================
+# =====================================================
 
 TINYMCE_DEFAULT_CONFIG = {
     # Core settings
@@ -331,9 +301,11 @@ TINYMCE_DEFAULT_CONFIG = {
     "document_base_url": "/",
 }
 
-# -----------------------------------------------------------------------------
+# ---------------------------------------------------------
 # Logging (optional)
-# -----------------------------------------------------------------------------
+# ----------------------------------------------------------
+
+ADMINS = [("Diane", "dcorriette@gmail.com")]
 
 # Logging - production level
 LOGGING = {

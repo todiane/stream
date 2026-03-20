@@ -7,13 +7,12 @@ from django.conf import settings
 from django.core.exceptions import PermissionDenied
 from django.http import FileResponse, Http404
 from django.views.decorators.http import require_POST, require_http_methods
-from .emails import send_download_link_email
+from .models import DownloadLog
 from django.core.paginator import Paginator
 import stripe
 import os
 import logging
 import mimetypes
-from wsgiref.util import FileWrapper
 from shop.forms import ProductReviewForm
 
 from .cart import Cart
@@ -170,7 +169,6 @@ def checkout(request):
                 product=item["product"],
                 price_paid_pence=int(item["price"] * 100),
                 quantity=item["quantity"],
-                downloads_remaining=item["product"].download_limit,
             )
 
         context = {
@@ -226,50 +224,6 @@ def payment_cancel(request):
 
 
 @login_required
-def download_product(request, product_id):
-    product = get_object_or_404(Product, id=product_id)
-
-    # Ensure the logged-in user purchased this product
-    order_item = OrderItem.objects.filter(
-        order__user=request.user,
-        product=product,
-        order__status="completed",
-    ).first()
-
-    if not order_item:
-        messages.error(request, "You have not purchased this product.")
-        return redirect("shop:product_detail", slug=product.slug)
-
-    # Enforce download limit for digital products only
-    if product.product_type == "download":
-        if order_item.download_count >= order_item.downloads_remaining:
-            messages.error(
-                request, "You have reached the download limit for this product."
-            )
-            return redirect("shop:purchases")
-
-        # Increment download count
-        order_item.download_count += 1
-        order_item.save()
-
-    # Email user the download link (optional)
-    try:
-        send_download_link_email(order_item)
-    except Exception as e:
-        logger.error(
-            f"Failed to send download email for order item {order_item.id}: {str(e)}"
-        )
-
-    # Get direct download URL
-    download_url = product.get_download_url()
-    if not download_url:
-        messages.error(request, "Download URL not available.")
-        return redirect("shop:purchases")
-
-    return redirect(download_url)
-
-
-@login_required
 def purchases(request):
     orders = Order.objects.filter(user=request.user).order_by("-created")
     return render(request, "shop/purchases.html", {"orders": orders})
@@ -320,40 +274,47 @@ def secure_download(request, order_item_id):
         raise PermissionDenied
 
     # Check download limits for digital products only
-    if order_item.product.product_type == "download":
-        if order_item.download_count >= order_item.downloads_remaining:
-            raise PermissionDenied("Download limit exceeded")
-
-        # Decrement downloads_remaining and increment download_count
-        order_item.downloads_remaining -= 1
-        order_item.download_count += 1
-        order_item.save()
+    if order_item.download_count >= order_item.product.download_limit:
+        messages.error(
+            request, "You have reached your download limit for this product."
+        )
+        return redirect("shop:order_history")
 
     # Get the file path
     file_path = None
-    if order_item.product.files:
+    if order_item.product.files and order_item.product.files.name:
         file_path = order_item.product.files.path
 
     if not file_path or not os.path.exists(file_path):
         raise Http404("File not found")
+
+    # Prevent duplicate rapid requests (IMPORTANT FIX)
+    from django.utils import timezone
+    from datetime import timedelta
+
+    recent_download = DownloadLog.objects.filter(
+        order_item=order_item,
+        user=request.user,
+        downloaded_at__gte=timezone.now() - timedelta(seconds=2),
+    ).exists()
+
+    # Increment download_count
+    if order_item.product.product_type == "download" and not recent_download:
+        order_item.download_count += 1
+        order_item.save()
+
+        # Log the download
+        DownloadLog.objects.create(order_item=order_item, user=request.user)
 
     # Get the file's mime type
     content_type, encoding = mimetypes.guess_type(file_path)
     content_type = content_type or "application/octet-stream"
 
     # Open the file
-    with open(file_path, "rb") as file_obj:
-        response = FileResponse(FileWrapper(file_obj), content_type=content_type)
-        response["Content-Disposition"] = (
-            f'attachment; filename="{os.path.basename(file_path)}"'
-        )
-        return response
-
-    # Set content disposition
+    response = FileResponse(open(file_path, "rb"), content_type=content_type)
     response["Content-Disposition"] = (
         f'attachment; filename="{os.path.basename(file_path)}"'
     )
-
     return response
 
 
