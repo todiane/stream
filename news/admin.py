@@ -4,8 +4,21 @@ from django.utils.html import format_html
 from django.utils.safestring import mark_safe
 from django import forms
 
-from .models import Category, Post
+from .models import Author, Category, Post
 from .widgets import ImageFileInput
+
+
+# -----------------------------
+# AUTHOR ADMIN
+# -----------------------------
+@admin.register(Author)
+class AuthorAdmin(admin.ModelAdmin):
+    list_display = ["name", "credentials"]
+    prepopulated_fields = {"slug": ("name",)}
+    fieldsets = (
+        (None, {"fields": ("name", "slug", "credentials")}),
+        ("Bio & Photo", {"fields": ("bio", "photo")}),
+    )
 
 
 # -----------------------------
@@ -61,6 +74,7 @@ class PostAdmin(admin.ModelAdmin):
                     "title",
                     "slug",
                     "category",
+                    "author",
                     "content",
                     "status",
                     "publish_date",

@@ -229,6 +229,77 @@ class AboutFeature(models.Model):
         return self.title
 
 
+class SiteSettings(models.Model):
+    """
+    Singleton model for site-wide metadata used in schema markup and SEO.
+    Only one record is ever stored (enforced in save()).
+    Access via SiteSettings.get() everywhere.
+    """
+
+    site_name = models.CharField(max_length=100, default="Stream English")
+    site_url = models.URLField(default="https://streamenglish.co.uk")
+
+    # Educator / author
+    author_name = models.CharField(
+        max_length=100,
+        default="Mrs Wear",
+        help_text="The educator's display name used in schema and author bios",
+    )
+    author_credentials = models.CharField(
+        max_length=200,
+        blank=True,
+        help_text="e.g. BA English, PGCE, 15+ years teaching experience",
+    )
+    author_description = models.TextField(
+        blank=True,
+        help_text="Short bio for the Person schema (1–2 sentences)",
+    )
+
+    # Contact & reach
+    contact_email = models.EmailField(
+        blank=True,
+        help_text="Public contact email surfaced in the Organization schema",
+    )
+    founding_year = models.CharField(
+        max_length=4,
+        blank=True,
+        help_text="Year the site / organisation was founded (e.g. 2020)",
+    )
+    area_served = models.CharField(max_length=100, default="United Kingdom")
+
+    # Social channels
+    youtube_url = models.URLField(
+        blank=True, default="https://www.youtube.com/c/StreamEnglish"
+    )
+    instagram_url = models.URLField(
+        blank=True, default="https://www.instagram.com/streamenglishuk/"
+    )
+    tiktok_url = models.URLField(
+        blank=True, default="https://tiktok.com/streamenglish"
+    )
+    twitter_url = models.URLField(
+        blank=True, default="https://twitter.com/stream_english"
+    )
+
+    class Meta:
+        verbose_name = "Site Settings"
+        verbose_name_plural = "Site Settings"
+
+    def __str__(self):
+        return self.site_name
+
+    def save(self, *args, **kwargs):
+        # Enforce singleton — delete any other record before saving
+        self.__class__.objects.exclude(pk=self.pk).delete()
+        super().save(*args, **kwargs)
+
+    @classmethod
+    def get(cls):
+        """Always returns the single SiteSettings record, creating it if absent."""
+        obj, _ = cls.objects.get_or_create(pk=1)
+        return obj
+
+
 class Testimonial(models.Model):
     image = models.ImageField(
         upload_to="testimonials/images/", null=True, blank=True, storage=public_storage

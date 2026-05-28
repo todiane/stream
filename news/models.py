@@ -6,6 +6,39 @@ from django.utils import timezone
 from tinymce.models import HTMLField  # type: ignore
 
 
+class Author(models.Model):
+    """Represents the educator/author attributed to news posts."""
+    name = models.CharField(max_length=100)
+    slug = models.SlugField(unique=True)
+    bio = models.TextField(
+        blank=True,
+        help_text="Short biography displayed below each article",
+    )
+    credentials = models.CharField(
+        max_length=200,
+        blank=True,
+        help_text="e.g. BA English, PGCE, 15+ years teaching experience",
+    )
+    photo = models.ImageField(
+        upload_to="news/authors/",
+        null=True,
+        blank=True,
+        storage=public_storage,
+        help_text="Author headshot displayed in the bio card",
+    )
+
+    class Meta:
+        ordering = ["name"]
+
+    def __str__(self):
+        return self.name
+
+    def save(self, *args, **kwargs):
+        if not self.slug:
+            self.slug = slugify(self.name)
+        super().save(*args, **kwargs)
+
+
 class Category(models.Model):
     name = models.CharField(max_length=100)
     slug = models.SlugField(unique=True)
@@ -44,6 +77,14 @@ class Post(models.Model):
     slug = models.SlugField(unique=True)
     content = HTMLField("Content")
     category = models.ForeignKey(Category, on_delete=models.PROTECT)
+    author = models.ForeignKey(
+        Author,
+        on_delete=models.SET_NULL,
+        null=True,
+        blank=True,
+        related_name="posts",
+        help_text="The educator/author of this article",
+    )
     status = models.CharField(max_length=10, choices=STATUS_CHOICES, default="draft")
 
     # Dates

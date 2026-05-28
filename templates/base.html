@@ -4,7 +4,8 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta name="description" content="GCSE English Language and Literature tuition and resources">
+    {% block meta_description %}<meta name="description" content="GCSE English Language and Literature tuition and resources">{% endblock %}
+    {% block meta_keywords %}{% endblock %}
     <meta name="csrf-token" content="{{ csrf_token }}">
     <!-- Styles -->
     <link href="{% static 'css/output.css' %}" rel="stylesheet">
@@ -18,16 +19,65 @@
     <title>{% block head_title %}Stream English - GCSE English Language and Literature{% endblock %}</title>
     <link rel="icon" type="image/ico" href="{% static 'img/favicon.ico' %}">
     
-    <!-- Schema.org markup for Google -->
+    <!-- Schema.org markup for Google — EducationalOrganization + Person -->
     <script type="application/ld+json">
     {
         "@context": "https://schema.org",
-        "@type": "EducationalOrganization",
-        "name": "Stream English",
-        "url": "https://streamenglish.co.uk",
-        "description": "GCSE English Language and Literature tuition and resources",
-        "sameAs": [
-            "https://www.youtube.com/c/StreamEnglish"
+        "@graph": [
+            {
+                "@type": "EducationalOrganization",
+                "@id": "{{ site_settings.site_url|default:'https://streamenglish.co.uk' }}/#organization",
+                "name": "{{ site_settings.site_name|default:'Stream English' }}",
+                "url": "{{ site_settings.site_url|default:'https://streamenglish.co.uk' }}",
+                "description": "GCSE English Language and Literature tuition and resources for students and teachers",
+                "foundingDate": "{{ site_settings.founding_year|default:'' }}",
+                "areaServed": "{{ site_settings.area_served|default:'United Kingdom' }}",
+                "knowsAbout": [
+                    "GCSE English Language",
+                    "GCSE English Literature",
+                    "AQA English",
+                    "Edexcel English",
+                    "English tutoring",
+                    "KS3 English",
+                    "A Level English"
+                ],
+                "sameAs": [
+                    "{{ site_settings.youtube_url|default:'https://www.youtube.com/c/StreamEnglish' }}",
+                    "{{ site_settings.instagram_url|default:'https://www.instagram.com/streamenglishuk/' }}",
+                    "{{ site_settings.tiktok_url|default:'https://tiktok.com/streamenglish' }}",
+                    "{{ site_settings.twitter_url|default:'https://twitter.com/stream_english' }}"
+                ]{% if site_settings.contact_email %},
+                "contactPoint": {
+                    "@type": "ContactPoint",
+                    "email": "{{ site_settings.contact_email }}",
+                    "contactType": "customer support",
+                    "areaServed": "GB",
+                    "availableLanguage": "English"
+                }{% endif %}
+            },
+            {
+                "@type": "Person",
+                "@id": "{{ site_settings.site_url|default:'https://streamenglish.co.uk' }}/#educator",
+                "name": "{{ site_settings.author_name|default:'Mrs Wear' }}",
+                "jobTitle": "GCSE English Tutor",
+                "worksFor": {
+                    "@id": "{{ site_settings.site_url|default:'https://streamenglish.co.uk' }}/#organization"
+                },
+                "url": "{{ site_settings.site_url|default:'https://streamenglish.co.uk' }}/about/",
+                "knowsAbout": [
+                    "GCSE English Language",
+                    "GCSE English Literature",
+                    "AQA English",
+                    "Edexcel English",
+                    "English tutoring"
+                ],
+                "sameAs": [
+                    "{{ site_settings.youtube_url|default:'https://www.youtube.com/c/StreamEnglish' }}",
+                    "{{ site_settings.instagram_url|default:'https://www.instagram.com/streamenglishuk/' }}",
+                    "{{ site_settings.tiktok_url|default:'https://tiktok.com/streamenglish' }}"
+                ]{% if site_settings.author_credentials %},
+                "description": "{{ site_settings.author_credentials|escapejs }}"{% endif %}
+            }
         ]
     }
     </script>

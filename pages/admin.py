@@ -10,6 +10,7 @@ from .models import (
     HeroBanner,
     AboutMe,
     AboutCourses,
+    SiteSettings,
     TuitionFeature,
     Testimonial,
 )
@@ -195,6 +196,37 @@ class TuitionFeatureAdmin(admin.ModelAdmin):
         if obj.description:
             obj.description = sanitize_text(obj.description)
         super().save_model(request, obj, form, change)
+
+
+
+@admin.register(SiteSettings)
+class SiteSettingsAdmin(admin.ModelAdmin):
+    list_display = ["site_name", "author_name", "area_served", "contact_email"]
+    fieldsets = (
+        ("Site", {"fields": ("site_name", "site_url")}),
+        (
+            "Author / Educator",
+            {
+                "fields": ("author_name", "author_credentials", "author_description"),
+                "description": "Used in schema markup and article author bios.",
+            },
+        ),
+        (
+            "Contact & Reach",
+            {"fields": ("contact_email", "founding_year", "area_served")},
+        ),
+        (
+            "Social Media",
+            {"fields": ("youtube_url", "instagram_url", "tiktok_url", "twitter_url")},
+        ),
+    )
+
+    def has_add_permission(self, request):
+        # Only one SiteSettings record is ever allowed
+        return not SiteSettings.objects.exists()
+
+    def has_delete_permission(self, request, obj=None):
+        return False
 
 
 @admin.register(Testimonial)
