@@ -3,6 +3,26 @@
 
 {% block head_title %}{{ page.meta_title|default:"About Stream English" }}{% endblock head_title %}
 
+{% block extra_head %}
+{{ block.super }}
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "Person",
+  "name": "{{ site_settings.author_name|default:'Mrs Wear'|escapejs }}",
+  "jobTitle": "GCSE English Tutor",
+  "description": "{{ site_settings.author_description|default:''|escapejs }}",
+  "url": "{{ site_settings.site_url|default:'https://streamenglish.co.uk' }}/about/",
+  "worksFor": {
+    "@type": "EducationalOrganization",
+    "name": "{{ site_settings.site_name|default:'Stream English' }}",
+    "url": "{{ site_settings.site_url|default:'https://streamenglish.co.uk' }}"
+  }{% if site_settings.contact_email %},
+  "email": "{{ site_settings.contact_email }}"{% endif %}
+}
+</script>
+{% endblock %}
+
 {% block content %}
 <main id="main-content" class="bg-white dark:bg-gray-800">
   <!-- About header -->
@@ -59,6 +79,44 @@
       </div>
     </div>
   </section>
+
+  <!-- Credentials card -->
+  {% if site_settings.author_credentials or site_settings.author_description %}
+  <section aria-label="Tutor credentials" class="px-4 pb-8 lg:pb-10">
+    <div class="mx-auto w-full max-w-5xl">
+      <div class="rounded-2xl bg-blue-50 dark:bg-gray-900 border border-blue-100 dark:border-gray-700 p-6 lg:p-8">
+        <p class="text-xs font-semibold uppercase tracking-widest text-blue-500 mb-1">Qualifications &amp; Experience</p>
+        <p class="text-lg font-bold text-gray-900 dark:text-white mb-1">{{ site_settings.author_name|default:"Mrs Wear" }}</p>
+        {% if site_settings.author_credentials %}
+          <p class="text-sm font-medium text-blue-700 dark:text-blue-400 mb-3">{{ site_settings.author_credentials }}</p>
+        {% endif %}
+        {% if site_settings.author_description %}
+          <p class="text-sm text-gray-600 dark:text-gray-300 leading-relaxed">{{ site_settings.author_description }}</p>
+        {% endif %}
+      </div>
+    </div>
+  </section>
+  {% endif %}
+
+  <!-- About feature cards -->
+  {% if features %}
+  <section aria-labelledby="features-title" class="px-4 pb-12 lg:pb-16">
+    <div class="mx-auto w-full max-w-5xl">
+      <h2 id="features-title" class="sr-only">About Mrs Wear</h2>
+      <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+        {% for feature in features %}
+        <div class="{% if feature.size == 'large' %}lg:col-span-2{% endif %} rounded-xl border-2 border-[#98c1d9] bg-white dark:bg-gray-800 p-6 hover:shadow-md transition-shadow duration-300">
+          <div class="flex items-center gap-4 mb-3">
+            <i class="bi bi-{{ feature.icon }} text-[#0C8C9D] text-xl" aria-hidden="true"></i>
+            <h3 class="text-lg font-semibold text-gray-900 dark:text-white">{{ feature.title }}</h3>
+          </div>
+          <p class="text-gray-600 dark:text-gray-300 leading-relaxed text-sm">{{ feature.description|safe }}</p>
+        </div>
+        {% endfor %}
+      </div>
+    </div>
+  </section>
+  {% endif %}
 
   <!-- Courses CTA section -->
   {% if object_list %}
