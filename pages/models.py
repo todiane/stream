@@ -281,6 +281,28 @@ class SiteSettings(models.Model):
         blank=True, default="https://twitter.com/stream_english"
     )
 
+    # Legal & Compliance
+    show_digital_withdrawal_consent = models.BooleanField(
+        default=False,
+        help_text=(
+            "Show a required checkbox at checkout asking customers to waive "
+            "their EU/UK 14-day digital content withdrawal right."
+        ),
+        verbose_name="Show digital withdrawal consent checkbox",
+    )
+    digital_withdrawal_consent_text = models.CharField(
+        max_length=500,
+        blank=True,
+        default=(
+            "I agree that by purchasing this digital content, I waive my right "
+            "to withdraw from this contract under the Consumer Contracts "
+            "Regulations 2013 / EU Consumer Rights Directive once the download "
+            "has begun."
+        ),
+        help_text="Legal text displayed next to the withdrawal consent checkbox at checkout.",
+        verbose_name="Digital withdrawal consent text",
+    )
+
     class Meta:
         verbose_name = "Site Settings"
         verbose_name_plural = "Site Settings"

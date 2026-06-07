@@ -1,5 +1,6 @@
 # shop/views.py
 from .models import Category, Product, Order, OrderItem
+from pages.models import SiteSettings
 from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib.auth.decorators import login_required
 from django.contrib import messages
@@ -171,10 +172,13 @@ def checkout(request):
                 quantity=item["quantity"],
             )
 
+        site_settings = SiteSettings.get()
         context = {
             "client_secret": intent.client_secret,
             "stripe_publishable_key": settings.STRIPE_PUBLISHABLE_KEY,
             "cart": cart,
+            "show_withdrawal_consent": site_settings.show_digital_withdrawal_consent,
+            "withdrawal_consent_text": site_settings.digital_withdrawal_consent_text,
         }
 
         return render(request, "shop/checkout.html", context)

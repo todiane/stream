@@ -219,6 +219,20 @@ class SiteSettingsAdmin(admin.ModelAdmin):
             "Social Media",
             {"fields": ("youtube_url", "instagram_url", "tiktok_url", "twitter_url")},
         ),
+        (
+            "Legal & Compliance",
+            {
+                "fields": (
+                    "show_digital_withdrawal_consent",
+                    "digital_withdrawal_consent_text",
+                ),
+                "description": (
+                    "Controls the EU/UK digital content withdrawal consent checkbox "
+                    "shown at checkout. Enable this toggle to require customers to "
+                    "waive their 14-day withdrawal right before paying."
+                ),
+            },
+        ),
     )
 
     def has_add_permission(self, request):
