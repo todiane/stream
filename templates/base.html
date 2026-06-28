@@ -29,7 +29,8 @@
                 "@id": "{{ site_settings.site_url|default:'https://streamenglish.co.uk' }}/#organization",
                 "name": "{{ site_settings.site_name|default:'Stream English' }}",
                 "url": "{{ site_settings.site_url|default:'https://streamenglish.co.uk' }}",
-                "description": "GCSE English Language and Literature tuition and resources for students and teachers",
+                "description": "Stream English provides GCSE English Language and Literature tuition, video lessons and revision resources for students, parents and teachers, covering the AQA and Edexcel exam boards.",
+                "logo": "{% if site_settings.logo_url %}{{ site_settings.logo_url }}{% else %}{{ request.scheme }}://{{ request.get_host }}{% static 'img/stream-english-logo.png' %}{% endif %}",
                 "foundingDate": "{{ site_settings.founding_year|default:'' }}",
                 "areaServed": "{{ site_settings.area_served|default:'United Kingdom' }}",
                 "knowsAbout": [
@@ -77,6 +78,20 @@
                     "{{ site_settings.tiktok_url|default:'https://tiktok.com/streamenglish' }}"
                 ]{% if site_settings.author_credentials %},
                 "description": "{{ site_settings.author_credentials|escapejs }}"{% endif %}
+            },
+            {
+                "@type": "WebSite",
+                "@id": "{{ site_settings.site_url|default:'https://streamenglish.co.uk' }}/#website",
+                "name": "{{ site_settings.site_name|default:'Stream English' }}",
+                "url": "{{ site_settings.site_url|default:'https://streamenglish.co.uk' }}",
+                "description": "GCSE English Language and Literature video lessons, tuition and revision resources for the AQA and Edexcel exam boards.",
+                "inLanguage": "en-GB",
+                "publisher": {
+                    "@id": "{{ site_settings.site_url|default:'https://streamenglish.co.uk' }}/#organization"
+                },
+                "about": {
+                    "@id": "{{ site_settings.site_url|default:'https://streamenglish.co.uk' }}/#organization"
+                }
             }
         ]
     }

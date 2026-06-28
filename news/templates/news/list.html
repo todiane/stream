@@ -1,5 +1,36 @@
 {% extends 'base.html' %}
 {% load text_filters %}
+
+{% block extra_head %}
+{{ block.super }}
+<script type="application/ld+json">
+{
+    "@context": "https://schema.org",
+    "@type": "ItemList",
+    "name": "GCSE English Language and Literature FAQs and Articles",
+    "url": "{{ request.scheme }}://{{ request.get_host }}{% url 'news:list' %}",
+    "numberOfItems": {{ posts|length }},
+    "itemListElement": [
+        {% for post in posts %}
+        {
+            "@type": "ListItem",
+            "position": {{ forloop.counter }},
+            "item": {
+                "@type": "BlogPosting",
+                "headline": "{{ post.title|escapejs }}",
+                "url": "{{ request.scheme }}://{{ request.get_host }}{{ post.get_absolute_url }}"{% if post.external_image_url %},
+                "image": "{{ post.external_image_url }}"{% elif post.image %},
+                "image": "{{ request.scheme }}://{{ request.get_host }}{{ post.image.url }}"{% endif %}{% if post.meta_description %},
+                "description": "{{ post.meta_description|escapejs }}"{% endif %}{% if post.publish_date %},
+                "datePublished": "{{ post.publish_date|date:'c' }}"{% endif %}
+            }
+        }{% if not forloop.last %},{% endif %}
+        {% endfor %}
+    ]
+}
+</script>
+{% endblock %}
+
 {% block content %}
 <!-- news/templates/news/list.html -->
 <div class="container mx-auto px-4 py-8">

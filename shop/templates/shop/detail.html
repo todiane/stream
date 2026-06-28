@@ -1,5 +1,102 @@
 {% extends "base.html" %}
 
+{% block extra_head %}
+{{ block.super }}
+{% with base_url=site_settings.site_url|default:'https://streamenglish.co.uk' %}
+<script type="application/ld+json">
+{
+    "@context": "https://schema.org",
+    "@type": "Product",
+    "name": "{{ product.title|escapejs }}",
+    "description": "{{ product.description|striptags|truncatewords:40|escapejs }}",
+    "sku": "{{ product.public_id|default:product.slug }}",
+    "url": "{{ base_url }}{{ product.get_absolute_url }}",
+    "category": "{{ product.get_product_type_display|escapejs }}",
+    {% if product.external_image_url %}"image": "{{ product.external_image_url }}",
+    {% elif product.get_image_url %}"image": "{{ request.scheme }}://{{ request.get_host }}{{ product.get_image_url }}",
+    {% endif %}"brand": {
+        "@type": "Brand",
+        "name": "{{ site_settings.site_name|default:'Stream English' }}"
+    },
+    "offers": {
+        "@type": "Offer",
+        "price": "{{ product.current_price|floatformat:2 }}",
+        "priceCurrency": "GBP",
+        "url": "{{ base_url }}{{ product.get_absolute_url }}",
+        "availability": "{% if product.status == 'publish' %}https://schema.org/InStock{% elif product.status == 'soon' %}https://schema.org/PreOrder{% elif product.status == 'full' %}https://schema.org/SoldOut{% else %}https://schema.org/InStock{% endif %}",
+        "seller": {
+            "@type": "EducationalOrganization",
+            "@id": "{{ base_url }}/#organization",
+            "name": "{{ site_settings.site_name|default:'Stream English' }}"
+        }
+    }{% if product.total_reviews %},
+    "aggregateRating": {
+        "@type": "AggregateRating",
+        "ratingValue": "{{ product.average_rating|floatformat:1 }}",
+        "reviewCount": "{{ product.total_reviews }}",
+        "bestRating": "5",
+        "worstRating": "1"
+    },
+    "review": [
+        {% for review in product.reviews.all %}{
+            "@type": "Review",
+            "reviewRating": {
+                "@type": "Rating",
+                "ratingValue": "{{ review.rating }}",
+                "bestRating": "5",
+                "worstRating": "1"
+            },
+            "author": {
+                "@type": "Person",
+                "name": "{{ review.user.profile.first_name|default:'Verified customer'|escapejs }}"
+            },
+            "reviewBody": "{{ review.comment|escapejs }}",
+            "datePublished": "{{ review.created|date:'Y-m-d' }}"
+        }{% if not forloop.last %},{% endif %}{% endfor %}
+    ]{% endif %}
+}
+</script>
+<script type="application/ld+json">
+{
+    "@context": "https://schema.org",
+    "@type": "BreadcrumbList",
+    "itemListElement": [
+        {
+            "@type": "ListItem",
+            "position": 1,
+            "name": "Home",
+            "item": "{{ base_url }}/"
+        },
+        {
+            "@type": "ListItem",
+            "position": 2,
+            "name": "Study Materials",
+            "item": "{{ base_url }}{% url 'shop:product_list' %}"
+        }{% if product.category %},
+        {
+            "@type": "ListItem",
+            "position": 3,
+            "name": "{{ product.category.name|escapejs }}",
+            "item": "{{ base_url }}{{ product.category.get_absolute_url }}"
+        },
+        {
+            "@type": "ListItem",
+            "position": 4,
+            "name": "{{ product.title|escapejs }}",
+            "item": "{{ base_url }}{{ product.get_absolute_url }}"
+        }{% else %},
+        {
+            "@type": "ListItem",
+            "position": 3,
+            "name": "{{ product.title|escapejs }}",
+            "item": "{{ base_url }}{{ product.get_absolute_url }}"
+        }{% endif %}
+    ]
+}
+</script>
+{% endwith %}
+{% endblock %}
+
 {% block content %}
 <div class="container bg-white mx-auto px-6 py-12">
     <div class="max-w-7xl mx-auto">

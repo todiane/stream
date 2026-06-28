@@ -1,5 +1,67 @@
-{% extends "base.html" %} 
-{% load static %} 
+{% extends "base.html" %}
+{% load static %}
+
+{% block extra_head %}
+{{ block.super }}
+{% with base_url=site_settings.site_url|default:'https://streamenglish.co.uk' %}
+<script type="application/ld+json">
+{
+    "@context": "https://schema.org",
+    "@type": "Course",
+    "name": "{{ object.title|escapejs }}",
+    "description": "{{ object.description|striptags|truncatewords:40|escapejs }}",
+    "url": "{{ base_url }}{{ object.get_absolute_url }}",
+    "inLanguage": "en-GB",
+    "educationalLevel": "GCSE",
+    "isAccessibleForFree": true,
+    "provider": {
+        "@type": "EducationalOrganization",
+        "@id": "{{ base_url }}/#organization",
+        "name": "{{ site_settings.site_name|default:'Stream English' }}",
+        "url": "{{ base_url }}"
+    },
+    "author": {
+        "@type": "Person",
+        "@id": "{{ base_url }}/#educator",
+        "name": "{{ site_settings.author_name|default:'Mrs Wear' }}"
+    }{% if object.get_display_image %},
+    "image": "{{ object.get_display_image }}"{% endif %},
+    "hasCourseInstance": {
+        "@type": "CourseInstance",
+        "courseMode": "online",
+        "inLanguage": "en-GB",
+        "courseWorkload": "PT1H"
+    }
+}
+</script>
+<script type="application/ld+json">
+{
+    "@context": "https://schema.org",
+    "@type": "BreadcrumbList",
+    "itemListElement": [
+        {
+            "@type": "ListItem",
+            "position": 1,
+            "name": "Home",
+            "item": "{{ base_url }}/"
+        },
+        {
+            "@type": "ListItem",
+            "position": 2,
+            "name": "Lessons",
+            "item": "{{ base_url }}{% url 'courses:course_list' %}"
+        },
+        {
+            "@type": "ListItem",
+            "position": 3,
+            "name": "{{ object.title|escapejs }}",
+            "item": "{{ base_url }}{{ object.get_absolute_url }}"
+        }
+    ]
+}
+</script>
+{% endwith %}
+{% endblock %}
 
 {% block content %}
 {% include "courses/components/breadcrumb.html" with course=course %}

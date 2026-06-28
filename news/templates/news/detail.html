@@ -32,16 +32,13 @@
     {% endif %}"datePublished": "{{ post.publish_date|date:'c' }}",
     "dateModified": "{{ post.updated|date:'c' }}",
     "author": {
-        "@type": "Person",
-        "name": "{{ post.author.name|default:site_settings.author_name|default:'Mrs Wear'|escapejs }}"{% if post.author.credentials or site_settings.author_credentials %},
-        "description": "{{ post.author.credentials|default:site_settings.author_credentials|escapejs }}"{% endif %}
-
+        {% if post.author %}"@type": "Person",
+        "name": "{{ post.author.name|escapejs }}"{% if post.author.credentials %},
+        "description": "{{ post.author.credentials|escapejs }}"{% endif %}{% if post.author.photo %},
+        "image": "{{ request.scheme }}://{{ request.get_host }}{{ post.author.photo.url }}"{% endif %}{% else %}"@id": "{{ site_settings.site_url|default:'https://streamenglish.co.uk' }}/#educator"{% endif %}
     },
     "publisher": {
-        "@type": "EducationalOrganization",
-        "@id": "{{ site_settings.site_url|default:'https://streamenglish.co.uk' }}/#organization",
-        "name": "{{ site_settings.site_name|default:'Stream English' }}",
-        "url": "{{ site_settings.site_url|default:'https://streamenglish.co.uk' }}"
+        "@id": "{{ site_settings.site_url|default:'https://streamenglish.co.uk' }}/#organization"
     },
     "articleSection": "{{ post.category.name|escapejs }}",
     "keywords": "{{ post.meta_keywords|escapejs }}"

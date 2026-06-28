@@ -1,10 +1,13 @@
 User-agent: *
 Allow: /
-Sitemap: {{ request.scheme }}://{{ request.get_host }}/sitemap.xml
-
+# Allow crawlers to reach public images (product, lesson and blog media)
+# so they can be used in rich results, while keeping private media blocked.
+Allow: /media/public/
 Disallow: /admin/
 Disallow: /media/
 Disallow: /profiles/
 Disallow: /tinymce/
 Disallow: /redirects/
 Disallow: /shop/secure-download/
+
+Sitemap: {{ request.scheme }}://{{ request.get_host }}/sitemap.xml

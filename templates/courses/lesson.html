@@ -8,6 +8,40 @@
 {{ object.get_video_schema|safe }}
 </script>
 {% endif %}
+{% with base_url=site_settings.site_url|default:'https://streamenglish.co.uk' %}
+<script type="application/ld+json">
+{
+    "@context": "https://schema.org",
+    "@type": "BreadcrumbList",
+    "itemListElement": [
+        {
+            "@type": "ListItem",
+            "position": 1,
+            "name": "Home",
+            "item": "{{ base_url }}/"
+        },
+        {
+            "@type": "ListItem",
+            "position": 2,
+            "name": "Lessons",
+            "item": "{{ base_url }}{% url 'courses:course_list' %}"
+        },
+        {
+            "@type": "ListItem",
+            "position": 3,
+            "name": "{{ course.title|escapejs }}",
+            "item": "{{ base_url }}{{ course.get_absolute_url }}"
+        },
+        {
+            "@type": "ListItem",
+            "position": 4,
+            "name": "{{ object.title|escapejs }}",
+            "item": "{{ base_url }}{{ object.get_absolute_url }}"
+        }
+    ]
+}
+</script>
+{% endwith %}
 <!-- CSRF token for JavaScript -->
 <script>
     const CSRF_TOKEN = '{{ csrf_token }}';

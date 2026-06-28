@@ -1,5 +1,6 @@
 # courses/models.py
 
+import json
 import re
 import uuid
 from django.db import models
@@ -165,6 +166,14 @@ class Lesson(models.Model):
         null=True,
         help_text="Enter a YouTube URL if you want to embed a video from YouTube.",
     )
+    duration_seconds = models.PositiveIntegerField(
+        null=True,
+        blank=True,
+        help_text=(
+            "Video length in seconds, used for the SEO video schema. "
+            "E.g. a 40-minute video = 2400. Leave blank if unknown."
+        ),
+    )
     external_image_url = models.URLField(
         blank=True,
         null=True,
@@ -260,41 +269,75 @@ class Lesson(models.Model):
         except Exception:
             return None
 
-    def get_video_duration(self):
+    def get_iso_duration(self):
+        """Return the video length as an ISO 8601 duration (e.g. PT40M30S).
+
+        Returns None when the duration is unknown so the schema can omit it
+        rather than publish a misleading value.
         """
-        Return video duration in ISO 8601 format.
-        Default 10 minutes - could be stored as a field later.
-        """
-        return "PT10M"
+        if not self.duration_seconds:
+            return None
+        total = int(self.duration_seconds)
+        hours, remainder = divmod(total, 3600)
+        minutes, seconds = divmod(remainder, 60)
+        iso = "PT"
+        if hours:
+            iso += f"{hours}H"
+        if minutes:
+            iso += f"{minutes}M"
+        if seconds:
+            iso += f"{seconds}S"
+        return iso if iso != "PT" else None
 
     def get_video_schema(self):
-        """Generate VideoObject schema for SEO."""
+        """Return a VALID JSON-LD VideoObject string for SEO and E-E-A-T.
+
+        Previously this returned a Python dict that the template rendered with
+        its repr (single quotes / None), producing invalid JSON-LD that search
+        engines could not parse. It now returns a proper JSON string and
+        attributes the video to the organisation and the named educator.
+        """
         video_id = self.get_video_id()
         if not video_id:
-            return None
+            return ""
 
-        thumbnail_url = self.get_thumbnail_url()
+        site_url = "https://streamenglish.co.uk"
 
-        # Strip HTML from description for schema
         clean_description = ""
         if self.description:
-            clean_description = re.sub(r"<[^>]+>", "", self.description)
+            clean_description = re.sub(r"<[^>]+>", "", self.description).strip()
 
-        return {
+        schema = {
             "@context": "https://schema.org",
             "@type": "VideoObject",
             "name": self.title,
-            "description": clean_description[:200] if clean_description else self.title,
-            "thumbnailUrl": thumbnail_url,
+            "description": clean_description[:300] if clean_description else self.title,
+            "thumbnailUrl": self.get_thumbnail_url(),
             "uploadDate": self.timestamp.strftime("%Y-%m-%d"),
-            "duration": self.get_video_duration(),
             "contentUrl": self.youtube_url,
             "embedUrl": self.get_youtube_embed_url(),
-            "author": {
-                "@type": "Organization",
+            "duration": self.get_iso_duration(),
+            "inLanguage": "en-GB",
+            "isFamilyFriendly": True,
+            "learningResourceType": "Video lesson",
+            "educationalLevel": "GCSE",
+            "publisher": {
+                "@type": "EducationalOrganization",
+                "@id": f"{site_url}/#organization",
                 "name": "Stream English",
             },
+            "author": {
+                "@type": "Person",
+                "@id": f"{site_url}/#educator",
+                "name": "Mrs Wear",
+            },
         }
+
+        # Drop empty values so we never emit null/empty fields.
+        schema = {k: v for k, v in schema.items() if v not in (None, "", [])}
+
+        # Escape any closing tags inside JSON to keep the <script> block safe.
+        return json.dumps(schema).replace("</", "<\\/")
 
     @property
     def requires_email(self):
