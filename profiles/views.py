@@ -341,6 +341,7 @@ def contact_tutor(request):
                 )
                 messages.success(request, "Your message has been sent successfully!")
             except Exception as e:
+                logger.error(f"Error sending contact form email: {str(e)}")
                 messages.error(
                     request,
                     "There was an error sending your message. Please try again later.",

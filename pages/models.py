@@ -346,7 +346,7 @@ class Testimonial(models.Model):
             if self.external_image_url:
                 return self.external_image_url
             if self.image:
-                return self.image.url.replace("/media/public/", "/media/")
+                return self.image.url
             return None
         except Exception:
             return None

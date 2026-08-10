@@ -84,15 +84,18 @@ def product_detail(request, slug):
 
 @require_POST
 def cart_add(request, product_id):
+    # Fetch the product outside the try block so it's always defined -
+    # previously a failure here would raise a NameError inside the
+    # except block instead of the intended error message.
+    product = get_object_or_404(Product, id=product_id)
     try:
         cart = Cart(request)
-        product = get_object_or_404(Product, id=product_id)
         quantity = int(request.POST.get("quantity", 1))
         cart.add(product=product, quantity=quantity)
         messages.success(request, f"{product.title} has been added to your cart.")
         return redirect("shop:cart_detail")
     except Exception as e:
-        print(f"Error adding to cart: {str(e)}")
+        logger.error(f"Error adding to cart: {str(e)}")
         messages.error(request, "There was an error adding the item to your cart.")
         return redirect("shop:product_detail", slug=product.slug)
 
@@ -102,7 +105,7 @@ def cart_detail(request):
         cart = Cart(request)
         return render(request, "shop/cart.html", {"cart": cart})
     except Exception as e:
-        print(f"Error in cart detail: {str(e)}")
+        logger.error(f"Error in cart detail: {str(e)}")
         messages.error(request, "There was an error displaying your cart.")
         return redirect("shop:product_list")
 
@@ -276,6 +279,13 @@ def secure_download(request, order_item_id):
     # Check if the order item belongs to the user
     if order_item.order.user != request.user:
         raise PermissionDenied
+
+    # Check the order has actually been paid for - orders are created as
+    # "pending" before Stripe confirms payment, so without this check a
+    # user could download a file for an order they never completed.
+    if not order_item.order.paid:
+        messages.error(request, "This order has not been completed yet.")
+        return redirect("shop:order_history")
 
     # Check download limits for digital products only
     if order_item.download_count >= order_item.product.download_limit:

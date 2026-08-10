@@ -146,8 +146,8 @@
                         {% endif %}
                         
                         {% if has_purchased %}
-                            <li>Download Limit: {{ order_item.downloads_remaining }}</li>
-                            {% if order_item.download_count < order_item.downloads_remaining %}
+                            <li>Downloads Remaining: {{ order_item.downloads_left }}</li>
+                            {% if order_item.downloads_left > 0 %}
                                 <li>File: <a href="{% url 'shop:secure_download' order_item.id %}" class="text-blue-600 hover:underline">Download</a></li>
                             {% else %}
                                 <li>Download limit reached</li>

@@ -140,14 +140,15 @@ def course_detail_view(request, course_slug=None, *args, **kwargs):
 
 
 def booking_form_view(request):
-    return render(request, "courses/booking/booking_form.html")
-
-
-def booking_form(request):
+    # NOTE: this is the view actually wired up in urls.py. It previously just
+    # re-rendered the empty form on every request - the POST handling and
+    # email-sending logic lived in a second, unreferenced `booking_form`
+    # function that no URL ever pointed at, so submitting the booking form
+    # did nothing at all. Merged the working logic in here.
     if request.method == "POST":
-        name = request.POST.get("name")
-        email = request.POST.get("email")
-        message = request.POST.get("message")
+        name = request.POST.get("name", "").strip()
+        email = request.POST.get("email", "").strip()
+        message = request.POST.get("message", "").strip()
 
         if name and email and message:
             try:
@@ -158,9 +159,18 @@ def booking_form(request):
                     recipient_list=[settings.CONTACT_EMAIL],
                     fail_silently=False,
                 )
-                return render(request, "courses/booking_confirmation.html")
+                messages.success(
+                    request, "Thank you for your booking. We'll be in touch soon!"
+                )
+                return redirect("courses:booking_form")
             except Exception as e:
-                print(f"Error sending email: {e}")
+                logger.error(f"Error sending booking email: {e}")
+                messages.error(
+                    request,
+                    "Sorry, something went wrong sending your booking. "
+                    "Please try again or contact us directly.",
+                )
         else:
-            print("Missing form data")
-    return render(request, "courses/booking_form.html")
+            messages.error(request, "Please fill in all fields.")
+
+    return render(request, "courses/booking/booking_form.html")

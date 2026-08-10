@@ -1,4 +1,6 @@
 # pages/views.py
+import logging
+
 from django.shortcuts import redirect, render, get_object_or_404
 from django.contrib.admin.views.decorators import staff_member_required
 from django.http import Http404
@@ -7,6 +9,8 @@ from shop.models import Product
 from courses.models import Course
 from .models import HeroBanner, AboutFeature
 from .models import Testimonial
+
+logger = logging.getLogger("pages")
 
 
 def home_view(request):
@@ -46,7 +50,7 @@ def home_view(request):
         }
         return render(request, "pages/home.html", context)
     except Exception as e:
-        print(f"Error in home_view: {e}")
+        logger.error(f"Error in home_view: {e}")
         raise Http404("Homepage not found")
 
 
@@ -84,7 +88,7 @@ def about_view(request):
         }
         return render(request, "pages/about.html", context)
     except Exception as e:
-        print(f"Error in about_view: {e}")
+        logger.error(f"Error in about_view: {e}")
         return render(
             request, "pages/about.html", {"page": page if "page" in locals() else None}
         )
@@ -130,7 +134,7 @@ def tuition_view(request):
         }
         return render(request, "pages/tuition.html", context)
     except Exception as e:
-        print(f"Error in tuition_view: {e}")
+        logger.error(f"Error in tuition_view: {e}")
         return render(
             request,
             "pages/tuition.html",

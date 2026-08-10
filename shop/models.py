@@ -123,7 +123,7 @@ class Product(models.Model):
             if self.external_image_url:
                 return self.external_image_url
             if self.preview_image:
-                return self.preview_image.url.replace("/media/public/", "/media/")
+                return self.preview_image.url
             return None
         except Exception:
             return None

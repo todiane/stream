@@ -18,7 +18,7 @@ def send_order_confirmation_email(order):
                 "price": (item.price_paid_pence * item.quantity)
                 / 100,  # Calculate total price for quantity
                 "quantity": item.quantity,
-                "downloads_remaining": item.downloads_remaining,
+                "downloads_remaining": item.downloads_left,
             }
             for item in order.items.all()
         ]
@@ -72,9 +72,7 @@ def send_download_link_email(order_item):
 
         # Get number of downloads remaining
         if order_item.product.product_type == "download":
-            downloads_remaining = (
-                order_item.downloads_remaining - order_item.download_count
-            )
+            downloads_remaining = order_item.downloads_left
         else:
             downloads_remaining = "Unlimited"  # For tuition PDFs
 

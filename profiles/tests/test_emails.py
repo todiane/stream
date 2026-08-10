@@ -1,3 +1,5 @@
+import unittest
+
 from django.test import TestCase, RequestFactory
 from django.core import mail
 from django.contrib.auth.models import User
@@ -34,6 +36,12 @@ class EmailTestCase(TestCase):
         # Reset the outbox before each test
         mail.outbox = []
 
+    @unittest.skip(
+        "Account activation emails are intentionally disabled right now - "
+        "see the 'TEMPORARY: disable activation emails' comments in "
+        "profiles/views.py (send_activation_email, activate). Un-skip this "
+        "once that feature is turned back on."
+    )
     def test_activation_email(self):
         # Test activation email sending
         token = account_activation_token.make_token(self.user)

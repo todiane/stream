@@ -36,8 +36,12 @@ class IPRateLimitMiddleware:
         ):
             return self.get_response(request)
 
-        # Only limit sensitive paths
-        if any(request.path.startswith(p) for p in sensitive_paths):
+        # Only limit sensitive paths, and only on POST (actual submission
+        # attempts) - counting plain GET page views meant a user could get
+        # locked out just from reloading the login page a few times.
+        if request.method == "POST" and any(
+            request.path.startswith(p) for p in sensitive_paths
+        ):
             if self.is_rate_limited(ip):
                 return HttpResponse(
                     "Too many attempts. Try again later.",

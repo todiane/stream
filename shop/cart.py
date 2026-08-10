@@ -36,9 +36,10 @@ class Cart:
         product_id = str(product.id)
         if product_id not in self.cart:
             # Store only JSON serializable data - no Decimal objects
+            # Use current_price so sale prices are respected in the cart
             self.cart[product_id] = {
                 "quantity": 0,
-                "price": str(product.price),  # Always store as string
+                "price": str(product.current_price),  # Always store as string
             }
         if override_quantity:
             self.cart[product_id]["quantity"] = quantity

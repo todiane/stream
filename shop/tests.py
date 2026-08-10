@@ -1,121 +1,135 @@
 # shop/tests.py
-from django.test import TestCase, Client
+#
+# NOTE: this file previously imported a `GuestDetails` model and tested a
+# guest-checkout flow (contact details form, phone/email validation) that no
+# longer exists in models.py - checkout is now login-required and goes
+# straight to Stripe. That made the whole module fail to import, so none of
+# these tests were actually running. Rewritten to match current behaviour.
+from decimal import Decimal
+from unittest.mock import patch, MagicMock
+
+from django.test import TestCase, Client, override_settings
 from django.urls import reverse
 from django.contrib.auth.models import User
-from .models import Product, Order, GuestDetails, Category
-from .cart import Cart
 from django.contrib.sessions.middleware import SessionMiddleware
 from django.test.client import RequestFactory
-import json
 
+from .models import Product, Order, OrderItem, Category
+from .cart import Cart
+
+
+@override_settings(SECURE_SSL_REDIRECT=False)
 class ShopCheckoutTests(TestCase):
     def setUp(self):
         self.client = Client()
         self.factory = RequestFactory()
-        
-        # Create test category
+
         self.category = Category.objects.create(
-            name='Test Category',
-            slug='test-category'
+            name="Test Category", slug="test-category"
         )
-        
-        # Create test product
+
         self.product = Product.objects.create(
-            title='Test Product',
-            slug='test-product',
+            title="Test Product",
+            slug="test-product",
             category=self.category,
             price_pence=1000,  # £10.00
-            status='publish'
+            status="publish",
         )
-        
-        # Create test user
+
         self.user = User.objects.create_user(
-            username='testuser',
-            email='test@example.com',
-            password='testpass123'
+            username="testuser",
+            email="test@example.com",
+            password="testpass123",
         )
 
-    def test_guest_checkout(self):
-        # Add product to cart
+    def test_checkout_requires_login(self):
+        # Anonymous users should be redirected to login, not allowed through
+        # to checkout.
+        self.client.post(
+            reverse("shop:cart_add", args=[self.product.id]), {"quantity": 1}
+        )
+        response = self.client.get(reverse("shop:checkout"))
+        self.assertEqual(response.status_code, 302)
+        self.assertIn(reverse("profiles:login"), response.url)
+
+    @patch("shop.views.stripe.PaymentIntent.create")
+    def test_member_checkout(self, mock_create):
+        mock_create.return_value = MagicMock(
+            id="pi_test_123", client_secret="pi_test_123_secret"
+        )
+
+        self.client.login(username="testuser", password="testpass123")
+
         response = self.client.post(
-            reverse('shop:cart_add', args=[self.product.id]),
-            {'quantity': 1}
+            reverse("shop:cart_add", args=[self.product.id]), {"quantity": 1}
         )
         self.assertEqual(response.status_code, 302)
 
-        # Test checkout page access
-        response = self.client.get(reverse('shop:checkout'))
+        response = self.client.get(reverse("shop:checkout"))
         self.assertEqual(response.status_code, 200)
-        self.assertTemplateUsed(response, 'shop/checkout.html')
-        self.assertContains(response, 'Contact Details')
+        self.assertTemplateUsed(response, "shop/checkout.html")
 
-        # Test guest details submission
-        guest_data = {
-            'first_name': 'John',
-            'last_name': 'Doe',
-            'email': 'john@example.com',
-            'phone': '1234567890'
-        }
-        response = self.client.post(reverse('shop:checkout'), guest_data, follow=True)
-        self.assertEqual(response.status_code, 200)
-
-    def test_member_checkout(self):
-        # Login
-        self.client.login(username='testuser', password='testpass123')
-        
-        # Add product to cart
-        response = self.client.post(
-            reverse('shop:cart_add', args=[self.product.id]),
-            {'quantity': 1}
-        )
-        self.assertEqual(response.status_code, 302)
-
-        # Test checkout page access
-        response = self.client.get(reverse('shop:checkout'))
-        self.assertEqual(response.status_code, 200)
-        self.assertTemplateUsed(response, 'shop/checkout.html')
-        self.assertNotContains(response, 'Contact Details')
+        # An Order and OrderItem should have been created (pending, unpaid)
+        # ready for Stripe to confirm via the webhook.
+        order = Order.objects.filter(user=self.user).first()
+        self.assertIsNotNone(order)
+        self.assertFalse(order.paid)
+        self.assertEqual(order.items.count(), 1)
 
     def test_cart_functions(self):
-        request = self.factory.get('/')
+        request = self.factory.get("/")
         middleware = SessionMiddleware(lambda x: None)
         middleware.process_request(request)
         request.session.save()
-        
+
         cart = Cart(request)
-        
+
         # Test adding item
         cart.add(self.product)
         self.assertEqual(len(cart), 1)
-        
+
         # Test updating quantity
         cart.add(self.product, quantity=2, override_quantity=True)
-        self.assertEqual(cart.cart[str(self.product.id)]['quantity'], 2)
-        
+        self.assertEqual(cart.cart[str(self.product.id)]["quantity"], 2)
+
         # Test removing item
         cart.remove(self.product)
         self.assertEqual(len(cart), 0)
 
-    def test_guest_details_validation(self):
-        # First add a product to the cart (required for checkout)
-        response = self.client.post(
-            reverse('shop:cart_add', args=[self.product.id]),
-            {'quantity': 1}
+    def test_cart_uses_sale_price_when_available(self):
+        sale_product = Product.objects.create(
+            title="Sale Product",
+            slug="sale-product",
+            category=self.category,
+            price_pence=1000,
+            sale_price_pence=500,
+            status="publish",
         )
-        self.assertEqual(response.status_code, 302)
 
-        # Test invalid phone number
-        guest_data = {
-            'first_name': 'John',
-            'last_name': 'Doe',
-            'email': 'john@example.com',
-            'phone': 'invalid123'
-        }
-        response = self.client.post(reverse('shop:checkout'), guest_data)
-        self.assertContains(response, 'Phone number can only contain digits')
+        request = self.factory.get("/")
+        middleware = SessionMiddleware(lambda x: None)
+        middleware.process_request(request)
+        request.session.save()
 
-        # Test invalid email
-        guest_data['phone'] = '1234567890'
-        guest_data['email'] = 'invalid-email'
-        response = self.client.post(reverse('shop:checkout'), guest_data)
-        self.assertContains(response, 'Enter a valid email address')
+        cart = Cart(request)
+        cart.add(sale_product)
+
+        self.assertEqual(
+            Decimal(cart.cart[str(sale_product.id)]["price"]), Decimal("5.00")
+        )
+
+    def test_secure_download_requires_paid_order(self):
+        self.client.login(username="testuser", password="testpass123")
+
+        order = Order.objects.create(
+            user=self.user, email=self.user.email, paid=False, status="pending"
+        )
+        order_item = OrderItem.objects.create(
+            order=order, product=self.product, price_paid_pence=1000
+        )
+
+        response = self.client.get(
+            reverse("shop:secure_download", args=[order_item.id])
+        )
+        # Unpaid orders must not be downloadable.
+        self.assertRedirects(response, reverse("shop:order_history"))

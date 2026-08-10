@@ -112,7 +112,7 @@ WSGI_APPLICATION = "stream.wsgi.application"
 # ----------------------------------------------------------
 
 LOGIN_URL = "/profiles/login/"
-LOGIN_REDIRECT_URL = "/profiles/dashboard/"
+LOGIN_REDIRECT_URL = "/profiles/profile/"
 LOGOUT_REDIRECT_URL = "/"
 
 AUTHENTICATION_BACKENDS = [
@@ -186,13 +186,21 @@ DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
 
 
 SESSION_COOKIE_SAMESITE = "Lax"
-SESSION_COOKIE_SECURE = False
+# SECURE_SSL_REDIRECT below forces HTTPS in production, so cookies should
+# only ever be sent over HTTPS too - this was hardcoded to False, which
+# meant session/CSRF cookies weren't marked "Secure" even in production.
+SESSION_COOKIE_SECURE = not DEBUG
 SESSION_COOKIE_HTTPONLY = True
+CSRF_COOKIE_SECURE = not DEBUG
 
 # Site configuration
 SITE_ID = 2
 
-SECURE_SSL_REDIRECT = True
+# This was hardcoded to True, which forces every request onto HTTPS -
+# including local development (DEBUG=True), where the dev server only
+# serves plain HTTP. That meant `runserver` would 301-redirect every request
+# to an https:// URL that doesn't exist locally. Only force it in production.
+SECURE_SSL_REDIRECT = not DEBUG
 
 # ----------------------------------------------------------
 # Site / shop
@@ -221,6 +229,13 @@ EMAIL_HOST_USER = env("EMAIL_HOST_USER", default="")
 EMAIL_HOST_PASSWORD = env("EMAIL_HOST_PASSWORD", default="")
 EMAIL_USE_TLS = env("EMAIL_USE_TLS", default=True)
 DEFAULT_FROM_EMAIL = env("DEFAULT_FROM_EMAIL", default="noreply@streamenglish.co.uk")
+# CONTACT_EMAIL was set in .env but never actually read into a Django
+# setting - every submission of the contact form (profiles.views.contact_tutor)
+# and the tuition booking form (courses.views.booking_form_view) referenced
+# settings.CONTACT_EMAIL and raised an AttributeError, so neither form's
+# email ever actually sent.
+CONTACT_EMAIL = env("CONTACT_EMAIL", default=DEFAULT_FROM_EMAIL)
+ACCOUNT_ACTIVATION_DAYS = env.int("ACCOUNT_ACTIVATION_DAYS", default=7)
 
 EMAIL_BACKEND = env(
     "EMAIL_BACKEND",

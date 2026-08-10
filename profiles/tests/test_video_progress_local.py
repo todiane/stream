@@ -1,6 +1,6 @@
-# profiles/tests/test_video_progress.py
+# profiles/tests/test_video_progress_local.py
 
-from django.test import TestCase, Client
+from django.test import TestCase, Client, override_settings
 from django.urls import reverse
 from django.contrib.auth.models import User
 from django.utils import timezone
@@ -8,6 +8,10 @@ from profiles.models import Profile, VideoProgress
 from courses.models import Course, Lesson
 import json
 
+# See test_video_progress.py - SECURE_SSL_REDIRECT is on whenever DEBUG=False
+# (the site's real .env), which was 301-redirecting every test client
+# request before it reached the view.
+@override_settings(SECURE_SSL_REDIRECT=False)
 class VideoProgressTestCase(TestCase):
     def setUp(self):
         # Create test user
