@@ -119,9 +119,9 @@
                 <!-- Product Image -->
                 <div class="relative">
                     {% if product.get_image_url %}
-                        <img src="{{ product.get_image_url }}" 
-                            alt="{{ product.title|default:'Product Image' }}" 
-                            class="w-full rounded-lg shadow-lg object-cover">
+                        <img src="{{ product.get_image_url }}"
+                            alt="{{ product.title|default:'Product Image' }}"
+                            class="w-full max-w-xs mx-auto rounded-lg shadow-lg object-cover">
                     {% else %}
                         <div class="w-full h-56 bg-white flex items-center justify-center text-gray-500">
                             No Image Available

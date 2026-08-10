@@ -5,7 +5,11 @@
 {% block content %}
 <p>Hello {% if user_name %}{{ user_name }}{% else %}{{ email }}{% endif %},</p>
 
+{% if total == 0 %}
+<p>Thank you! Your free order (£0.00) has been confirmed &ndash; there was nothing to pay.</p>
+{% else %}
 <p>Thank you for your order! Your order has been confirmed and processed successfully.</p>
+{% endif %}
 
 <h3>Order Details:</h3>
 <ul>

@@ -15,8 +15,10 @@ import os
 import logging
 import mimetypes
 from shop.forms import ProductReviewForm
+from django.contrib.auth.views import redirect_to_login
 
 from .cart import Cart
+from .emails import fulfil_order
 
 stripe.api_key = settings.STRIPE_SECRET_KEY
 
@@ -137,9 +139,42 @@ def checkout(request):
 
     try:
         total_price = cart.get_total_price()
+
+        # Free order path - the whole cart totals zero, so there is nothing to
+        # charge. Stripe rejects zero-amount payments, so skip it entirely:
+        # create a completed order right away and fulfil it (this is what the
+        # Stripe webhook does for paid orders). The customer still needs to be
+        # logged in, because the download link is tied to their account.
         if total_price <= 0:
-            messages.error(request, "Invalid cart total.")
-            return redirect("shop:cart_detail")
+            if not request.user.is_authenticated:
+                messages.info(
+                    request,
+                    "Please log in or create a free account to get this product.",
+                )
+                return redirect_to_login(request.get_full_path())
+
+            order = Order.objects.create(
+                user=request.user,
+                email=request.user.email,
+                paid=True,
+                status="completed",
+            )
+            for item in cart:
+                OrderItem.objects.create(
+                    order=order,
+                    product=item["product"],
+                    price_paid_pence=0,
+                    quantity=item["quantity"],
+                )
+
+            fulfil_order(order)
+            cart.clear()
+
+            return render(
+                request,
+                "shop/success.html",
+                {"order": order, "is_guest": False, "is_free": True},
+            )
 
         # Always use logged-in user's email
         email = request.user.email

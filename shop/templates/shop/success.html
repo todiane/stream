@@ -9,15 +9,39 @@
             </svg>
         </div>
         
+        {% if is_free %}
+        <h1 class="text-4xl font-bold mb-4 text-gray-900 dark:text-white">Your Free Product is Ready!</h1>
+        <p class="text-lg text-gray-600 dark:text-gray-400 mb-8">
+            This product was free (£0.00), so there was nothing to pay. We've emailed you a download link.
+        </p>
+        {% else %}
         <h1 class="text-4xl font-bold mb-4 text-gray-900 dark:text-white">Payment Successful!</h1>
         <p class="text-lg text-gray-600 dark:text-gray-400 mb-8">
             Thank you for your purchase. You will receive an email confirmation shortly.
         </p>
+        {% endif %}
 
         <div class="bg-white dark:bg-gray-800 rounded-lg shadow p-6 mb-8">
             <h2 class="text-xl font-bold mb-4 text-gray-900 dark:text-white">Order Details</h2>
             <p class="text-gray-600 dark:text-gray-400 mb-2">Order ID: {{ order.id }}</p>
             <p class="text-gray-600 dark:text-gray-400">Total Amount: £{{ order.get_total_cost|floatformat:2 }}</p>
+        </div>
+
+        <div class="bg-blue-50 dark:bg-blue-900/30 border border-blue-200 dark:border-blue-800 rounded-lg p-6 mb-8 text-left">
+            <h2 class="text-lg font-bold mb-2 text-blue-900 dark:text-blue-200">How to download</h2>
+            <p class="text-blue-800 dark:text-blue-300 mb-3">
+                <strong>You must be logged in to this account to download.</strong>
+                Your downloads are linked to your account, so the download link only works while you're signed in.
+            </p>
+            <p class="text-blue-800 dark:text-blue-300 mb-3">
+                Go to your <a href="{% url 'profiles:profile' %}" class="underline font-semibold">Profile</a>,
+                find this order under your purchase history, and click Download. You can also use the download link
+                in the email we've just sent you.
+            </p>
+            <a href="{% url 'profiles:profile' %}"
+               class="inline-block bg-blue-600 hover:bg-blue-700 text-white font-semibold px-5 py-2 rounded">
+                Go to my downloads
+            </a>
         </div>
         <div class="space-y-4">
                 <a href="{% url 'shop:product_list' %}" 

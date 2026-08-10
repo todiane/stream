@@ -5,7 +5,7 @@ from django.http import HttpResponse
 from django.views.decorators.csrf import csrf_exempt
 from django.views.decorators.http import require_POST
 from .models import Order
-from .emails import send_download_link_email, send_order_confirmation_email
+from .emails import fulfil_order
 
 logger = logging.getLogger(__name__)
 
@@ -54,20 +54,8 @@ def _handle_payment_intent_succeeded(payment_intent):
     order.status = "completed"
     order.save()
 
-    # Fulfil products
-    try:
-        for item in order.items.all():
-            item.product.purchase_count += item.quantity
-            item.product.save()
-            send_download_link_email(item)
-    except Exception as e:
-        logger.error(f"Download email error: {str(e)}")
-
-    # Confirmation email
-    try:
-        send_order_confirmation_email(order)
-    except Exception as e:
-        logger.error(f"Order confirmation email error: {str(e)}")
+    # Bump purchase counts and send download-link + confirmation emails
+    fulfil_order(order)
 
 
 def _handle_payment_intent_failed(payment_intent):

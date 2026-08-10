@@ -9,6 +9,32 @@ import logging
 logger = logging.getLogger("shop.emails")
 
 
+def fulfil_order(order):
+    """Complete fulfilment for a paid or free order.
+
+    Bumps each product's purchase count and sends the download-link email
+    per item, then the order confirmation email. Shared by the Stripe webhook
+    (paid orders) and the zero-total free checkout path so the two can't drift.
+
+    Email failures are logged but never raised - a broken email must not stop
+    the order from being fulfilled or 500 the customer.
+    """
+    try:
+        for item in order.items.all():
+            item.product.purchase_count += item.quantity
+            item.product.save()
+            send_download_link_email(item)
+    except Exception as e:
+        logger.error(f"Download email error for order {order.order_id}: {str(e)}")
+
+    try:
+        send_order_confirmation_email(order)
+    except Exception as e:
+        logger.error(
+            f"Order confirmation email error for order {order.order_id}: {str(e)}"
+        )
+
+
 def send_order_confirmation_email(order):
     try:
         # Prepare serializable order items data
