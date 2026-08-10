@@ -125,19 +125,59 @@
     </footer>
     
     <!-- Cookie Consent -->
-    <aside id="cookie-banner" class="fixed bottom-0 left-0 right-0 bg-gray-900 text-white py-4 px-6 hidden" role="dialog" aria-labelledby="cookie-title">
-        <div class="max-w-7xl mx-auto flex flex-col sm:flex-row items-center justify-between gap-4">
-            <div class="text-sm">
-                <h2 id="cookie-title" class="sr-only">Cookie Consent</h2>
-                We use cookies to enhance your experience. By continuing to visit this site you agree to our use of cookies. 
-                <a href="{% url 'privacy_policy' %}" class="underline hover:text-blue-300">Privacy Policy</a>
+    <div id="cookie-consent" role="dialog" aria-modal="false" aria-labelledby="cookie-consent-title" aria-hidden="true"
+         class="fixed bottom-4 right-4 z-50 w-[calc(100%-2rem)] sm:w-96 max-w-sm translate-y-4 opacity-0 pointer-events-none transition-all duration-300">
+        <div class="rounded-xl border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 shadow-2xl p-5">
+            <h2 id="cookie-consent-title" class="text-sm font-semibold mb-2 text-gray-900 dark:text-white">We value your privacy</h2>
+
+            <p class="text-sm text-gray-600 dark:text-gray-300 mb-4">
+                We use cookies to run essential site features and, with your consent, to understand how the site is used.
+                <a href="{% url 'cookie_policy' %}" class="underline text-blue-600 hover:text-blue-800 dark:text-blue-400">Cookie Policy</a>
+            </p>
+
+            <div id="cookie-prefs-panel" class="hidden mb-4 space-y-3 border-t border-gray-200 dark:border-gray-700 pt-3">
+                <div class="flex items-center justify-between gap-3">
+                    <div>
+                        <p class="text-sm font-medium text-gray-900 dark:text-white">Essential</p>
+                        <p class="text-xs text-gray-500 dark:text-gray-400">Required for cart, login and security. Always on.</p>
+                    </div>
+                    <input type="checkbox" checked disabled aria-label="Essential cookies (always on)"
+                           class="h-4 w-4 shrink-0 opacity-50 cursor-not-allowed">
+                </div>
+                <div class="flex items-center justify-between gap-3">
+                    <div>
+                        <p class="text-sm font-medium text-gray-900 dark:text-white">Analytics</p>
+                        <p class="text-xs text-gray-500 dark:text-gray-400">Helps us understand site usage. Optional.</p>
+                    </div>
+                    <input type="checkbox" id="cookie-analytics-toggle" aria-label="Analytics cookies"
+                           class="h-4 w-4 shrink-0 accent-blue-600">
+                </div>
             </div>
-            <div class="flex gap-4">
-                <button id="accept-cookies" class="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg text-sm transition-colors" aria-label="Accept cookies">Accept</button>
-                <button id="decline-cookies" class="bg-gray-600 hover:bg-gray-700 text-white px-4 py-2 rounded-lg text-sm transition-colors" aria-label="Decline cookies">Decline</button>
+
+            <div class="flex flex-col gap-2">
+                <div class="flex gap-2">
+                    <button id="cookie-accept-all" type="button"
+                            class="flex-1 px-3 py-2 text-sm font-medium rounded-lg bg-blue-600 text-white hover:bg-blue-700 transition-colors">
+                        Accept all
+                    </button>
+                    <button id="cookie-reject-all" type="button"
+                            class="flex-1 px-3 py-2 text-sm font-medium rounded-lg border border-gray-300 dark:border-gray-600 text-gray-700 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors">
+                        Reject non-essential
+                    </button>
+                </div>
+                <div class="flex gap-2">
+                    <button id="cookie-manage-toggle" type="button"
+                            class="flex-1 px-3 py-1.5 text-xs underline text-gray-600 dark:text-gray-300 hover:text-blue-600 transition-colors">
+                        Manage preferences
+                    </button>
+                    <button id="cookie-save-prefs" type="button"
+                            class="hidden flex-1 px-3 py-1.5 text-xs font-medium rounded-lg bg-blue-600 text-white hover:bg-blue-700 transition-colors">
+                        Save preferences
+                    </button>
+                </div>
             </div>
         </div>
-    </aside>
+    </div>
 
     <!-- Scripts -->
     <script src="{% static 'js/menu.js' %}"></script>
@@ -145,24 +185,87 @@
     <script src="{% static 'js/testimonial-carousel.js' %}"></script>
     <script src="{% static 'js/video-tracking.js' %}"></script>
     <script>
-        document.addEventListener('DOMContentLoaded', function() {
-            const cookieConsent = localStorage.getItem('cookieConsent');
-            const banner = document.getElementById('cookie-banner');
-            
-            if (!cookieConsent) {
-                banner.classList.remove('hidden');
+    (function () {
+        var STORAGE_KEY = 'streamCookieConsent';
+        var banner = document.getElementById('cookie-consent');
+        if (!banner) return;
+
+        function readConsent() {
+            try {
+                var raw = localStorage.getItem(STORAGE_KEY);
+                return raw ? JSON.parse(raw) : null;
+            } catch (e) { return null; }
+        }
+
+        function applyConsent(payload) {
+            // If Google Analytics (Consent Mode) is ever added, this updates it.
+            if (window.gtag) {
+                window.gtag('consent', 'update', {
+                    analytics_storage: payload.analytics ? 'granted' : 'denied'
+                });
             }
-            
-            document.getElementById('accept-cookies').addEventListener('click', function() {
-                localStorage.setItem('cookieConsent', 'accepted');
-                banner.classList.add('hidden');
-            });
-            
-            document.getElementById('decline-cookies').addEventListener('click', function() {
-                localStorage.setItem('cookieConsent', 'declined');
-                banner.classList.add('hidden');
-            });
+            window.dispatchEvent(new CustomEvent('streamCookieConsentUpdated', { detail: payload }));
+        }
+
+        function writeConsent(analytics) {
+            var payload = { analytics: !!analytics, ts: new Date().toISOString() };
+            try { localStorage.setItem(STORAGE_KEY, JSON.stringify(payload)); } catch (e) {}
+            applyConsent(payload);
+            return payload;
+        }
+
+        var existing = readConsent();
+        if (existing) {
+            applyConsent(existing);
+            banner.remove();
+            return;
+        }
+
+        requestAnimationFrame(function () {
+            banner.classList.remove('translate-y-4', 'opacity-0', 'pointer-events-none');
+            banner.classList.add('translate-y-0', 'opacity-100');
+            banner.setAttribute('aria-hidden', 'false');
         });
+
+        function dismiss() {
+            banner.classList.add('translate-y-4', 'opacity-0');
+            banner.classList.remove('translate-y-0', 'opacity-100');
+            setTimeout(function () { banner.remove(); }, 300);
+        }
+
+        var acceptAll = document.getElementById('cookie-accept-all');
+        var rejectAll = document.getElementById('cookie-reject-all');
+        var manageToggle = document.getElementById('cookie-manage-toggle');
+        var savePrefs = document.getElementById('cookie-save-prefs');
+        var panel = document.getElementById('cookie-prefs-panel');
+        var analyticsToggle = document.getElementById('cookie-analytics-toggle');
+
+        if (acceptAll) acceptAll.addEventListener('click', function (e) {
+            e.preventDefault();
+            writeConsent(true);
+            dismiss();
+        });
+
+        if (rejectAll) rejectAll.addEventListener('click', function (e) {
+            e.preventDefault();
+            writeConsent(false);
+            dismiss();
+        });
+
+        if (manageToggle) manageToggle.addEventListener('click', function (e) {
+            e.preventDefault();
+            var opening = panel.classList.contains('hidden');
+            panel.classList.toggle('hidden');
+            manageToggle.classList.toggle('hidden', opening);
+            savePrefs.classList.toggle('hidden', !opening);
+        });
+
+        if (savePrefs) savePrefs.addEventListener('click', function (e) {
+            e.preventDefault();
+            writeConsent(!!(analyticsToggle && analyticsToggle.checked));
+            dismiss();
+        });
+    })();
     </script>
 </body>
 </html>

@@ -294,10 +294,10 @@ class SiteSettings(models.Model):
         max_length=500,
         blank=True,
         default=(
-            "I agree that by purchasing this digital content, I waive my right "
-            "to withdraw from this contract under the Consumer Contracts "
-            "Regulations 2013 / EU Consumer Rights Directive once the download "
-            "has begun."
+            "I expressly consent to immediate access to this digital content as "
+            "soon as my purchase is complete, and I acknowledge that I therefore "
+            "lose my right to cancel under the Consumer Contracts Regulations "
+            "2013 once the download has begun."
         ),
         help_text="Legal text displayed next to the withdrawal consent checkbox at checkout.",
         verbose_name="Digital withdrawal consent text",
