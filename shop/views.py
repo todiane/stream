@@ -368,6 +368,33 @@ def secure_download(request, order_item_id):
 
 
 @login_required
+@require_http_methods(["GET"])
+def staff_download(request, product_id):
+    """Let staff/superusers download a product's secure file to check it,
+    without needing a purchase. Does not touch download counts or logs."""
+    if not (request.user.is_staff or request.user.is_superuser):
+        raise PermissionDenied
+
+    product = get_object_or_404(Product, id=product_id)
+
+    file_path = None
+    if product.files and product.files.name:
+        file_path = product.files.path
+
+    if not file_path or not os.path.exists(file_path):
+        raise Http404("File not found")
+
+    content_type, encoding = mimetypes.guess_type(file_path)
+    content_type = content_type or "application/octet-stream"
+
+    response = FileResponse(open(file_path, "rb"), content_type=content_type)
+    response["Content-Disposition"] = (
+        f'attachment; filename="{os.path.basename(file_path)}"'
+    )
+    return response
+
+
+@login_required
 def add_review(request, product_id):
     product = get_object_or_404(Product, id=product_id)
 

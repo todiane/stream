@@ -1,5 +1,6 @@
 from django.contrib import admin
 from django.utils.html import format_html
+from django.urls import reverse
 from django.core.exceptions import ValidationError
 from django.core.validators import URLValidator
 import requests
@@ -30,7 +31,12 @@ class ProductAdmin(admin.ModelAdmin):
     list_filter = ["status", "category", "product_type", "featured", "created"]
     search_fields = ["title", "description", "public_id"]
     prepopulated_fields = {"slug": ("title",)}
-    readonly_fields = ["public_id", "purchase_count", "display_preview"]
+    readonly_fields = [
+        "public_id",
+        "purchase_count",
+        "display_preview",
+        "download_file",
+    ]
     list_editable = ["order"]
 
     fieldsets = (
@@ -67,6 +73,7 @@ class ProductAdmin(admin.ModelAdmin):
                     "preview_image",
                     "external_image_url",
                     "files",
+                    "download_file",
                     "preview_file",
                     "external_preview_url",
                 ),
@@ -116,6 +123,16 @@ class ProductAdmin(admin.ModelAdmin):
         return format_html("".join(html)) if html else "-"
 
     display_preview.short_description = "Preview"
+
+    def download_file(self, obj):
+        if obj.pk and obj.files and obj.files.name:
+            url = reverse("shop:staff_download", args=[obj.pk])
+            return format_html(
+                '<a href="{}" class="button" target="_blank">Download file</a>', url
+            )
+        return "Save the product with a file uploaded to enable download."
+
+    download_file.short_description = "Download uploaded file"
 
     def clean_external_preview_url(self, url):
         if not url:

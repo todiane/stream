@@ -21,6 +21,11 @@ urlpatterns = [
         views.secure_download,
         name="secure_download",
     ),
+    path(
+        "staff-download/<int:product_id>/",
+        views.staff_download,
+        name="staff_download",
+    ),
     path("orders/", views.order_history, name="order_history"),
     path("orders/<str:order_id>/", views.order_detail, name="order_detail"),
     path("purchases/", views.purchases, name="purchases"),
