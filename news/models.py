@@ -219,3 +219,35 @@ class Post(models.Model):
 
         # Nothing found
         return None
+
+    def get_youtube_video_id(self):
+        """Extract the YouTube video ID from any supported URL format."""
+        if not self.youtube_url:
+            return None
+
+        url = self.youtube_url.strip()
+
+        # youtu.be short links
+        if "youtu.be" in url:
+            return url.split("/")[-1].split("?")[0]
+
+        # standard watch?v= links
+        if "watch?v=" in url:
+            return url.split("watch?v=")[1].split("&")[0]
+
+        # embed links
+        if "/embed/" in url:
+            return url.split("/embed/")[1].split("?")[0]
+
+        return None
+
+    def get_youtube_embed_url(self):
+        """Get the YouTube embed URL for the detail page iframe.
+
+        Matches the Djangify production format (plain youtube.com/embed/<id>,
+        no extra query params) which avoids YouTube player Error 153.
+        """
+        video_id = self.get_youtube_video_id()
+        if video_id:
+            return f"https://www.youtube.com/embed/{video_id}"
+        return None

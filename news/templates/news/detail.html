@@ -121,6 +121,8 @@
                         class="absolute inset-0 w-full h-full rounded-lg shadow-lg"
                         src="{{ post.get_youtube_embed_url }}"
                         frameborder="0"
+                        loading="lazy"
+                        referrerpolicy="strict-origin-when-cross-origin"
                         allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
                         allowfullscreen
                         title="{{ post.title }}">

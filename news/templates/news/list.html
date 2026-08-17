@@ -42,15 +42,19 @@
                 <div class="w-full h-48 overflow-hidden">
                     
                         {% if post.external_image_url %}
-                            <img src="{{ post.external_image_url }}" 
-                                alt="{{ post.title }}" 
+                            <img src="{{ post.external_image_url }}"
+                                alt="{{ post.title }}"
                                 class="w-full h-full object-cover">
-                        {% elif post.get_image_url %}
-                            <img src="{{ post.get_image_url }}" 
-                                alt="{{ post.title }}" 
+                        {% elif post.image %}
+                            <img src="{{ post.image.url }}"
+                                alt="{{ post.title }}"
+                                class="w-full h-full object-cover">
+                        {% elif post.thumbnail %}
+                            <img src="{{ post.thumbnail.url }}"
+                                alt="{{ post.title }}"
                                 class="w-full h-full object-cover">
                         {% elif post.youtube_url %}
-                            <img src="https://img.youtube.com/vi/{{ post.get_youtube_video_id }}/maxresdefault.jpg" 
+                            <img src="https://img.youtube.com/vi/{{ post.get_youtube_video_id }}/maxresdefault.jpg"
                                  alt="{{ post.title }}"
                                  class="w-full h-full object-cover"
                                  onerror="this.onerror=null; this.src='https://img.youtube.com/vi/{{ post.get_youtube_video_id }}/hqdefault.jpg';">
