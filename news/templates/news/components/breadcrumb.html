@@ -23,5 +23,12 @@
         </a>
       </li>
     {% endif %}
+
+    {% if post %}
+      <li aria-hidden="true" class="text-gray-400 select-none">›</li>
+      <li aria-current="page" class="text-gray-500 truncate max-w-[16rem]">
+        {{ post.title }}
+      </li>
+    {% endif %}
   </ol>
 </nav>

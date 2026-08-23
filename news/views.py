@@ -1,23 +1,40 @@
 from django.shortcuts import render, get_object_or_404
 from django.core.paginator import Paginator
 from django.conf import settings
+from django.db.models import Q
 from shop.cart import Cart
 from .models import Post, Category
 from django.utils import timezone
 
 
 def news_list(request):
+    query = request.GET.get("q", "").strip()
+
     posts = Post.objects.filter(
         status="published", publish_date__lte=timezone.now()
     ).select_related("category")
+
+    if query:
+        posts = posts.filter(
+            Q(title__icontains=query)
+            | Q(content__icontains=query)
+            | Q(category__name__icontains=query)
+            | Q(meta_keywords__icontains=query)
+        )
 
     paginator = Paginator(posts, 12)
     page = request.GET.get("page")
     posts = paginator.get_page(page)
 
+    categories = Category.objects.filter(
+        post__status="published", post__publish_date__lte=timezone.now()
+    ).distinct()
+
     context = {
         "posts": posts,
-        "categories": Category.objects.all(),
+        "categories": categories,
+        "current_category": None,
+        "query": query,
         "title": "News",
         "meta_description": "Latest news and updates from Stream English",
         "debug": settings.DEBUG,
