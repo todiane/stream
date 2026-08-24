@@ -59,6 +59,12 @@ class Post(models.Model):
         ("draft", "Draft"),
         ("published", "Published"),
     ]
+    CONTENT_TYPE_CHOICES = [
+        ("article", "Article"),
+        ("bite", "Quick Read"),
+        ("video", "Video"),
+        ("audio", "Audio"),
+    ]
     AD_TYPE_CHOICES = [
         ("none", "No Advertisement"),
         ("adsense", "Google AdSense"),
@@ -75,6 +81,12 @@ class Post(models.Model):
     # Basic fields
     title = models.CharField(max_length=200)
     slug = models.SlugField(unique=True)
+    content_type = models.CharField(
+        max_length=10,
+        choices=CONTENT_TYPE_CHOICES,
+        default="article",
+        help_text="Article = long-form post, Bite = short quick-read, Video = video embed, Audio = podcast/audio embed.",
+    )
     content = HTMLField("Content")
     category = models.ForeignKey(Category, on_delete=models.PROTECT)
     author = models.ForeignKey(

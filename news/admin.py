@@ -54,13 +54,14 @@ class PostAdmin(admin.ModelAdmin):
 
     list_display = [
         "title",
+        "content_type",
         "category",
         "status",
         "publish_date",
         "display_thumbnail",
     ]
 
-    list_filter = ["status", "category", "created", "publish_date"]
+    list_filter = ["status", "content_type", "category", "created", "publish_date"]
     search_fields = ["title", "content", "meta_title", "meta_description"]
     prepopulated_fields = {"slug": ("title",)}
     date_hierarchy = "publish_date"
@@ -73,6 +74,7 @@ class PostAdmin(admin.ModelAdmin):
                 "fields": (
                     "title",
                     "slug",
+                    "content_type",
                     "category",
                     "author",
                     "content",

@@ -99,7 +99,14 @@
         {% for post in posts %}
         <article class="bg-white rounded-lg shadow-lg overflow-hidden">
             <a href="{{ post.get_absolute_url }}" class="block">
-                <div class="w-full h-48 overflow-hidden">
+                <div class="w-full h-48 overflow-hidden relative">
+
+                        <!-- Content type badge overlay -->
+                        {% if post.content_type != "article" %}
+                        <div class="absolute top-2 left-2 z-10">
+                            {% include "news/components/content_type_badge.html" with post=post %}
+                        </div>
+                        {% endif %}
 
                         {% if post.external_image_url %}
                             <img src="{{ post.external_image_url }}"

@@ -5,6 +5,7 @@ from django.conf import settings
 from django.views.static import serve
 from django.contrib.sitemaps.views import sitemap
 from pages.views import home_view
+from pages.views_upload import tinymce_upload
 from django.conf.urls.static import static
 
 from . import views
@@ -34,6 +35,7 @@ sitemaps = {
 urlpatterns = [
     path("", include("pages.urls", namespace="pages")),
     path("admin/", admin.site.urls),
+    path("tinymce/upload/", tinymce_upload, name="tinymce_upload"),
     path("profiles/", include("profiles.urls", namespace="profiles")),
     path("courses/", include("courses.urls", namespace="courses")),
     path("news/", include("news.urls", namespace="news")),

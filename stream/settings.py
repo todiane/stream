@@ -291,7 +291,9 @@ TINYMCE_DEFAULT_CONFIG = {
     "image_caption": True,
     "automatic_uploads": True,
     "file_picker_types": "image",
-    "images_upload_url": "/tinymce/upload/",  # We'll create this view
+    # Inline image uploads -> saved via pages.views_upload.tinymce_upload
+    "images_upload_url": "/tinymce/upload/",
+    "images_upload_credentials": True,
     # Link settings
     "link_default_target": "_blank",
     "link_assume_external_targets": True,
