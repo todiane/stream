@@ -17,6 +17,7 @@
     {% endblock %}
     
     <title>{% block head_title %}Stream English - GCSE English Language and Literature{% endblock %}</title>
+    {% block canonical %}<link rel="canonical" href="{{ request.scheme }}://{{ request.get_host }}{{ request.path }}">{% endblock %}
     <link rel="icon" type="image/ico" href="{% static 'img/favicon.ico' %}">
     
     <!-- Schema.org markup for Google — EducationalOrganization + Person -->

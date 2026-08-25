@@ -4,9 +4,27 @@
 {% block content %}
 <div class="container mx-auto bg-white px-6 py-12">
     <!-- Title -->
-    <h1 class="text-3xl text-center mb-12 font-bold">
+    <h1 class="text-3xl text-center mb-6 font-bold">
         Stream English Study Materials
     </h1>
+
+    <!-- Editorial introduction (helps this hub page get indexed instead of read as a thin grid) -->
+    <div class="max-w-8xl mx-auto mb-8 text-gray-700">
+        <p class="mb-4">
+            Welcome to the Stream English shop — a growing library of GCSE English Language and
+            Literature resources created by a practising English teacher. Here you'll find revision
+            guides, exam-preparation workbooks, model answers and practice papers designed to match
+            what examiners actually reward. The materials focus on the AQA and Edexcel IGCSE
+            specifications, but the skills they teach — analysing language, structuring an argument
+            and writing with precision — apply right across the exam boards.
+        </p>
+        <p>
+            Use the category filters below to browse by topic, from set-text study guides for
+            Literature to Paper 1 and Paper 2 preparation for Language. Every resource is written to
+            be used on its own for independent revision or alongside our free video lessons, so
+            students, parents and teachers can pick exactly what they need.
+        </p>
+    </div>
 
     <!-- Category Filter Section -->
     <div class="bg-white shadow rounded-lg p-4 mb-8">
@@ -99,7 +117,45 @@
         <p class="text-gray-600">No products found.</p>
     </div>
     {% endif %}
+
+    <!-- FAQ: adds unique text + FAQPage structured data to the hub page -->
+    <section class="max-w-3xl mx-auto mt-16" aria-labelledby="shop-faq-heading">
+        <h2 id="shop-faq-heading" class="text-2xl font-bold mb-6 text-center">Frequently Asked Questions</h2>
+
+        <details class="mb-3 border rounded-lg p-4" style="border-color:#e5e7eb;">
+            <summary class="font-semibold cursor-pointer">Which exam boards do your resources cover?</summary>
+            <p class="mt-3 text-gray-700">Most resources are built around the AQA and Edexcel IGCSE English Language and Literature specifications. Because they teach transferable exam skills — language analysis, structure and essay writing — students on other boards such as OCR and Eduqas will find much of the content useful too.</p>
+        </details>
+
+        <details class="mb-3 border rounded-lg p-4" style="border-color:#e5e7eb;">
+            <summary class="font-semibold cursor-pointer">Are these study guides suitable for independent revision?</summary>
+            <p class="mt-3 text-gray-700">Yes. Every guide is written to be used on its own for self-study, with clear explanations, worked examples and model answers. They also pair naturally with our free video lessons if you'd like to see a topic explained step by step.</p>
+        </details>
+
+        <details class="mb-3 border rounded-lg p-4" style="border-color:#e5e7eb;">
+            <summary class="font-semibold cursor-pointer">Do you cover both English Language and English Literature?</summary>
+            <p class="mt-3 text-gray-700">We do. You'll find Paper 1 and Paper 2 preparation for English Language alongside set-text study guides, quotation banks and essay plans for English Literature. Use the category filters above to browse by subject.</p>
+        </details>
+
+        <details class="mb-3 border rounded-lg p-4" style="border-color:#e5e7eb;">
+            <summary class="font-semibold cursor-pointer">How do I access a resource after I buy it?</summary>
+            <p class="mt-3 text-gray-700">Digital resources are available to download straight after checkout, and the download link is also saved to your account so you can return to it at any time.</p>
+        </details>
+    </section>
 </div>
+
+<script type="application/ld+json">
+{
+    "@context": "https://schema.org",
+    "@type": "FAQPage",
+    "mainEntity": [
+        {"@type": "Question", "name": "Which exam boards do your resources cover?", "acceptedAnswer": {"@type": "Answer", "text": "Most resources are built around the AQA and Edexcel IGCSE English Language and Literature specifications. Because they teach transferable exam skills such as language analysis, structure and essay writing, students on other boards such as OCR and Eduqas will find much of the content useful too."}},
+        {"@type": "Question", "name": "Are these study guides suitable for independent revision?", "acceptedAnswer": {"@type": "Answer", "text": "Yes. Every guide is written to be used on its own for self-study, with clear explanations, worked examples and model answers. They also pair naturally with the free Stream English video lessons."}},
+        {"@type": "Question", "name": "Do you cover both English Language and English Literature?", "acceptedAnswer": {"@type": "Answer", "text": "Yes. There is Paper 1 and Paper 2 preparation for English Language alongside set-text study guides, quotation banks and essay plans for English Literature."}},
+        {"@type": "Question", "name": "How do I access a resource after I buy it?", "acceptedAnswer": {"@type": "Answer", "text": "Digital resources are available to download straight after checkout, and the download link is also saved to your account so you can return to it at any time."}}
+    ]
+}
+</script>
 
 <!-- Load the category filter JavaScript -->
 <script src="{% static 'js/category-filter.js' %}"></script>

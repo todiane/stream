@@ -1,5 +1,8 @@
-{% extends "base.html" %} 
+{% extends "base.html" %}
 {% load static %}
+
+{% block head_title %}{{ object.title }} | {{ course.title }} | Stream English{% endblock %}
+{% block meta_description %}<meta name="description" content="{% if object.description %}{{ object.description|striptags|truncatewords:26 }}{% else %}{{ object.title }} — a GCSE English lesson from {{ course.title }} at Stream English, covering AQA and Edexcel exam skills.{% endif %}">{% endblock %}
 
 {% block extra_head %}
 {{ block.super }}
