@@ -2,6 +2,21 @@
 {% load static %}
 {% load text_filters %}
 
+{% block head_title %}GCSE English Blog — Articles, Tips & FAQs | Stream English{% endblock %}
+
+{% block meta_description %}<meta name="description" content="GCSE English Language and Literature articles, revision tips and FAQs from Stream English.">{% endblock %}
+
+{% block open_graph_tags %}
+<meta property="og:site_name" content="{{ site_settings.site_name|default:'Stream English' }}">
+<meta property="og:title" content="GCSE English Blog — Articles, Tips & FAQs | Stream English">
+<meta property="og:description" content="GCSE English Language and Literature articles, revision tips and FAQs from Stream English.">
+<meta property="og:type" content="website">
+<meta property="og:url" content="{{ request.build_absolute_uri }}">
+<meta property="og:image" content="{{ request.scheme }}://{{ request.get_host }}{% static 'img/default-og-image.jpg.jpg' %}">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="GCSE English Blog — Articles, Tips & FAQs | Stream English">
+{% endblock %}
+
 {% block extra_head %}
 {{ block.super }}
 <script type="application/ld+json">

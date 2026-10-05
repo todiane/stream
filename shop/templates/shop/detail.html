@@ -1,4 +1,26 @@
 {% extends "base.html" %}
+{% load static %}
+
+{% block head_title %}{{ product.title }} | Stream English{% endblock %}
+
+{% block meta_description %}<meta name="description" content="{{ product.description|striptags|truncatewords:25 }}">{% endblock %}
+
+{% block open_graph_tags %}
+<meta property="og:site_name" content="{{ site_settings.site_name|default:'Stream English' }}">
+<meta property="og:title" content="{{ product.title }}">
+<meta property="og:description" content="{{ product.description|striptags|truncatewords:25 }}">
+<meta property="og:type" content="product">
+<meta property="og:url" content="{{ request.build_absolute_uri }}">
+{% if product.external_image_url %}
+<meta property="og:image" content="{{ product.external_image_url }}">
+{% elif product.get_image_url %}
+<meta property="og:image" content="{{ request.scheme }}://{{ request.get_host }}{{ product.get_image_url }}">
+{% else %}
+<meta property="og:image" content="{{ request.scheme }}://{{ request.get_host }}{% static 'img/default-og-image.jpg.jpg' %}">
+{% endif %}
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="{{ product.title }}">
+{% endblock %}
 
 {% block extra_head %}
 {{ block.super }}

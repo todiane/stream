@@ -3,6 +3,20 @@
 
 {% block head_title %}{{ page.meta_title|default:"About Stream English" }}{% endblock head_title %}
 
+{% block meta_description %}<meta name="description" content="{{ page.meta_description|default:"Meet the educator behind Stream English's GCSE English Language and Literature tuition and resources." }}">{% endblock %}
+
+{% block open_graph_tags %}
+<meta property="og:site_name" content="{{ site_settings.site_name|default:'Stream English' }}">
+<meta property="og:title" content="{{ page.meta_title|default:"About Stream English" }}">
+<meta property="og:description" content="{{ page.meta_description|default:"Meet the educator behind Stream English's GCSE English Language and Literature tuition and resources." }}">
+<meta property="og:type" content="website">
+<meta property="og:url" content="{{ request.build_absolute_uri }}">
+<meta property="og:image" content="{{ request.scheme }}://{{ request.get_host }}{% static 'img/default-og-image.jpg.jpg' %}">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="{{ page.meta_title|default:"About Stream English" }}">
+<meta name="twitter:image" content="{{ request.scheme }}://{{ request.get_host }}{% static 'img/default-og-image.jpg.jpg' %}">
+{% endblock %}
+
 {% block extra_head %}
 {{ block.super }}
 <script type="application/ld+json">

@@ -1,6 +1,27 @@
 {% extends "base.html" %}
 {% load static %}
 
+{% block head_title %}{{ object.title }} | Stream English{% endblock %}
+
+{% block meta_description %}<meta name="description" content="{{ object.description|striptags|truncatewords:26 }}">{% endblock %}
+
+{% block open_graph_tags %}
+<meta property="og:site_name" content="{{ site_settings.site_name|default:'Stream English' }}">
+<meta property="og:title" content="{{ object.title }}">
+<meta property="og:description" content="{{ object.description|striptags|truncatewords:26 }}">
+<meta property="og:type" content="website">
+<meta property="og:url" content="{{ request.build_absolute_uri }}">
+{% if object.external_image_url %}
+<meta property="og:image" content="{{ object.external_image_url }}">
+{% elif object.get_display_image %}
+<meta property="og:image" content="{{ request.scheme }}://{{ request.get_host }}{{ object.get_display_image }}">
+{% else %}
+<meta property="og:image" content="{{ request.scheme }}://{{ request.get_host }}{% static 'img/default-og-image.jpg.jpg' %}">
+{% endif %}
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="{{ object.title }}">
+{% endblock %}
+
 {% block extra_head %}
 {{ block.super }}
 {% with base_url=site_settings.site_url|default:'https://streamenglish.co.uk' %}
@@ -73,25 +94,33 @@
             <h1 class="mb-4 text-3xl lg:text-4xl tracking-tight font-extrabold text-gray-900">
                 {{ object.title }}
             </h1>
+            {% if lessons_queryset %}
+            <a href="#enrol" class="inline-flex items-center font-medium text-blue-600 hover:underline">
+                Jump to the videos
+                <svg class="ml-1 w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 14l-7 7m0 0l-7-7m7 7V3"/>
+                </svg>
+            </a>
+            {% endif %}
         </div>
 
         <!-- Course Image -->
         <div class="flex justify-center items-center">
             <img src="{{ object.get_display_image|safe }}"
                  alt="{{ object.title }}"
-                 class="w-full max-w-2xl rounded-lg shadow-xl"
+                 class="w-full max-w-md rounded-lg shadow-xl"
             />
         </div>
 
         <!-- Course Description -->
         <div class="flex justify-center items-center mt-8">
-            <div class="prose prose-lg max-w-3xl">
+            <div class="prose prose-lg max-w-7xl">
                 {{ object.description|safe }}
             </div>
         </div>
 
          <!-- Enrollment Button -->
-        <div class="flex justify-center mt-8">
+        <div id="enrol" class="flex justify-center mt-8">
             <div class="inline-block text-center">  <!-- Add this wrapper -->
                 {% if user.is_authenticated %}
                     {% if object in user.profile.enrolled_courses.all %}
@@ -117,7 +146,7 @@
         </div>
 
         <!-- Lessons Section -->
-        <div class="mt-16">
+        <div id="lessons" class="mt-16">
             <div class="mx-auto max-w-screen-sm text-center mb-8">
                 <h2 class="mb-4 text-2xl lg:text-3xl tracking-tight font-extrabold text-gray-900">
                     Lessons

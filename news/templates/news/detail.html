@@ -9,6 +9,25 @@
 
 {% block meta_keywords %}{% if post.meta_keywords %}<meta name="keywords" content="{{ post.meta_keywords }}">{% endif %}{% endblock %}
 
+{% load static %}
+{% block open_graph_tags %}
+<meta property="og:site_name" content="{{ site_settings.site_name|default:'Stream English' }}">
+<meta property="og:title" content="{{ post.meta_title|default:post.title }}">
+<meta property="og:description" content="{{ post.meta_description|default:post.title }}">
+<meta property="og:type" content="article">
+<meta property="og:url" content="{{ request.build_absolute_uri }}">
+{% if post.external_image_url %}
+<meta property="og:image" content="{{ post.external_image_url }}">
+{% elif post.image %}
+<meta property="og:image" content="{{ request.scheme }}://{{ request.get_host }}{{ post.image.url }}">
+{% else %}
+<meta property="og:image" content="{{ request.scheme }}://{{ request.get_host }}{% static 'img/default-og-image.jpg.jpg' %}">
+{% endif %}
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="{{ post.meta_title|default:post.title }}">
+<meta name="twitter:description" content="{{ post.meta_description|default:post.title }}">
+{% endblock %}
+
 {# ------------------------------------------------------------------ #}
 {# Structured data — BlogPosting + BreadcrumbList                      #}
 {# ------------------------------------------------------------------ #}

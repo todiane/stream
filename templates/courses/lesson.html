@@ -4,6 +4,25 @@
 {% block head_title %}{{ object.title }} | {{ course.title }} | Stream English{% endblock %}
 {% block meta_description %}<meta name="description" content="{% if object.description %}{{ object.description|striptags|truncatewords:26 }}{% else %}{{ object.title }} — a GCSE English lesson from {{ course.title }} at Stream English, covering AQA and Edexcel exam skills.{% endif %}">{% endblock %}
 
+{% block open_graph_tags %}
+<meta property="og:site_name" content="{{ site_settings.site_name|default:'Stream English' }}">
+<meta property="og:title" content="{{ object.title }} | {{ course.title }}">
+<meta property="og:description" content="{% if object.description %}{{ object.description|striptags|truncatewords:26 }}{% else %}{{ object.title }} — a GCSE English lesson from {{ course.title }} at Stream English, covering AQA and Edexcel exam skills.{% endif %}">
+<meta property="og:type" content="video.other">
+<meta property="og:url" content="{{ request.build_absolute_uri }}">
+{% if object.external_image_url %}
+<meta property="og:image" content="{{ object.external_image_url }}">
+{% elif object.thumbnail %}
+<meta property="og:image" content="{{ request.scheme }}://{{ request.get_host }}{{ object.thumbnail.url }}">
+{% elif object.get_thumbnail_url %}
+<meta property="og:image" content="{{ object.get_thumbnail_url }}">
+{% else %}
+<meta property="og:image" content="{{ request.scheme }}://{{ request.get_host }}{% static 'img/default-og-image.jpg.jpg' %}">
+{% endif %}
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="{{ object.title }} | {{ course.title }}">
+{% endblock %}
+
 {% block extra_head %}
 {{ block.super }}
 {% if object.has_video %}

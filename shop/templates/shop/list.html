@@ -1,5 +1,26 @@
 {% extends "base.html" %}
-{% load static %} 
+{% load static %}
+
+{% block head_title %}{% if current_category %}{{ current_category.name }} | Stream English Shop{% else %}Stream English Study Materials | Stream English{% endif %}{% endblock %}
+
+{% block meta_description %}<meta name="description" content="{% if current_category %}{{ current_category.description|striptags|default:current_category.name }}{% else %}Shop GCSE English Language and Literature study materials, workbooks and revision resources from Stream English.{% endif %}">{% endblock %}
+
+{% block open_graph_tags %}
+<meta property="og:site_name" content="{{ site_settings.site_name|default:'Stream English' }}">
+{% if current_category %}
+<meta property="og:title" content="{{ current_category.name }} | Stream English Shop">
+<meta property="og:description" content="{{ current_category.description|striptags|default:current_category.name }}">
+<meta name="twitter:title" content="{{ current_category.name }} | Stream English Shop">
+{% else %}
+<meta property="og:title" content="Stream English Study Materials | Stream English">
+<meta property="og:description" content="Shop GCSE English Language and Literature study materials, workbooks and revision resources from Stream English.">
+<meta name="twitter:title" content="Stream English Study Materials | Stream English">
+{% endif %}
+<meta property="og:type" content="website">
+<meta property="og:url" content="{{ request.build_absolute_uri }}">
+<meta property="og:image" content="{{ request.scheme }}://{{ request.get_host }}{% static 'img/default-og-image.jpg.jpg' %}">
+<meta name="twitter:card" content="summary_large_image">
+{% endblock %}
 
 {% block content %}
 <div class="container mx-auto bg-white px-6 py-12">
@@ -11,7 +32,7 @@
     <!-- Editorial introduction (helps this hub page get indexed instead of read as a thin grid) -->
     <div class="max-w-7xl mx-auto mb-8 text-gray-700">
         <p class="mb-4">
-            I know that, for many students, my YouTube videos are not enough. The highest grades are not gained purely by listening to someone else's ideas - you need the opportunity to practice, to revise and to read model essays. That's why I make these resources. Here you'll find a range of materials all designed to get support and enhance your skills for GCSE English Language and Literature. 
+            I know that, for many students, my YouTube videos are not enough. The highest grades are not gained purely by listening to someone else's ideas - you need the opportunity to practice, to revise and to read model essays. That's why I make these resources. Here you'll find a range of materials all designed to support and enhance your skills for GCSE English Language and Literature. 
             </p>
             <p class="mb-4">
             I also provide resources for teachers. These resources aim to help you maximise your time with high-quality materials to suit high-ability students. I'm also aware that teachers use my YouTube video as homework assignments; lots of the resources aim to help your students get the most out of that homework.
