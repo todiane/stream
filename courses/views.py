@@ -18,11 +18,13 @@ def course_list_view(request):
     if request.headers.get("X-Requested-With") == "XMLHttpRequest":
         query = request.GET.get("query", "")
         # Search courses
-        courses = Course.objects.filter(Q(title__icontains=query), status="publish")
+        courses = Course.objects.filter(
+            Q(title__icontains=query), status__in=["publish", "soon"]
+        )
         # Search lessons
         lessons = Lesson.objects.filter(
             Q(title__icontains=query),
-            course__status="publish",
+            course__status__in=["publish", "soon"],
             status__in=["publish", "soon"],
         )
 
@@ -70,7 +72,7 @@ def lesson_detail_view(request, course_slug=None, lesson_slug=None, *args, **kwa
     Simplified to support YouTube videos only.
     """
     try:
-        course = Course.objects.get(slug=course_slug, status="publish")
+        course = Course.objects.get(slug=course_slug, status__in=["publish", "soon"])
         lesson_obj = Lesson.objects.get(
             course=course, slug=lesson_slug, status__in=["publish", "soon"]
         )
@@ -128,7 +130,9 @@ def lesson_detail_view(request, course_slug=None, lesson_slug=None, *args, **kwa
 
 
 def course_detail_view(request, course_slug=None, *args, **kwargs):
-    course_obj = get_object_or_404(Course, status="publish", slug=course_slug)
+    course_obj = get_object_or_404(
+        Course, status__in=["publish", "soon"], slug=course_slug
+    )
     lessons_queryset = services.get_course_lessons(course_obj)
     context = {
         "object": course_obj,

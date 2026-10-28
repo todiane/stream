@@ -6,7 +6,7 @@ logger = logging.getLogger("django")
 
 
 def get_publish_courses():
-    return Course.objects.filter(status="publish")
+    return Course.objects.filter(status__in=["publish", "soon"])
 
 
 def get_course_detail(course_slug=None):
@@ -15,7 +15,7 @@ def get_course_detail(course_slug=None):
     try:
         return Course.objects.get(
             slug=course_slug,  # Changed from public_id to slug based on your URL structure
-            status="publish",
+            status__in=["publish", "soon"],
         )
     except Course.DoesNotExist:
         return None

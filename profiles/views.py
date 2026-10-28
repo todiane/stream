@@ -170,6 +170,10 @@ def delete_account(request):
 def enrol_course(request, course_slug):
     course = get_object_or_404(Course, slug=course_slug)
 
+    if course.is_coming_soon:
+        messages.info(request, "This course is not available yet.")
+        return redirect("courses:course_detail", course_slug=course_slug)
+
     # Check if email verification is required
     if course.access == "email" and not request.user.profile.email_verified:
         messages.error(request, "Please verify your email to enrol in this course.")

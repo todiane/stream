@@ -18,7 +18,7 @@ def home_view(request):
         page = Page.objects.get(template="home", is_active=True)
         hero = Hero.objects.filter(is_active=True).first()
         banner = HeroBanner.objects.filter(is_active=True).first()
-        featured_courses = Course.objects.filter(status="publish")[:3]
+        featured_courses = Course.objects.filter(status__in=["publish", "soon"])[:3]
         about_courses = AboutCourses.objects.filter(is_active=True).first()
 
         # Get testimonials
@@ -75,7 +75,7 @@ def about_view(request):
     try:
         page = get_object_or_404(Page, template="about", is_active=True)
         features = AboutFeature.objects.filter(is_active=True).order_by("order")
-        featured_courses = Course.objects.filter(status="publish")[:3]
+        featured_courses = Course.objects.filter(status__in=["publish", "soon"])[:3]
         about_courses = AboutCourses.objects.filter(is_active=True).first()
 
         context = {
@@ -101,7 +101,7 @@ def preview_page(request, pk):
         Hero.objects.filter(is_active=True).first() if page.template == "home" else None
     )
     featured_courses = (
-        Course.objects.filter(status="publish")[:6] if page.template == "home" else None
+        Course.objects.filter(status__in=["publish", "soon"])[:6] if page.template == "home" else None
     )
 
     context = {

@@ -22,7 +22,7 @@ class CourseSitemap(Sitemap):
     priority = 0.7
 
     def items(self):
-        return Course.objects.filter(status="publish")
+        return Course.objects.filter(status__in=["publish", "soon"])
 
     def lastmod(self, obj):
         return obj.updated

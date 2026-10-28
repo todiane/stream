@@ -122,7 +122,9 @@
          <!-- Enrollment Button -->
         <div id="enrol" class="flex justify-center mt-8">
             <div class="inline-block text-center">  <!-- Add this wrapper -->
-                {% if user.is_authenticated %}
+                {% if object.is_coming_soon %}
+                    <span aria-disabled="true" style="display:inline-block;padding:0.5rem 1rem;background:#e5e7eb;color:#6b7280;font-weight:500;border-radius:0.375rem;cursor:not-allowed;">Coming Soon</span>
+                {% elif user.is_authenticated %}
                     {% if object in user.profile.enrolled_courses.all %}
                         <div class="inline-block bg-blue-600 text-white font-medium px-4 py-2 rounded-md">
                             You Are Enrolled

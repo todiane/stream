@@ -1,12 +1,6 @@
 <div class="grid gap-8 lg:grid-cols-3 max-w-7xl mx-auto px-4">
     {% for object in queryset %}
     <div class="max-w-sm mx-auto bg-white rounded-lg shadow dark:bg-gray-800">
-        {% if object.is_coming_soon %}
-        <div class="flex justify-between items-center mb-2 text-gray-500">
-            <span class="text-sm">Coming Soon</span>
-        </div>
-        {% endif %}
-  
         {% if object.get_image_url %}
         <div class="flex justify-center overflow-hidden">
             <a href="{{ object.get_absolute_url }}" class="block">
@@ -24,6 +18,9 @@
             <h2 class="mb-2 text-xl font-bold tracking-tight text-gray-900 dark:text-white">
                 <a href="{{ object.get_absolute_url }}">{{ object.title }}</a>
             </h2>
+            {% if object.is_coming_soon %}
+            <span style="display:inline-block;margin-bottom:0.5rem;padding:0.25rem 0.9rem;background:#facc15;color:#422006;font-weight:700;font-size:0.8rem;letter-spacing:0.08em;text-transform:uppercase;border-radius:4px;">Coming Soon</span>
+            {% endif %}
   
             <div class="flex justify-center items-center">
                 <a href="{{ object.get_absolute_url }}" 
